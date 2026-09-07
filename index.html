@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>NEURO_PREDICT_SYS | Module Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;700;800&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    min-height:100vh;
+    background:#0a0a12;
+    background-image:
+      linear-gradient(rgba(255,45,120,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,45,120,0.04) 1px, transparent 1px);
+    background-size:40px 40px;
+    font-family:'Inter',sans-serif;
+    color:#e8e0f0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:2rem 1rem 4rem;
+  }
+  .material-symbols-outlined {
+    font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;
+  }
+  header {
+    text-align:center;
+    margin-bottom:3rem;
+  }
+  header .icon {
+    font-size:3rem;
+    color:#ff2d78;
+    text-shadow:0 0 12px rgba(255,45,120,0.8);
+    display:block;
+    margin-bottom:0.5rem;
+  }
+  header h1 {
+    font-family:'Sora',sans-serif;
+    font-weight:800;
+    font-size:2.5rem;
+    letter-spacing:-0.04em;
+    background:linear-gradient(135deg,#ff2d78,#00ffcc);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    background-clip:text;
+    text-shadow:none;
+  }
+  header p {
+    font-family:'Space Grotesk',monospace;
+    font-size:0.7rem;
+    letter-spacing:0.25em;
+    text-transform:uppercase;
+    color:#a098b0;
+    margin-top:0.5rem;
+  }
+  .grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+    gap:1.25rem;
+    width:100%;
+    max-width:1100px;
+  }
+  a.card {
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    background:rgba(20,20,34,0.7);
+    backdrop-filter:blur(12px);
+    border:1px solid rgba(255,45,120,0.2);
+    border-radius:0.75rem;
+    padding:1.5rem;
+    text-decoration:none;
+    color:inherit;
+    transition:all 0.3s ease;
+    min-height:160px;
+    position:relative;
+    overflow:hidden;
+  }
+  a.card::before {
+    content:'';
+    position:absolute;
+    top:0;right:0;
+    width:80px;height:80px;
+    border-radius:50%;
+    filter:blur(40px);
+    opacity:0;
+    transition:opacity 0.3s;
+  }
+  a.card:hover::before { opacity:1; }
+  a.card:hover {
+    border-color:rgba(0,255,204,0.4);
+    transform:translateY(-2px);
+    box-shadow:0 0 20px rgba(0,255,204,0.1), inset 0 0 12px rgba(255,45,120,0.05);
+  }
+  a.card .tag {
+    font-family:'Space Grotesk',monospace;
+    font-size:0.6rem;
+    letter-spacing:0.2em;
+    text-transform:uppercase;
+    padding:0.2rem 0.5rem;
+    border-radius:0.25rem;
+    display:inline-block;
+    width:fit-content;
+    margin-bottom:0.75rem;
+  }
+  a.card .tag.pink { color:#ff2d78; background:rgba(255,45,120,0.1); border:1px solid rgba(255,45,120,0.3); }
+  a.card .tag.cyan { color:#00ffcc; background:rgba(0,255,204,0.1); border:1px solid rgba(0,255,204,0.3); }
+  a.card .tag.yellow { color:#ffe04a; background:rgba(255,224,74,0.1); border:1px solid rgba(255,224,74,0.3); }
+  a.card h2 {
+    font-family:'Sora',sans-serif;
+    font-weight:700;
+    font-size:1.1rem;
+    margin-bottom:0.4rem;
+  }
+  a.card p.desc {
+    font-size:0.8rem;
+    color:#a098b0;
+    line-height:1.5;
+  }
+  a.card .material-symbols-outlined {
+    position:absolute;
+    bottom:1rem;right:1rem;
+    font-size:2rem;
+    opacity:0.15;
+    transition:opacity 0.3s;
+  }
+  a.card:hover .material-symbols-outlined { opacity:0.4; }
+  a.card.cat-dashboard .tag { color:#ff2d78; background:rgba(255,45,120,0.1); border:1px solid rgba(255,45,120,0.3); }
+  a.card.cat-dashboard:hover { border-color:rgba(255,45,120,0.5); }
+  a.card.cat-dashboard::before { background:rgba(255,45,120,0.3); }
+  a.card.cat-login .tag { color:#00ffcc; background:rgba(0,255,204,0.1); border:1px solid rgba(0,255,204,0.3); }
+  a.card.cat-login:hover { border-color:rgba(0,255,204,0.5); }
+  a.card.cat-login::before { background:rgba(0,255,204,0.3); }
+  a.card.cat-analysis .tag { color:#ffe04a; background:rgba(255,224,74,0.1); border:1px solid rgba(255,224,74,0.3); }
+  a.card.cat-analysis:hover { border-color:rgba(255,224,74,0.5); }
+  a.card.cat-analysis::before { background:rgba(255,224,74,0.3); }
+  a.card.cat-research .tag { color:#00e6b8; background:rgba(0,230,184,0.1); border:1px solid rgba(0,230,184,0.3); }
+  a.card.cat-research:hover { border-color:rgba(0,230,184,0.5); }
+  a.card.cat-research::before { background:rgba(0,230,184,0.3); }
+  footer {
+    margin-top:3rem;
+    text-align:center;
+    font-family:'Space Grotesk',monospace;
+    font-size:0.6rem;
+    letter-spacing:0.2em;
+    text-transform:uppercase;
+    color:#5a5068;
+  }
+  footer span { color:#ff2d78; text-shadow:0 0 6px rgba(255,45,120,0.6); }
+</style>
+<link rel="manifest" href="/manifest.json">
+<script src="/config.js"></script>
+<script>
+  // Register service worker for PWA
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js')
+        .then((reg) => console.log('[PWA] Service Worker registered:', reg.scope))
+        .catch((err) => console.log('[PWA] SW registration failed:', err));
+    });
+  }
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"></script>
+<script src="shared/auth.js"></script>
+</head>
+<body>
+<header>
+  <div style="position:absolute;top:1rem;right:1.5rem;display:flex;align-items:center;gap:0.75rem;">
+    <span id="clerk-auth-status" style="font-family:'Space Grotesk',monospace;font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;color:#5a5068;"></span>
+    <div id="clerk-user-button"></div>
+  </div>
+  <span class="material-symbols-outlined icon">fingerprint</span>
+  <h1>NEURO_PREDICT_SYS</h1>
+  <p>Module Hub — Click any card to view that screen</p>
+</header>
+
+<div class="grid">
+
+  <!-- DASHBOARD CARDS -->
+  <a href="global_neural_dashboard_v1/code.html" class="card cat-dashboard">
+    <span class="tag pink">Dashboard</span>
+    <h2>Global Neural Dashboard</h2>
+    <p class="desc">5M+ nodes active. Research papers, EEG waveforms, clinical archive, smooth merge analysis.</p>
+    <span class="material-symbols-outlined">hub</span>
+  </a>
+
+  <a href="prediction_command_center_v1/code.html" class="card cat-dashboard">
+    <span class="tag pink">Dashboard</span>
+    <h2>Prediction Command Center</h2>
+    <p class="desc">Disease prediction vectors — Alzheimer's, Parkinson's, ALS, Huntington's, Epilepsy. Live ingestion feed.</p>
+    <span class="material-symbols-outlined">rocket_launch</span>
+  </a>
+
+  <!-- ANALYSIS CARDS -->
+  <a href="ai_analysis/code.html" class="card cat-analysis">
+    <span class="tag yellow">Analysis</span>
+    <h2>AI Analysis — Neuro Core</h2>
+    <p class="desc">Real-time scanning with progress ring, system terminal log, brain region mapping.</p>
+    <span class="material-symbols-outlined">neurology</span>
+  </a>
+
+  <a href="final_diagnosis_report_v1/code.html" class="card cat-analysis">
+    <span class="tag yellow">Analysis</span>
+    <h2>Final Diagnosis Report</h2>
+    <p class="desc">Clinical prediction V4.2 — Parkinson's at 94.2% confidence, anomaly detection, research citations.</p>
+    <span class="material-symbols-outlined">clinical_notes</span>
+  </a>
+
+  <a href="neural_archive_eeg_interpreter/code.html" class="card cat-analysis">
+    <span class="tag yellow">Analysis</span>
+    <h2>Neural Archive &amp; EEG Interpreter</h2>
+    <p class="desc">Live EEG waveform visualizer, signature correlation, AI insight panel.</p>
+    <span class="material-symbols-outlined">waves</span>
+  </a>
+
+  <!-- RESEARCH CARDS -->
+  <a href="research_papers_1/code.html" class="card cat-research">
+    <span class="tag cyan">Research</span>
+    <h2>Research Papers — Library</h2>
+    <p class="desc">Academic paper browser with search/filter, featured papers, bento grid layout.</p>
+    <span class="material-symbols-outlined">menu_book</span>
+  </a>
+
+  <a href="research_papers_2/code.html" class="card cat-research">
+    <span class="tag cyan">Research</span>
+    <h2>Research Papers — Diagnostic Report</h2>
+    <p class="desc">MRI/ECD neural diagnostic report, neurosurgery pre-op summary, medical record management.</p>
+    <span class="material-symbols-outlined">biotech</span>
+  </a>
+
+  <!-- LOGIN CARDS -->
+  <a href="neurosurgery_login/code.html" class="card cat-login">
+    <span class="tag cyan">Login</span>
+    <h2>Neurosurgery Secure Entry</h2>
+    <p class="desc">Fingerprint scanner, DNA link, retina scan. Quantum-R6 encryption.</p>
+    <span class="material-symbols-outlined">fingerprint</span>
+  </a>
+
+  <a href="3fa_pharmacy_login/code.html" class="card cat-login">
+    <span class="tag cyan">Login</span>
+    <h2>3FA Pharmacy Access</h2>
+    <p class="desc">3-Factor Authentication — Pharma ID, secure code, biometric face scan.</p>
+    <span class="material-symbols-outlined">pill</span>
+  </a>
+
+  <a href="pharmacist_login/code.html" class="card cat-login">
+    <span class="tag cyan">Login</span>
+    <h2>Pharmacist Portal</h2>
+    <p class="desc">Level 4 clearance pharmacy access with biometric sync visualization.</p>
+    <span class="material-symbols-outlined">science</span>
+  </a>
+
+  <a href="medical_history_login/code.html" class="card cat-login">
+    <span class="tag cyan">Login</span>
+    <h2>Medical History Archive</h2>
+    <p class="desc">Archive access portal with data packet stream buffer visualization.</p>
+    <span class="material-symbols-outlined">folder_managed</span>
+  </a>
+
+  <a href="ot_scheduling_login/code.html" class="card cat-login">
+    <span class="tag cyan">Login</span>
+    <h2>OT Scheduling Hub</h2>
+    <p class="desc">Operating theater scheduling with real-time clock and theater grid simulation.</p>
+    <span class="material-symbols-outlined">emergency_recording</span>
+  </a>
+
+</div>
+
+<footer>
+  <p><span>NEURO_PREDICT_SYS</span> — 12 Modules — Neon Tokyo Design System</p>
+</footer>
+<script>
+(async () => {
+  await Auth.ready();
+
+  const statusEl = document.getElementById('clerk-auth-status');
+  if (Auth.isSignedIn()) {
+    const user = Auth.getUser();
+    statusEl.innerHTML = `<span style="color:#00ffcc;">SIGNED IN</span> &mdash; ${user.full_name}`;
+  } else {
+    statusEl.innerHTML = `<a href="3fa_pharmacy_login/code.html" style="color:#ff2d78;text-decoration:none;">SIGN IN</a>`;
+  }
+})();
+</script>
+</body>
+</html>

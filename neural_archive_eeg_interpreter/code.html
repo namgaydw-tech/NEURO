@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Neural Archive &amp; EEG Interpreter</title>
+<script src="/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"></script>
+<link rel="stylesheet" href="../shared/styles.css"/>
+<script src="/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"></script>
+<script src="../shared/auth.js"></script>
+<script src="../shared/api.js"></script>
+<script src="../shared/ui.js"></script>
+<script src="../shared/profile-panel.js"></script>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;700;800&amp;family=Inter:wght@300;400;600&amp;family=Space_Grotesk:wght@300;500;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "inverse-surface": "#e8e0f0",
+                    "surface-dim": "#0f0f1a",
+                    "on-surface-variant": "#a098b0",
+                    "on-primary-fixed": "#3d0020",
+                    "primary-fixed": "#ffe0ec",
+                    "tertiary-container": "#665200",
+                    "error": "#ff4444",
+                    "surface-container-highest": "#28283e",
+                    "on-primary": "#1a0010",
+                    "on-tertiary-fixed": "#1a1000",
+                    "background": "#0a0a12",
+                    "outline": "#5a5068",
+                    "on-tertiary-container": "#fff0c0",
+                    "inverse-primary": "#8c0038",
+                    "primary": "#ff2d78",
+                    "on-secondary-fixed": "#001a1a",
+                    "secondary-fixed-dim": "#00e6b8",
+                    "on-tertiary": "#1a1000",
+                    "error-container": "#3d0f0f",
+                    "secondary": "#00ffcc",
+                    "on-error-container": "#ffa0a0",
+                    "on-surface": "#e8e0f0",
+                    "on-background": "#e8e0f0",
+                    "inverse-on-surface": "#0a0a12",
+                    "tertiary-fixed": "#fff0c0",
+                    "on-primary-container": "#ffe0ec",
+                    "on-secondary": "#001a1a",
+                    "surface-container-high": "#1e1e30",
+                    "on-secondary-container": "#c0fff4",
+                    "surface-container": "#141422",
+                    "secondary-container": "#004d3d",
+                    "primary-container": "#b3004e",
+                    "outline-variant": "#302840",
+                    "tertiary-fixed-dim": "#ffe04a",
+                    "surface-container-lowest": "#0a0a12",
+                    "surface-container-low": "#111118",
+                    "surface-bright": "#1a1a2e",
+                    "surface-variant": "#1e1e30",
+                    "surface": "#0f0f1a",
+                    "on-primary-fixed-variant": "#8c0038",
+                    "primary-fixed-dim": "#ff80aa",
+                    "on-tertiary-fixed-variant": "#665200",
+                    "tertiary": "#ffe04a",
+                    "surface-tint": "#ff2d78",
+                    "secondary-fixed": "#c0fff4",
+                    "on-secondary-fixed-variant": "#004d4d",
+                    "on-error": "#1a0000"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Sora"],
+                    "body": ["Inter"],
+                    "label": ["Space Grotesk"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .neon-glow-pink { text-shadow: 0 0 8px #ff2d78; }
+        .neon-glow-cyan { text-shadow: 0 0 8px #00ffcc; }
+        .neon-border-pink { border: 1px solid rgba(255, 45, 120, 0.4); box-shadow: inset 0 0 8px rgba(255, 45, 120, 0.1); }
+        .scanline {
+            background: linear-gradient(to bottom, transparent 50%, rgba(0, 255, 204, 0.02) 50%);
+            background-size: 100% 4px;
+        }
+        .eeg-grid {
+            background-size: 40px 40px;
+            background-image: linear-gradient(to right, rgba(255, 45, 120, 0.05) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255, 45, 120, 0.05) 1px, transparent 1px);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface font-body selection:bg-primary/30 min-h-screen pb-24">
+<!-- TopAppBar -->
+<nav class="bg-[#0a0a12]/80 backdrop-blur-md fixed top-0 w-full z-50 border-b border-[#ff2d78]/30 shadow-[0_0_16px_rgba(10,10,18,0.5)] flex justify-between items-center px-6 h-16">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[#ff2d78]" style="font-variation-settings: 'FILL' 1;">psychology</span>
+<span class="font-headline font-bold tracking-tight uppercase text-xl text-[#ff2d78] drop-shadow-[0_0_8px_rgba(255,45,120,0.8)]">NEURAL ARCHIVE</span>
+</div>
+<div class="ml-auto flex items-center gap-4">
+<a href="../global_neural_dashboard_v1/code.html" class="font-label text-[10px] text-slate-400 hover:text-[#00ffcc] uppercase tracking-widest transition-all hidden md:block">Dashboard</a>
+<a href="../ai_analysis/code.html" class="font-label text-[10px] text-slate-400 hover:text-[#00ffcc] uppercase tracking-widest transition-all hidden md:block">Analysis</a>
+<a href="../research_papers_1/code.html" class="font-label text-[10px] text-slate-400 hover:text-[#00ffcc] uppercase tracking-widest transition-all hidden md:block">Research</a>
+<div id="profile-panel-trigger"></div>
+</nav>
+<main class="pt-20 px-4 space-y-6 max-w-md mx-auto">
+<!-- Comparison Toggle -->
+<div class="flex p-1 bg-surface-container rounded-lg border border-outline-variant/30">
+<button class="flex-1 py-2 text-xs font-label font-bold uppercase tracking-widest text-[#ff2d78] bg-primary/10 rounded-md neon-border-pink">Global Archive</button>
+<button class="flex-1 py-2 text-xs font-label font-bold uppercase tracking-widest text-on-surface-variant hover:text-secondary transition-colors">Specific Case History</button>
+</div>
+<!-- EEG Waveform Visualizer -->
+<section class="relative overflow-hidden rounded-xl bg-surface-container-low border border-outline-variant/20 p-4 eeg-grid">
+<div class="flex justify-between items-center mb-4">
+<h2 class="font-label text-[10px] tracking-widest uppercase text-secondary neon-glow-cyan">Live Neural Stream [ENC-09]</h2>
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-error animate-pulse shadow-[0_0_8px_#ff4444]"></span>
+<span class="text-[10px] font-label text-error uppercase font-bold tracking-tighter">Anomaly Detected</span>
+</div>
+</div>
+<div class="space-y-6 relative py-2">
+<!-- Alpha Channel -->
+<div class="relative h-12">
+<span class="absolute -top-3 left-0 text-[8px] font-label text-on-surface-variant opacity-70">CH_ALPHA.01</span>
+<svg class="w-full h-full overflow-visible" viewbox="0 0 400 50">
+<path class="opacity-80" d="M0 25 Q10 10 20 25 T40 25 T60 25 T80 25 T100 25 T120 25 T140 25 T160 25 T180 25 T200 25 T220 25 T240 25 T260 25 T280 25 T300 25 T320 25 T340 25 T360 25 T380 25 T400 25" fill="none" stroke="#00ffcc" stroke-width="1.5"></path>
+</svg>
+</div>
+<!-- Beta Channel (Anomaly) -->
+<div class="relative h-12">
+<span class="absolute -top-3 left-0 text-[8px] font-label text-error">CH_BETA.04 [!]</span>
+<svg class="w-full h-full overflow-visible" viewbox="0 0 400 50">
+<path class="drop-shadow-[0_0_5px_#ff2d78]" d="M0 25 L20 28 L40 22 L60 25 L80 23 L100 27 L120 25 L140 20 L160 30 L180 5 L200 45 L220 15 L240 35 L260 25 L280 26 L300 24 L320 25 L340 25 L360 25 L380 25 L400 25" fill="none" stroke="#ff2d78" stroke-width="2"></path>
+</svg>
+</div>
+<!-- Delta Channel -->
+<div class="relative h-12">
+<span class="absolute -top-3 left-0 text-[8px] font-label text-on-surface-variant opacity-70">CH_DELTA.02</span>
+<svg class="w-full h-full overflow-visible" viewbox="0 0 400 50">
+<path class="opacity-60" d="M0 25 C50 45 100 5 150 25 S250 5 300 25 S350 45 400 25" fill="none" stroke="#ffe04a" stroke-width="1"></path>
+</svg>
+</div>
+</div>
+<div class="absolute inset-0 scanline pointer-events-none"></div>
+</section>
+<!-- Historical Comparison Section -->
+<section class="grid grid-cols-2 gap-4">
+<div class="col-span-2 p-4 bg-surface-container rounded-xl border border-outline-variant/20 relative overflow-hidden">
+<div class="flex justify-between items-start mb-6">
+<div>
+<h2 class="font-headline font-bold text-sm text-on-surface mb-1">Signature Correlation</h2>
+<p class="text-[10px] font-label text-on-surface-variant uppercase">Alzheimer's Signature: <span class="text-secondary font-bold">88% Match</span></p>
+</div>
+<div class="text-right">
+<div class="text-2xl font-headline font-black text-secondary neon-glow-cyan">88%</div>
+<div class="text-[8px] font-label text-secondary uppercase">Confidence</div>
+</div>
+</div>
+<div class="flex justify-center items-center h-48 relative">
+<!-- Radar Chart Simulation -->
+<div class="absolute inset-0 flex items-center justify-center">
+<div class="w-40 h-40 rounded-full border border-outline/20"></div>
+<div class="absolute w-28 h-28 rounded-full border border-outline/20"></div>
+<div class="absolute w-16 h-16 rounded-full border border-outline/20"></div>
+<!-- Axis Lines -->
+<div class="absolute w-40 h-[1px] bg-outline/10 rotate-0"></div>
+<div class="absolute w-40 h-[1px] bg-outline/10 rotate-45"></div>
+<div class="absolute w-40 h-[1px] bg-outline/10 rotate-90"></div>
+<div class="absolute w-40 h-[1px] bg-outline/10 rotate-135"></div>
+</div>
+<!-- Data Polygon -->
+<svg class="w-40 h-40 relative z-10 drop-shadow-[0_0_12px_rgba(0,255,204,0.4)]" viewbox="0 0 100 100">
+<polygon fill="rgba(0, 255, 204, 0.2)" points="50,10 85,30 90,70 50,90 15,75 10,35" stroke="#00ffcc" stroke-width="2"></polygon>
+<circle cx="50" cy="10" fill="#ff2d78" r="3"></circle>
+<circle cx="85" cy="30" fill="#ff2d78" r="3"></circle>
+<circle cx="90" cy="70" fill="#ff2d78" r="3"></circle>
+<circle cx="50" cy="90" fill="#ff2d78" r="3"></circle>
+<circle cx="15" cy="75" fill="#ff2d78" r="3"></circle>
+<circle cx="10" cy="35" fill="#ff2d78" r="3"></circle>
+</svg>
+<div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+<div class="w-full h-full bg-[radial-gradient(circle,rgba(255,45,120,0.05)_0%,transparent_70%)]"></div>
+</div>
+</div>
+<div class="mt-4 grid grid-cols-2 gap-2">
+<div class="p-2 bg-background/50 rounded border border-outline-variant/10">
+<div class="text-[8px] font-label text-on-surface-variant uppercase mb-1">Patient Signature</div>
+<div class="h-1 bg-secondary/30 rounded-full overflow-hidden">
+<div class="h-full bg-secondary w-[88%]"></div>
+</div>
+</div>
+<div class="p-2 bg-background/50 rounded border border-outline-variant/10">
+<div class="text-[8px] font-label text-on-surface-variant uppercase mb-1">Archive Baseline</div>
+<div class="h-1 bg-outline/30 rounded-full overflow-hidden">
+<div class="h-full bg-on-surface-variant w-[65%]"></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- AI Interpretation -->
+<section class="p-5 bg-surface-container-high rounded-xl border-l-4 border-primary shadow-xl relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-3 opacity-20 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-primary text-4xl">auto_awesome</span>
+</div>
+<div class="flex items-center gap-2 mb-3">
+<span class="material-symbols-outlined text-primary text-lg" style="font-variation-settings: 'FILL' 1;">terminal</span>
+<h3 class="font-label font-bold text-xs tracking-[0.2em] text-primary uppercase neon-glow-pink">AI INSIGHT</h3>
+</div>
+<div class="space-y-3">
+<p class="text-sm font-body leading-relaxed text-on-surface-variant">
+                    Pattern <span class="text-secondary font-mono font-bold">8B</span> matches historical dataset-<span class="text-secondary font-mono font-bold">J11</span> (Parkinson's). High-frequency tremors observed in frontal lobe waves. 
+                </p>
+<div class="pt-2 border-t border-outline-variant/30 flex justify-between items-center">
+<span class="text-[10px] font-label text-on-surface-variant uppercase italic">Processing via NeuralCore_v4.2...</span>
+<button class="text-[10px] font-label font-bold text-secondary uppercase hover:underline">Full Report</button>
+</div>
+</div>
+<!-- Decorative corner accent -->
+<div class="absolute bottom-0 right-0 w-8 h-8 bg-gradient-to-br from-transparent via-transparent to-primary/10"></div>
+</section>
+<!-- Data Grid Stats (Extra Medical Context) -->
+<section class="grid grid-cols-2 gap-3 pb-8">
+<div class="p-3 bg-surface-container rounded-lg border border-outline-variant/10">
+<div class="text-[8px] font-label text-on-surface-variant uppercase mb-1">Synaptic Flux</div>
+<div class="text-lg font-headline font-bold text-on-surface">1.24 <span class="text-[10px] text-on-surface-variant font-label">mV/s</span></div>
+</div>
+<div class="p-3 bg-surface-container rounded-lg border border-outline-variant/10">
+<div class="text-[8px] font-label text-on-surface-variant uppercase mb-1">Dopamine Affinity</div>
+<div class="text-lg font-headline font-bold text-on-surface">LOW <span class="text-[10px] text-error font-label">(-14%)</span></div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full h-20 bg-[#0a0a12]/90 backdrop-blur-xl z-50 border-t border-[#00ffcc]/30 rounded-t-2xl shadow-[0_-4px_20px_rgba(0,255,204,0.1)] flex justify-around items-center px-4 pb-4">
+<a href="../global_neural_dashboard_v1/code.html" class="flex flex-col items-center justify-center text-slate-400 opacity-60 hover:opacity-100 hover:text-[#00ffcc] transition-all active:scale-90 duration-150">
+<span class="material-symbols-outlined text-2xl">grid_view</span>
+<span class="font-label text-[10px] tracking-widest uppercase mt-1">Dashboard</span>
+</a>
+<a href="../neural_archive_eeg_interpreter/code.html" class="flex flex-col items-center justify-center text-[#ff2d78] drop-shadow-[0_0_8px_#ff2d78] scale-110">
+<span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">history_edu</span>
+<span class="font-label text-[10px] tracking-widest uppercase mt-1">Archive</span>
+</a>
+<a href="../ai_analysis/code.html" class="flex flex-col items-center justify-center text-slate-400 opacity-60 hover:opacity-100 hover:text-[#00ffcc] transition-all active:scale-90 duration-150">
+<span class="material-symbols-outlined text-2xl">analytics</span>
+<span class="font-label text-[10px] tracking-widest uppercase mt-1">Analysis</span>
+</a>
+<a href="../research_papers_1/code.html" class="flex flex-col items-center justify-center text-slate-400 opacity-60 hover:opacity-100 hover:text-[#00ffcc] transition-all active:scale-90 duration-150">
+<span class="material-symbols-outlined text-2xl">science</span>
+<span class="font-label text-[10px] tracking-widest uppercase mt-1">Research</span>
+</a>
+</nav>
+<script>
+(async () => { await Auth.ready(); if (!Auth.isSignedIn() && !Auth.isSignedIn()) { window.location.href = '../3fa_pharmacy_login/code.html?redirect_url=' + encodeURIComponent(window.location.pathname); } else if (Auth.isSignedIn()) { try { await true; } catch(e) {} } })();
+    try { ProfilePanel.mountInto("profile-panel-trigger"); } catch(e) {}
+</script>
+</body></html>

@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>NEURO_PREDICT: GLOBAL_ENGINE</title>
+<script src="/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"></script>
+<link rel="stylesheet" href="../shared/styles.css"/>
+<script src="/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"></script>
+<script src="../shared/auth.js"></script>
+<script src="../shared/api.js"></script>
+<script src="../shared/ui.js"></script>
+<script src="../shared/profile-panel.js"></script>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;700;800&amp;family=Inter:wght@400;500;600&amp;family=Space_Grotesk:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "outline": "#5a5068",
+                    "on-tertiary-container": "#fff0c0",
+                    "inverse-primary": "#8c0038",
+                    "background": "#0a0a12",
+                    "on-tertiary-fixed": "#1a1000",
+                    "surface-container-highest": "#28283e",
+                    "on-primary": "#1a0010",
+                    "secondary": "#00ffcc",
+                    "on-error-container": "#ffa0a0",
+                    "on-tertiary": "#1a1000",
+                    "error-container": "#3d0f0f",
+                    "secondary-fixed-dim": "#00e6b8",
+                    "primary": "#ff2d78",
+                    "on-secondary-fixed": "#001a1a",
+                    "on-surface-variant": "#a098b0",
+                    "surface-dim": "#0f0f1a",
+                    "inverse-surface": "#e8e0f0",
+                    "on-primary-fixed": "#3d0020",
+                    "tertiary-container": "#665200",
+                    "primary-fixed": "#ffe0ec",
+                    "error": "#ff4444",
+                    "surface-container-lowest": "#0a0a12",
+                    "tertiary-fixed-dim": "#ffe04a",
+                    "outline-variant": "#302840",
+                    "surface": "#0f0f1a",
+                    "on-primary-fixed-variant": "#8c0038",
+                    "surface-variant": "#1e1e30",
+                    "surface-container-low": "#111118",
+                    "surface-bright": "#1a1a2e",
+                    "primary-fixed-dim": "#ff80aa",
+                    "on-secondary-fixed-variant": "#004d4d",
+                    "on-error": "#1a0000",
+                    "surface-tint": "#ff2d78",
+                    "secondary-fixed": "#c0fff4",
+                    "tertiary": "#ffe04a",
+                    "on-tertiary-fixed-variant": "#665200",
+                    "on-background": "#e8e0f0",
+                    "inverse-on-surface": "#0a0a12",
+                    "on-surface": "#e8e0f0",
+                    "on-secondary": "#001a1a",
+                    "tertiary-fixed": "#fff0c0",
+                    "on-primary-container": "#ffe0ec",
+                    "surface-container": "#141422",
+                    "surface-container-high": "#1e1e30",
+                    "on-secondary-container": "#c0fff4",
+                    "secondary-container": "#004d3d",
+                    "primary-container": "#b3004e"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Sora"],
+                    "body": ["Inter"],
+                    "label": ["Space Grotesk"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .neon-text-glow-primary { text-shadow: 0 0 8px #ff2d78; }
+        .neon-text-glow-secondary { text-shadow: 0 0 8px #00ffcc; }
+        .neon-border-glow { box-shadow: inset 0 0 12px rgba(255, 45, 120, 0.1), 0 0 16px rgba(255, 45, 120, 0.2); }
+        .scanline {
+            background: linear-gradient(to bottom, rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body selection:bg-primary selection:text-on-primary">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#0a0a12] dark:bg-[#0a0a12] border-b border-pink-500/30 shadow-[0_0_15px_rgba(255,45,120,0.1)] flex justify-between items-center px-6 h-16 w-full">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-pink-500 dark:text-[#ff2d78] text-2xl" data-icon="fingerprint">fingerprint</span>
+<h1 class="text-xl font-black text-[#ff2d78] drop-shadow-[0_0_8px_rgba(255,45,120,0.8)] font-headline tracking-tighter">NEURO_PREDICT</h1>
+</div>
+<div class="flex items-center gap-6">
+<div class="hidden md:flex gap-8 font-label text-[12px] tracking-widest uppercase">
+<a class="text-[#00ffcc] drop-shadow-[0_0_8px_rgba(0,255,204,0.8)] cursor-pointer active:scale-95 transition-all duration-300" href="../global_neural_dashboard_v1/code.html">Dashboard</a>
+<a class="text-slate-400 hover:text-[#ff2d78] transition-all duration-300 cursor-pointer active:scale-95" href="../neural_archive_eeg_interpreter/code.html">Archive</a>
+<a class="text-slate-400 hover:text-[#ff2d78] transition-all duration-300 cursor-pointer active:scale-95" href="../ai_analysis/code.html">Analysis</a>
+<a class="text-slate-400 hover:text-[#ff2d78] transition-all duration-300 cursor-pointer active:scale-95" href="../research_papers_1/code.html">Research</a>
+</div>
+<div id="profile-panel-trigger"></div>
+</div>
+</header>
+<main class="pt-24 pb-32 px-6 max-w-7xl mx-auto relative">
+<div class="scanline fixed inset-0 z-0"></div>
+<!-- Hero Section: Central Command -->
+<section class="relative z-10 mb-12">
+<div class="flex flex-col items-center text-center mb-16">
+<span class="font-label text-secondary tracking-[0.3em] text-xs mb-4 uppercase">System Status: Active // Engine v4.2.0</span>
+<h2 class="font-headline text-4xl md:text-6xl font-extrabold text-on-background mb-6 tracking-tight">
+                    NEURO_PREDICT: <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary neon-text-glow-primary">GLOBAL_ENGINE</span>
+</h2>
+<div class="bg-surface-container-high border border-primary/20 p-8 rounded-xl neon-border-glow inline-block">
+<p class="font-label text-slate-400 text-sm mb-2 uppercase tracking-widest">Global Synaptic Integration</p>
+<div class="font-headline text-5xl md:text-7xl font-black text-secondary neon-text-glow-secondary">5,000,000+</div>
+<p class="font-label text-primary text-xs mt-2 uppercase">Brain Datasets Integrated</p>
+</div>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+<!-- Prediction Engine Core -->
+<div class="md:col-span-8 bg-surface-container border border-outline-variant p-6 rounded-xl relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-4 opacity-20">
+<span class="material-symbols-outlined text-9xl text-primary" data-icon="psychology">psychology</span>
+</div>
+<div class="relative z-10">
+<h3 class="font-headline text-xl font-bold mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary" data-icon="query_stats">query_stats</span>
+                            DISEASE_PREDICTION_VECTORS
+                        </h3>
+<div class="space-y-6">
+<!-- Alzheimer's -->
+<div>
+<div class="flex justify-between items-end mb-2">
+<span class="font-label text-sm uppercase tracking-wider text-on-surface">Alzheimer's</span>
+<span class="text-secondary font-headline font-bold">98.4% Confidence</span>
+</div>
+<div class="h-2 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-secondary shadow-[0_0_10px_#00ffcc]" style="width: 98.4%"></div>
+</div>
+</div>
+<!-- Parkinson's -->
+<div>
+<div class="flex justify-between items-end mb-2">
+<span class="font-label text-sm uppercase tracking-wider text-on-surface">Parkinson's</span>
+<span class="text-secondary font-headline font-bold">94.1% Confidence</span>
+</div>
+<div class="h-2 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-secondary shadow-[0_0_10px_#00ffcc]" style="width: 94.1%"></div>
+</div>
+</div>
+<!-- ALS -->
+<div>
+<div class="flex justify-between items-end mb-2">
+<span class="font-label text-sm uppercase tracking-wider text-on-surface">ALS</span>
+<span class="text-primary font-headline font-bold">89.7% Confidence</span>
+</div>
+<div class="h-2 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary shadow-[0_0_10px_#ff2d78]" style="width: 89.7%"></div>
+</div>
+</div>
+<!-- Huntington's -->
+<div>
+<div class="flex justify-between items-end mb-2">
+<span class="font-label text-sm uppercase tracking-wider text-on-surface">Huntington's</span>
+<span class="text-tertiary font-headline font-bold">92.2% Confidence</span>
+</div>
+<div class="h-2 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-tertiary shadow-[0_0_10px_#ffe04a]" style="width: 92.2%"></div>
+</div>
+</div>
+<!-- Epilepsy -->
+<div>
+<div class="flex justify-between items-end mb-2">
+<span class="font-label text-sm uppercase tracking-wider text-on-surface">Epilepsy</span>
+<span class="text-secondary font-headline font-bold">96.5% Confidence</span>
+</div>
+<div class="h-2 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-secondary shadow-[0_0_10px_#00ffcc]" style="width: 96.5%"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Run Prediction Sidebar -->
+<div class="md:col-span-4 space-y-6">
+<div class="bg-surface-variant border border-primary/30 p-6 rounded-xl flex flex-col items-center justify-center text-center gap-6 neon-border-glow h-full min-h-[300px]">
+<span class="material-symbols-outlined text-6xl text-primary drop-shadow-[0_0_10px_rgba(255,45,120,0.6)]" data-icon="rocket_launch">rocket_launch</span>
+<div>
+<h4 class="font-headline text-lg font-bold text-on-background mb-2">INITIATE_ANALYSIS</h4>
+<p class="text-sm text-slate-400 font-body">Deploy global engine for comprehensive patient profile prediction.</p>
+</div>
+<button class="w-full py-4 bg-background border border-primary text-primary font-label font-bold tracking-widest hover:bg-primary/10 transition-all duration-300 active:scale-95 shadow-[0_0_16px_rgba(255,45,120,0.2)]">
+                            RUN PREDICTION
+                        </button>
+</div>
+</div>
+<!-- Visualization Panel -->
+<div class="md:col-span-5 bg-surface-container border border-outline-variant rounded-xl overflow-hidden min-h-[300px] relative">
+<img class="w-full h-full object-cover opacity-50 grayscale hover:grayscale-0 transition-all duration-700" data-alt="abstract 3d visualization of neural network pathways glowing in pink and blue against a dark futuristic digital background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9wPMrLeRxy6thIdVmrCrpt1rtbqj8HWXHSR5takX8nimAFXt5H372SOpeUhpoLnNYoahGZT42MzrWOTP1ewLSI8hZ0z3xnUsS4mRL35YQpPLgKH6McJntlB_rerGcN6VkYyLlfyjMPAC7iTyhfykjJULteD0we17-JiA8k4wgmOYvxwA0PvPuFh8S7sZWGFuTCjrmV9TcjQpHDZfpr1yotum1UQyHmQrXUATHKksG_H2wxIwGftpylqMfZR58saf79SnnMHTzYwg"/>
+<div class="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent"></div>
+<div class="absolute bottom-0 left-0 p-6">
+<span class="font-label text-[10px] text-secondary uppercase tracking-widest">Neural Mapping Engine</span>
+<h4 class="font-headline font-bold text-lg">Synaptic Flow Real-time</h4>
+</div>
+</div>
+<!-- Data Feed -->
+<div class="md:col-span-7 bg-surface-container border border-outline-variant p-6 rounded-xl">
+<h3 class="font-headline text-xl font-bold mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary" data-icon="hub">hub</span>
+                        LIVE_INGESTION_FEED
+                    </h3>
+<div class="space-y-3">
+<div class="flex items-center justify-between p-3 border-b border-outline-variant/30 font-label text-xs">
+<span class="text-secondary">#2049-X</span>
+<span class="text-slate-300">NEURAL_STREAM_TOKYO</span>
+<span class="text-primary">+4.2GB/s</span>
+</div>
+<div class="flex items-center justify-between p-3 border-b border-outline-variant/30 font-label text-xs">
+<span class="text-secondary">#8812-Y</span>
+<span class="text-slate-300">RESEARCH_NODE_BERLIN</span>
+<span class="text-primary">+1.8GB/s</span>
+</div>
+<div class="flex items-center justify-between p-3 border-b border-outline-variant/30 font-label text-xs">
+<span class="text-secondary">#0101-Z</span>
+<span class="text-slate-300">DATABASE_OMEGA_SF</span>
+<span class="text-primary">+12.1GB/s</span>
+</div>
+<div class="flex items-center justify-between p-3 border-b border-outline-variant/30 font-label text-xs">
+<span class="text-secondary">#4456-A</span>
+<span class="text-slate-300">CLINICAL_PORTAL_SEOUL</span>
+<span class="text-primary">+2.4GB/s</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="md:hidden fixed bottom-0 w-full z-50 rounded-t-2xl bg-[#0a0a12]/90 backdrop-blur-md border-t border-[#00ffcc]/20 shadow-[0_-4px_20px_rgba(0,255,204,0.15)] flex justify-around items-center h-20 pb-safe w-full">
+<a href="../global_neural_dashboard_v1/code.html" class="flex flex-col items-center justify-center text-slate-500 hover:text-[#00ffcc] transition-colors active:scale-90 duration-150">
+<span class="material-symbols-outlined" data-icon="grid_view">grid_view</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase tracking-widest mt-1">Dashboard</span>
+</a>
+<a href="../neural_archive_eeg_interpreter/code.html" class="flex flex-col items-center justify-center text-slate-500 hover:text-[#00ffcc] transition-colors active:scale-90 duration-150">
+<span class="material-symbols-outlined" data-icon="database">database</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase tracking-widest mt-1">Archive</span>
+</a>
+<a href="../ai_analysis/code.html" class="flex flex-col items-center justify-center text-[#ff2d78] drop-shadow-[0_0_10px_rgba(255,45,120,0.6)] font-bold hover:text-[#00ffcc] transition-colors active:scale-90 duration-150">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase tracking-widest mt-1">Analysis</span>
+</a>
+<a href="../research_papers_1/code.html" class="flex flex-col items-center justify-center text-slate-500 hover:text-[#00ffcc] transition-colors active:scale-90 duration-150">
+<span class="material-symbols-outlined" data-icon="science">science</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase tracking-widest mt-1">Research</span>
+</a>
+</nav>
+<script>
+(async () => { await Auth.ready(); if (!Auth.isSignedIn() && !Auth.isSignedIn()) { window.location.href = '../3fa_pharmacy_login/code.html?redirect_url=' + encodeURIComponent(window.location.pathname); } else if (Auth.isSignedIn()) { try { await true; } catch(e) {} } })();
+    try { ProfilePanel.mountInto("profile-panel-trigger"); } catch(e) {}
+
+// Load dashboard stats
+(async () => {
+  try {
+    const stats = await Api.dashboard.stats();
+    document.querySelector('.text-secondary.neon-text-glow-secondary').textContent = stats.nodes_active;
+  } catch(e) { console.error(e); }
+})();
+</script>
+</body></html>

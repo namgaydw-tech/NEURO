@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>UNIFIED_NEURAL_CORE | NEURO_PREDICT</title>
+<link rel="stylesheet" href="../shared/styles.css"/>
+<script src="/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"></script>
+<script src="../shared/auth.js"></script>
+<script src="../shared/api.js"></script>
+<script src="../shared/ui.js"></script>
+<script src="../shared/profile-panel.js"></script>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;700;800&amp;family=Inter:wght@400;500;600&amp;family=Space_Grotesk:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "outline": "#5a5068",
+                    "on-tertiary-container": "#fff0c0",
+                    "inverse-primary": "#8c0038",
+                    "background": "#0a0a12",
+                    "on-tertiary-fixed": "#1a1000",
+                    "surface-container-highest": "#28283e",
+                    "on-primary": "#1a0010",
+                    "secondary": "#00ffcc",
+                    "on-error-container": "#ffa0a0",
+                    "on-tertiary": "#1a1000",
+                    "error-container": "#3d0f0f",
+                    "secondary-fixed-dim": "#00e6b8",
+                    "primary": "#ff2d78",
+                    "on-secondary-fixed": "#001a1a",
+                    "on-surface-variant": "#a098b0",
+                    "surface-dim": "#0f0f1a",
+                    "inverse-surface": "#e8e0f0",
+                    "on-primary-fixed": "#3d0020",
+                    "tertiary-container": "#665200",
+                    "primary-fixed": "#ffe0ec",
+                    "error": "#ff4444",
+                    "surface-container-lowest": "#0a0a12",
+                    "tertiary-fixed-dim": "#ffe04a",
+                    "outline-variant": "#302840",
+                    "surface": "#0f0f1a",
+                    "on-primary-fixed-variant": "#8c0038",
+                    "surface-variant": "#1e1e30",
+                    "surface-container-low": "#111118",
+                    "surface-bright": "#1a1a2e",
+                    "primary-fixed-dim": "#ff80aa",
+                    "on-secondary-fixed-variant": "#004d4d",
+                    "on-error": "#1a0000",
+                    "surface-tint": "#ff2d78",
+                    "secondary-fixed": "#c0fff4",
+                    "tertiary": "#ffe04a",
+                    "on-tertiary-fixed-variant": "#665200",
+                    "on-background": "#e8e0f0",
+                    "inverse-on-surface": "#0a0a12",
+                    "on-surface": "#e8e0f0",
+                    "on-secondary": "#001a1a",
+                    "tertiary-fixed": "#fff0c0",
+                    "on-primary-container": "#ffe0ec",
+                    "surface-container": "#141422",
+                    "surface-container-high": "#1e1e30",
+                    "on-secondary-container": "#c0fff4",
+                    "secondary-container": "#004d3d",
+                    "primary-container": "#b3004e"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Sora"],
+                    "body": ["Inter"],
+                    "label": ["Space_Grotesk"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .neon-text-glow-primary { text-shadow: 0 0 8px rgba(255, 45, 120, 0.8); }
+        .neon-text-glow-secondary { text-shadow: 0 0 8px rgba(0, 255, 204, 0.8); }
+        .neon-border-glow-primary { border: 1px solid rgba(255, 45, 120, 0.3); box-shadow: inset 0 0 12px rgba(255, 45, 120, 0.05), 0 0 15px rgba(255, 45, 120, 0.1); }
+        .neon-border-glow-secondary { border: 1px solid rgba(0, 255, 204, 0.3); box-shadow: inset 0 0 12px rgba(0, 255, 204, 0.05), 0 0 15px rgba(0, 255, 204, 0.1); }
+        .scanline {
+            background: linear-gradient(to bottom, transparent 50%, rgba(0, 255, 204, 0.02) 50%);
+            background-size: 100% 4px;
+        }
+        .grid-bg {
+            background-image: linear-gradient(rgba(0, 255, 204, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 255, 204, 0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+        .biometric-gradient {
+            background: radial-gradient(circle at center, rgba(255, 45, 120, 0.2) 0%, transparent 70%);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface font-body selection:bg-primary/30 selection:text-primary">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-6 h-16 w-full bg-[#0a0a12] dark:bg-[#0a0a12] border-b border-pink-500/30 shadow-[0_0_15px_rgba(255,45,120,0.1)]">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-pink-500 text-2xl" data-icon="fingerprint">fingerprint</span>
+<h1 class="text-xl font-black text-[#ff2d78] drop-shadow-[0_0_8px_rgba(255,45,120,0.8)] font-['Sora'] tracking-tighter">NEURO_PREDICT</h1>
+</div>
+<div class="hidden md:flex gap-8 items-center">
+<nav class="flex gap-6">
+<a class="font-label text-sm uppercase tracking-widest text-[#00ffcc] drop-shadow-[0_0_8px_rgba(0,255,204,0.8)] font-bold" href="../global_neural_dashboard_v1/code.html">Dashboard</a>
+<a class="font-label text-sm uppercase tracking-widest text-slate-400 hover:text-[#ff2d78] transition-all duration-300" href="../neural_archive_eeg_interpreter/code.html">Archive</a>
+<a class="font-label text-sm uppercase tracking-widest text-slate-400 hover:text-[#ff2d78] transition-all duration-300" href="../ai_analysis/code.html">Analysis</a>
+<a class="font-label text-sm uppercase tracking-widest text-slate-400 hover:text-[#ff2d78] transition-all duration-300" href="../research_papers_1/code.html">Research</a>
+</nav>
+<div id="profile-panel-trigger"></div>
+</div>
+<div id="profile-panel-trigger-mobile" class="md:hidden"></div>
+</header>
+<main class="pt-24 pb-32 px-4 md:px-8 max-w-7xl mx-auto min-h-screen grid-bg relative">
+<div class="absolute inset-0 scanline pointer-events-none"></div>
+<!-- Hero Section: Unified Neural Core -->
+<section class="mb-12 relative">
+<div class="flex flex-col md:flex-row justify-between items-end mb-8 gap-4">
+<div>
+<span class="font-label text-secondary text-xs tracking-[0.3em] uppercase mb-2 block">System Status: Optimal</span>
+<h2 class="font-headline text-4xl md:text-6xl font-extrabold text-on-surface tracking-tighter leading-none">
+                        UNIFIED_NEURAL_CORE
+                    </h2>
+</div>
+<div class="flex gap-4">
+<div class="px-4 py-2 bg-surface-container border border-secondary/20 rounded-lg flex items-center gap-3">
+<div class="w-2 h-2 rounded-full bg-secondary animate-pulse shadow-[0_0_8px_rgba(0,255,204,1)]"></div>
+<span class="font-label text-[10px] text-secondary uppercase tracking-widest">5M+ Nodes Active</span>
+</div>
+</div>
+</div>
+<!-- Global Network Visualization -->
+<div class="relative h-[400px] w-full rounded-2xl overflow-hidden neon-border-glow-primary bg-surface-container-lowest">
+<img alt="Neural Network Visualization" class="w-full h-full object-cover opacity-60" data-alt="Abstract 3D visualization of a complex neural network with glowing pink and cyan nodes and connecting data lines on a black background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBvp9uskN8Nb33YueZqy0raet_lzIv3aGHsKW1TMm-xfkJ4zF3MbSFNTIeekbDVqKv5t4Nu2gknzc3JL7c6DakL5pPZHI7JGwfduiuit6qE0RlFqqiOw_ZGtEbcVVScn9wQ023Q2qds0Zkwabu5tJzamHPzrNKGQEB3SLopWVi1pZOxKtiJW4AiuQH1l1XPH9HVxltaMlK7m3V-KzCdC0ikHXtbrFx7xxpy7ob4iNWl-unl7r9ODAQHkKnLRMGWrfJtrgY3E4tOUUI"/>
+<div class="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent"></div>
+<div class="absolute top-6 left-6 p-4 bg-background/60 backdrop-blur-md rounded-lg border border-white/5">
+<div class="flex items-center gap-4 mb-4">
+<div class="text-primary">
+<span class="material-symbols-outlined text-4xl" data-icon="hub">hub</span>
+</div>
+<div>
+<p class="font-label text-xs text-on-surface-variant uppercase">Global Sync Rate</p>
+<p class="font-headline text-2xl font-bold text-on-surface">99.82%</p>
+</div>
+</div>
+<div class="w-48 h-1 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[99.8%] shadow-[0_0_8px_rgba(255,45,120,0.8)]"></div>
+</div>
+</div>
+<!-- HUD Overlays -->
+<div class="absolute bottom-6 right-6 font-label text-[10px] text-secondary/60 space-y-1 text-right">
+<p>LATENCY: 1.2MS</p>
+<p>PACKET_LOSS: 0.0000%</p>
+<p>ENCRYPTION: AES-2048-NEURAL</p>
+</div>
+</div>
+</section>
+<!-- Bento Grid: Data Integration -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+<!-- Integration Panel 1: Research Papers -->
+<a href="../research_papers_1/code.html" class="col-span-1 md:col-span-1 bg-surface-container/40 backdrop-blur-xl p-6 rounded-2xl neon-border-glow-secondary flex flex-col justify-between hover:bg-surface-container/60 hover:scale-[1.02] transition-all duration-300 cursor-pointer group">
+<div>
+<div class="flex justify-between items-start mb-6">
+<span class="material-symbols-outlined text-secondary text-3xl group-hover:scale-110 transition-transform" data-icon="science">science</span>
+<span class="bg-secondary/10 text-secondary text-[10px] px-2 py-1 rounded font-label uppercase">Research</span>
+</div>
+<h3 class="font-headline text-xl font-bold mb-2">Academic Synthesis</h3>
+<p class="text-on-surface-variant text-sm mb-6">Processing 42,000+ new peer-reviewed neurological publications.</p>
+</div>
+<div class="space-y-3">
+<div class="flex justify-between text-xs font-label text-on-surface-variant">
+<span>Semantic Mapping</span>
+<span class="text-secondary">Active</span>
+</div>
+<div class="h-1.5 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-secondary w-3/4"></div>
+</div>
+</div>
+</a>
+<!-- Integration Panel 2: EEG Waves -->
+<a href="../neural_archive_eeg_interpreter/code.html" class="col-span-1 md:col-span-1 bg-surface-container/40 backdrop-blur-xl p-6 rounded-2xl neon-border-glow-primary flex flex-col justify-between hover:bg-surface-container/60 hover:scale-[1.02] transition-all duration-300 cursor-pointer group">
+<div>
+<div class="flex justify-between items-start mb-6">
+<span class="material-symbols-outlined text-primary text-3xl group-hover:scale-110 transition-transform" data-icon="waves">waves</span>
+<span class="bg-primary/10 text-primary text-[10px] px-2 py-1 rounded font-label uppercase">Real-time</span>
+</div>
+<h3 class="font-headline text-xl font-bold mb-2">Neural Waveforms</h3>
+<p class="text-on-surface-variant text-sm mb-6">Live streaming EEG data across 12,000 monitored subjects.</p>
+</div>
+<div class="h-16 flex items-end gap-1">
+<div class="w-full bg-primary/40 h-8 animate-pulse"></div>
+<div class="w-full bg-primary/60 h-12"></div>
+<div class="w-full bg-primary/30 h-6 animate-pulse"></div>
+<div class="w-full bg-primary/80 h-14"></div>
+<div class="w-full bg-primary/20 h-4 animate-pulse"></div>
+<div class="w-full bg-primary/90 h-16"></div>
+<div class="w-full bg-primary/50 h-10"></div>
+</div>
+</a>
+<!-- Integration Panel 3: Hospital Records -->
+<a href="../final_diagnosis_report_v1/code.html" class="col-span-1 md:col-span-1 bg-surface-container/40 backdrop-blur-xl p-6 rounded-2xl border border-outline-variant flex flex-col justify-between hover:bg-surface-container/60 hover:scale-[1.02] transition-all duration-300 cursor-pointer group">
+<div>
+<div class="flex justify-between items-start mb-6">
+<span class="material-symbols-outlined text-tertiary text-3xl group-hover:scale-110 transition-transform" data-icon="database">database</span>
+<span class="bg-tertiary/10 text-tertiary text-[10px] px-2 py-1 rounded font-label uppercase">Records</span>
+</div>
+<h3 class="font-headline text-xl font-bold mb-2">Clinical Archive</h3>
+<p class="text-on-surface-variant text-sm mb-6">Consolidated medical history from 850 global hospital networks.</p>
+</div>
+<div class="p-3 bg-surface-container-high rounded-lg border border-white/5 flex items-center gap-3">
+<span class="material-symbols-outlined text-tertiary" data-icon="security">security</span>
+<span class="font-label text-[10px] tracking-widest text-on-surface-variant">ENCRYPTED_ACCESS_ONLY</span>
+</div>
+</a>
+<!-- Large Panel: Smooth Merge Analysis -->
+<a href="../prediction_command_center_v1/code.html" class="col-span-1 md:col-span-3 bg-surface-container/20 border border-secondary/20 rounded-2xl overflow-hidden relative group hover:bg-surface-container/40 hover:scale-[1.005] transition-all duration-300 cursor-pointer block">
+<div class="p-8 relative z-10 flex flex-col md:flex-row gap-12">
+<div class="flex-1">
+<h3 class="font-headline text-2xl font-bold mb-4 text-secondary neon-text-glow-secondary">SMOOTH_MERGE_PROTOCOL</h3>
+<p class="text-on-surface-variant max-w-xl mb-8">
+                            The Neural Core is currently performing a high-density cross-reference of multi-modal data points. By merging unstructured clinical notes with structured brain imaging and real-time biometric telemetry, the system achieves a predictive accuracy of 99.4%.
+                        </p>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+<div class="p-4 bg-background/60 rounded-xl border border-outline-variant">
+<p class="font-label text-[10px] text-slate-500 uppercase mb-1">Consistency</p>
+<p class="font-headline text-xl font-bold text-on-surface">ALPHA-7</p>
+</div>
+<div class="p-4 bg-background/60 rounded-xl border border-outline-variant">
+<p class="font-label text-[10px] text-slate-500 uppercase mb-1">Divergence</p>
+<p class="font-headline text-xl font-bold text-on-surface">0.02%</p>
+</div>
+<div class="p-4 bg-background/60 rounded-xl border border-outline-variant">
+<p class="font-label text-[10px] text-slate-500 uppercase mb-1">Throughput</p>
+<p class="font-headline text-xl font-bold text-on-surface">18TB/S</p>
+</div>
+<div class="p-4 bg-background/60 rounded-xl border border-outline-variant">
+<p class="font-label text-[10px] text-slate-500 uppercase mb-1">Reliability</p>
+<p class="font-headline text-xl font-bold text-on-surface">Tier-1</p>
+</div>
+</div>
+</div>
+<div class="w-full md:w-64 h-64 rounded-full border-4 border-dashed border-secondary/20 flex items-center justify-center relative">
+<div class="absolute inset-0 biometric-gradient rounded-full"></div>
+<div class="text-center">
+<span class="material-symbols-outlined text-6xl text-secondary animate-pulse" data-icon="memory">memory</span>
+<p class="font-label text-xs mt-2 text-secondary">CORE_ACTIVE</p>
+</div>
+</div>
+</div>
+</div>
+</a>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="md:hidden fixed bottom-0 w-full z-50 rounded-t-2xl bg-[#0a0a12]/90 backdrop-blur-md border-t border-[#00ffcc]/20 shadow-[0_-4px_20px_rgba(0,255,204,0.15)] flex justify-around items-center h-20 pb-safe w-full">
+<a class="flex flex-col items-center justify-center text-[#ff2d78] drop-shadow-[0_0_10px_rgba(255,45,120,0.6)] font-bold active:scale-90 duration-150" href="../global_neural_dashboard_v1/code.html">
+<span class="material-symbols-outlined" data-icon="grid_view">grid_view</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase tracking-widest mt-1">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 hover:bg-white/5 transition-colors active:scale-90 duration-150" href="../neural_archive_eeg_interpreter/code.html">
+<span class="material-symbols-outlined" data-icon="database">database</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase tracking-widest mt-1">Archive</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 hover:bg-white/5 transition-colors active:scale-90 duration-150" href="../ai_analysis/code.html">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase tracking-widest mt-1">Analysis</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 hover:bg-white/5 transition-colors active:scale-90 duration-150" href="../research_papers_1/code.html">
+<span class="material-symbols-outlined" data-icon="science">science</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase tracking-widest mt-1">Research</span>
+</a>
+</nav>
+<script>
+(async () => {
+  await Auth.ready();
+  if (!Auth.requireAuth()) return;
+
+  // Mount Profile Panel
+  ProfilePanel.mountInto('profile-panel-trigger');
+  ProfilePanel.mountInto('profile-panel-trigger-mobile');
+
+  // Load dashboard stats
+  try {
+    const stats = await Api.dashboard.stats();
+    console.log('[Dashboard] Loaded stats:', stats);
+  } catch (err) {
+    console.error('[Dashboard] Failed to load stats:', err);
+  }
+})();
+</script>
+</body></html>

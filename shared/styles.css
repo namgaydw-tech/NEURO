@@ -1,0 +1,123 @@
+/* NEURO_PREDICT_SYS — Shared Styles */
+
+/* ── Profile Panel ──────────────────────────────────────────── */
+.pp-trigger {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 0.25rem;
+  border: 1px solid rgba(255,45,120,0.3);
+  background: rgba(20,20,34,0.8);
+  backdrop-filter: blur(8px);
+  transition: all 0.2s ease;
+  position: relative;
+}
+.pp-trigger:hover {
+  border-color: rgba(255,45,120,0.6);
+  box-shadow: 0 0 12px rgba(255,45,120,0.15);
+}
+.pp-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  border: 2px solid #ff2d78;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Sora', sans-serif; font-weight: 800; font-size: 11px;
+  color: #1a0010;
+  background: linear-gradient(135deg, #ff2d78, #ff5090);
+  box-shadow: 0 0 8px rgba(255,45,120,0.4);
+  flex-shrink: 0;
+}
+.pp-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+.pp-info { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.pp-name {
+  font-family: 'Space Grotesk', monospace; font-size: 11px; font-weight: 600;
+  color: #e8e0f0; letter-spacing: 0.05em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px;
+}
+.pp-email {
+  font-family: 'Space Grotesk', monospace; font-size: 9px; color: #a098b0;
+  letter-spacing: 0.05em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px;
+}
+.pp-signin-text {
+  font-family: 'Sora', sans-serif; font-size: 11px; font-weight: 700;
+  color: #ff2d78; text-shadow: 0 0 8px rgba(255,45,120,0.5);
+  letter-spacing: 0.1em; text-transform: uppercase;
+}
+.pp-chevron {
+  font-family: 'Material Symbols Outlined'; font-size: 16px; color: #a098b0;
+  transition: transform 0.2s;
+}
+.pp-chevron.open { transform: rotate(180deg); }
+
+/* ── Dropdown ───────────────────────────────────────────────── */
+.pp-dropdown {
+  position: fixed; top: 56px; right: 16px;
+  width: 320px; max-height: 80vh; overflow-y: auto;
+  background: rgba(14,14,24,0.97); backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,45,120,0.3); border-radius: 0.5rem;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.6), 0 0 20px rgba(255,45,120,0.1);
+  z-index: 9999; display: none;
+  animation: ppSlideIn 0.15s ease-out;
+}
+.pp-dropdown.visible { display: block; }
+@keyframes ppSlideIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.pp-dropdown-header {
+  padding: 16px; border-bottom: 1px solid rgba(255,45,120,0.2);
+  display: flex; align-items: center; gap: 12px;
+}
+.pp-dropdown-avatar {
+  width: 44px; height: 44px; border-radius: 50%;
+  border: 2px solid #ff2d78;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Sora', sans-serif; font-weight: 800; font-size: 16px;
+  color: #1a0010;
+  background: linear-gradient(135deg, #ff2d78, #ff5090);
+  box-shadow: 0 0 12px rgba(255,45,120,0.4);
+  flex-shrink: 0;
+}
+.pp-dropdown-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+.pp-dropdown-user { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.pp-dropdown-name { font-family: 'Sora', sans-serif; font-size: 14px; font-weight: 700; color: #e8e0f0; }
+.pp-dropdown-email { font-family: 'Space Grotesk', monospace; font-size: 11px; color: #00ffcc; }
+.pp-dropdown-role { font-family: 'Space Grotesk', monospace; font-size: 10px; color: #a098b0; text-transform: uppercase; letter-spacing: 0.1em; }
+.pp-section-label {
+  padding: 10px 16px 4px;
+  font-family: 'Space Grotesk', monospace; font-size: 9px; color: #a098b0;
+  text-transform: uppercase; letter-spacing: 0.15em;
+}
+.pp-portal-link {
+  display: flex; align-items: center; gap: 10px; padding: 10px 16px;
+  text-decoration: none; color: #e8e0f0;
+  font-family: 'Space Grotesk', monospace; font-size: 12px;
+  transition: all 0.15s; border-left: 2px solid transparent;
+}
+.pp-portal-link:hover { background: rgba(255,45,120,0.08); border-left-color: #ff2d78; }
+.pp-portal-link.active { background: rgba(255,45,120,0.1); border-left-color: #ff2d78; color: #ff2d78; }
+.pp-portal-icon { font-family: 'Material Symbols Outlined'; font-size: 18px; width: 20px; text-align: center; }
+.pp-portal-badge { margin-left: auto; font-size: 8px; padding: 2px 6px; border-radius: 0.25rem; font-weight: 600; letter-spacing: 0.05em; }
+.pp-divider { height: 1px; background: rgba(255,45,120,0.15); margin: 4px 0; }
+.pp-signout-btn, .pp-signin-btn {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  margin: 12px 16px; padding: 10px; border-radius: 0.25rem;
+  font-family: 'Space Grotesk', monospace; font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer;
+  transition: all 0.15s; text-decoration: none;
+}
+.pp-signout-btn {
+  border: 1px solid rgba(255,68,68,0.4); background: rgba(255,68,68,0.08); color: #ff4444;
+}
+.pp-signout-btn:hover { background: rgba(255,68,68,0.2); border-color: rgba(255,68,68,0.6); }
+.pp-signin-btn {
+  border: 1px solid rgba(255,45,120,0.4); background: rgba(255,45,120,0.15); color: #ff2d78;
+}
+.pp-signin-btn:hover { background: rgba(255,45,120,0.3); box-shadow: 0 0 12px rgba(255,45,120,0.2); }
+@media (max-width: 640px) {
+  .pp-info { display: none; }
+  .pp-trigger { padding: 6px; }
+  .pp-dropdown { width: calc(100vw - 32px); right: 16px; }
+}

@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PHARMA_CORE_ACCESS | NEURO_PREDICT_SYS</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;700;800&amp;family=Inter:wght@400;500;600&amp;family=Space_Grotesk:wght@300;400;500;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"></script>
+<script src="../shared/auth.js"></script>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-highest": "#28283e",
+                        "primary": "#ff2d78",
+                        "surface": "#0f0f1a",
+                        "on-surface-variant": "#a098b0",
+                        "tertiary-container": "#665200",
+                        "on-error": "#1a0000",
+                        "inverse-primary": "#8c0038",
+                        "error": "#ff4444",
+                        "primary-container": "#b3004e",
+                        "secondary": "#00ffcc",
+                        "on-primary": "#1a0010",
+                        "surface-tint": "#ff2d78",
+                        "surface-bright": "#1a1a2e",
+                        "tertiary": "#ffe04a",
+                        "surface-container-lowest": "#0a0a12",
+                        "outline": "#5a5068",
+                        "on-secondary-fixed": "#001a1a",
+                        "background": "#0a0a12",
+                        "primary-fixed": "#ffe0ec",
+                        "on-tertiary": "#1a1000",
+                        "inverse-surface": "#e8e0f0",
+                        "on-secondary": "#001a1a",
+                        "on-primary-fixed-variant": "#8c0038",
+                        "on-secondary-fixed-variant": "#004d4d",
+                        "secondary-fixed-dim": "#00e6b8",
+                        "on-secondary-container": "#c0fff4",
+                        "surface-container-low": "#111118",
+                        "secondary-fixed": "#c0fff4",
+                        "secondary-container": "#004d3d",
+                        "outline-variant": "#302840",
+                        "on-surface": "#e8e0f0",
+                        "primary-fixed-dim": "#ff80aa",
+                        "on-background": "#e8e0f0",
+                        "on-tertiary-container": "#fff0c0",
+                        "surface-container": "#141422",
+                        "surface-container-high": "#1e1e30",
+                        "on-tertiary-fixed": "#1a1000",
+                        "surface-variant": "#1e1e30",
+                        "error-container": "#3d0f0f",
+                        "on-primary-fixed": "#3d0020",
+                        "on-primary-container": "#ffe0ec",
+                        "inverse-on-surface": "#0a0a12",
+                        "tertiary-fixed-dim": "#ffe04a",
+                        "tertiary-fixed": "#fff0c0",
+                        "surface-dim": "#0f0f1a",
+                        "on-error-container": "#ffa0a0",
+                        "on-tertiary-fixed-variant": "#665200"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Sora"],
+                        "body": ["Inter"],
+                        "label": ["Space Grotesk"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .neon-glow-primary {
+            text-shadow: 0 0 8px #ff2d78;
+        }
+        .neon-glow-secondary {
+            text-shadow: 0 0 8px #00ffcc;
+        }
+        .scanline {
+            background: linear-gradient(to bottom, transparent 50%, rgba(0, 255, 204, 0.05) 51%);
+            background-size: 100% 4px;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body selection:bg-primary/30 min-h-screen flex flex-col">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-6 h-16 bg-[#0a0a12]/80 backdrop-blur-md border-b border-[#ff2d78]/30 shadow-[0_0_16px_rgba(255,45,120,0.2)]">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-2xl" data-icon="fingerprint">fingerprint</span>
+<h1 class="text-xl font-black text-[#ff2d78] drop-shadow-[0_0_8px_rgba(255,45,120,0.8)] font-headline tracking-tighter">NEURO_PREDICT_SYS</h1>
+</div>
+<div class="flex items-center gap-4">
+<div class="hidden md:flex gap-6 font-label text-xs tracking-widest uppercase text-slate-500">
+<span class="hover:text-[#00ffcc] hover:drop-shadow-[0_0_8px_rgba(0,255,204,0.8)] transition-all cursor-pointer">System_Status: Optimal</span>
+<span class="hover:text-[#00ffcc] hover:drop-shadow-[0_0_8px_rgba(0,255,204,0.8)] transition-all cursor-pointer">Node: Tokyo_03</span>
+</div>
+<div class="w-8 h-8 rounded-full border border-primary/50 overflow-hidden shadow-[0_0_8px_rgba(255,45,120,0.3)]">
+<img alt="Biometric Profile" data-alt="Cyberpunk style biometric profile avatar with neon pink geometric patterns and dark background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCWWRQwJ_LmEezb1RpYBs_tbV99sKfJNTuJAV9LKR0ReG8GU5IOpT10Vj3V66OIvnf0hjPT5i3jhPg9_9_-5WJgS9tRQ1ZOIGfL6D9HcmJnp7Pd1AQBSpRDH0ttvwibLhwVaknegGuopt_Uo8Zmm6o3m8--vIaatV8NDkTaZRXmBb7PKDymVIDblxKeJzimTTuw5sDpnRAycZczpKlu7-o1EavdNjW7ZR3s6D4a8TYpuvGtFuQKl3xRF9F08Lx6lKK2JnFu5dXvQN4"/>
+</div>
+</div>
+</header>
+<main class="flex-grow flex items-center justify-center pt-16 pb-20 px-4 relative overflow-hidden">
+<!-- Background Decorative Elements -->
+<div class="absolute inset-0 scanline pointer-events-none opacity-20"></div>
+<div class="absolute top-1/4 -left-20 w-96 h-96 bg-primary/10 blur-[120px] rounded-full"></div>
+<div class="absolute bottom-1/4 -right-20 w-96 h-96 bg-secondary/10 blur-[120px] rounded-full"></div>
+<!-- Login Container -->
+<div class="relative w-full max-w-md">
+<!-- Glassmorphic Bento Panel -->
+<div class="bg-surface-container/60 backdrop-blur-xl border border-primary/30 p-8 rounded-lg shadow-[inset_0_0_24px_rgba(255,45,120,0.05)] relative overflow-hidden">
+<!-- Corner Accents -->
+<div class="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-secondary/50"></div>
+<div class="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-secondary/50"></div>
+<div class="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-secondary/50"></div>
+<div class="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-secondary/50"></div>
+<!-- Header -->
+<div class="mb-10 text-center">
+<div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-surface-container-highest border border-secondary/30 mb-4 shadow-[0_0_15px_rgba(0,255,204,0.2)]">
+<span class="material-symbols-outlined text-secondary text-3xl" data-icon="pill" style="font-variation-settings: 'FILL' 1;">pill</span>
+</div>
+<h2 class="text-3xl font-headline font-extrabold text-on-surface tracking-tight neon-glow-primary">PHARMA_CORE_ACCESS</h2>
+<p class="font-label text-[10px] uppercase tracking-[0.3em] text-on-surface-variant mt-2">Level 4 Clearance Required</p>
+</div>
+<!-- Form -->
+<div id="clerk-sign-in" class="w-full"></div>
+<form class="space-y-6">
+<!-- Input 1 -->
+<div class="space-y-2">
+<label class="font-label text-xs uppercase tracking-widest text-secondary neon-glow-secondary">PHARMA_CREDENTIALS</label>
+<div class="relative">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline text-lg" data-icon="biotech">biotech</span>
+<input class="w-full bg-surface-container-low border-b-2 border-outline focus:border-primary outline-none py-3 pl-12 pr-4 text-on-surface font-label transition-all focus:shadow-[0_4px_12px_rgba(255,45,120,0.1)] placeholder:text-outline/50" placeholder="AUTH_ID // P_0923" type="text"/>
+</div>
+</div>
+<!-- Input 2 -->
+<div class="space-y-2">
+<label class="font-label text-xs uppercase tracking-widest text-secondary neon-glow-secondary">DISPENSING_AUTH_CODE</label>
+<div class="relative">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline text-lg" data-icon="key">key</span>
+<input class="w-full bg-surface-container-low border-b-2 border-outline focus:border-primary outline-none py-3 pl-12 pr-4 text-on-surface font-label transition-all focus:shadow-[0_4px_12px_rgba(255,45,120,0.1)] placeholder:text-outline/50" placeholder="••••••••••••" type="password"/>
+</div>
+</div>
+<!-- Security Visualization -->
+<div class="flex items-center justify-between p-3 bg-surface-container-highest/50 rounded border border-outline-variant/30">
+<div class="flex gap-1">
+<div class="w-1 h-4 bg-secondary"></div>
+<div class="w-1 h-4 bg-secondary"></div>
+<div class="w-1 h-4 bg-secondary/30"></div>
+<div class="w-1 h-4 bg-secondary/30"></div>
+</div>
+<span class="font-label text-[9px] uppercase text-on-surface-variant">Biometric_Sync: 82%</span>
+</div>
+<!-- Action Button -->
+<button class="w-full group relative flex items-center justify-center gap-3 bg-background border border-primary py-4 text-primary font-headline font-bold uppercase tracking-[0.2em] hover:bg-primary/10 hover:shadow-[0_0_16px_rgba(255,45,120,0.4)] transition-all active:scale-95 duration-200" type="submit">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform" data-icon="login">login</span>
+                        ENTER_PHARMACY
+                        <div class="absolute right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-sm" data-icon="chevron_right">chevron_right</span>
+</div>
+</button>
+</form>
+<!-- Footer Links -->
+<div class="mt-8 flex justify-between items-center text-[10px] font-label uppercase tracking-wider text-outline">
+<a class="hover:text-tertiary transition-colors" href="#">Emergency_Override</a>
+<a class="hover:text-tertiary transition-colors" href="#">Credential_Reset</a>
+</div>
+</div>
+<!-- Side Deco Image -->
+<div class="mt-6 grid grid-cols-3 gap-4">
+<div class="h-20 border border-secondary/20 rounded overflow-hidden relative">
+<img alt="Lab Equipment" class="w-full h-full object-cover grayscale brightness-50 contrast-125" data-alt="Close up of futuristic glowing chemical test tubes in a dark laboratory with cyan lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDw-bDlIOaPPqNsp3U8-VvxAkvaQE8sllcH0nbOPsg3FqyQxtFHf2wO9JnaTXxmytFm6wx3u_0rruyCTU8QzxhEasOu6JjrECwYZnmH92ztAf2VCs8ixyrcqt291KVG27zFDSfBup7fPoCp_ZH2lqEyp9c6bSzLR17s7PeNJJVagX5seTodujtm5OPud7aq9s3W6-UYwwDX8DVTImVDblsBNl-fVlTroBJ5m_GrPOsw4wTcAM93-Lf0vPys8QIm0K1pbufhGy7EmLg"/>
+<div class="absolute inset-0 bg-secondary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary/60" data-icon="science">science</span>
+</div>
+</div>
+<div class="h-20 border border-primary/20 rounded overflow-hidden relative">
+<img alt="Circuitry" class="w-full h-full object-cover grayscale brightness-50 contrast-125" data-alt="Macro photo of glowing circuit board with pink neon light paths representing digital data flow" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCpwbGNYmQcaXuWXgm1MP9_i17fucKnOBVYcsU8nwY7_HDOie1TD0RY2MiHcebehnO3JAm8i6bcIgmZDkov5OyItc7VdcHftDboqkz3Lu5uDqa-GnWJo8CZy8rZ_YX1JwVh3uJSzKoHJb5jEjyBYLMKELtdOUKD5PQoBrkQmWu49cfKs2CPsP_Uas0JO2Li9tfyvU2mT_OnYtGNZvKswd73qvUdEaRJCS-9YEv0nksIPNXjtJg_RvWqbOfJxBBEYCpJl3S7xZg2964"/>
+<div class="absolute inset-0 bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary/60" data-icon="memory">memory</span>
+</div>
+</div>
+<div class="h-20 border border-tertiary/20 rounded overflow-hidden relative">
+<img alt="Research Lab" class="w-full h-full object-cover grayscale brightness-50 contrast-125" data-alt="Highly advanced futuristic research laboratory with holographic displays and cool blue ambient lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAVNutXfqTpHj3Ho9dIXzM8UIJvbIGodSvmnMgCU_cU22FfqvIMwwA4uWm8TGN8Hr2sjyVNmMmX2-reaoCBwwUoyKQETEbC5hzh3Pt_aJu80X4TP-1UP3QNsKOJmspCxhby4a4q3xlI1qB_cLlvsYOQ85cDriKAQua1APu2Ef_hmnh34a5nP9Cg-JzY-HmDTrtLs5v36tsaht521uh8HVHMQqUAvpnA6WSZDpzHypIRJdngkUkK7MddpPH0fe-EfqBc_D3Db78C1Kk"/>
+<div class="absolute inset-0 bg-tertiary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-tertiary/60" data-icon="hub">hub</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center h-20 bg-[#0a0a12]/90 backdrop-blur-lg pb-safe border-t border-[#00ffcc]/30 shadow-[0_-4px_20px_rgba(0,255,204,0.1)]">
+<div class="flex flex-col items-center justify-center text-slate-500 hover:bg-[#ff2d78]/10 transition-colors w-full h-full cursor-pointer">
+<span class="material-symbols-outlined" data-icon="biotech">biotech</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase tracking-widest mt-1">Surgery</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-500 hover:bg-[#ff2d78]/10 transition-colors w-full h-full cursor-pointer">
+<span class="material-symbols-outlined" data-icon="folder_managed">folder_managed</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase tracking-widest mt-1">History</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#ff2d78] drop-shadow-[0_0_8px_rgba(255,45,120,0.6)] translate-y-[-2px] transition-transform w-full h-full cursor-pointer">
+<span class="material-symbols-outlined" data-icon="pill" style="font-variation-settings: 'FILL' 1;">pill</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase tracking-widest mt-1">Pharmacy</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-500 hover:bg-[#ff2d78]/10 transition-colors w-full h-full cursor-pointer">
+<span class="material-symbols-outlined" data-icon="emergency_recording">emergency_recording</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase tracking-widest mt-1">Theater</span>
+</div>
+</nav>
+<script src="../shared/ui.js"></script>
+<script>
+(async () => {
+  await Auth.ready();
+  if (Auth.isSignedIn()) { Auth.redirectToIntended(); return; }
+  if (Auth.isSignedIn()) { window.location.href = '../global_neural_dashboard_v1/code.html'; return; }
+
+  // Mount Clerk SignIn
+  if (clerkMounted) {
+    const form = document.querySelector('form');
+    if (form) form.style.display = 'none';
+  }
+})();
+
+document.querySelector('form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const inputs = e.target.querySelectorAll('input');
+  const email = inputs[0].value;
+  const password = inputs[1].value;
+  try {
+    await Auth.login(email, password);
+    UI.toast('Access granted', 'success');
+    setTimeout(() => window.location.href = '../global_neural_dashboard_v1/code.html', 800);
+  } catch(err) {
+    UI.toast('ACCESS DENIED: ' + err.message, 'error');
+  }
+});
+</script>
+</body></html>

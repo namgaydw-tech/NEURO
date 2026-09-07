@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>NEURO_CORE - AI Analysis</title>
+<script src="/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"></script>
+<link rel="stylesheet" href="../shared/styles.css"/>
+<script src="/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"></script>
+<script src="../shared/auth.js"></script>
+<script src="../shared/api.js"></script>
+<script src="../shared/ui.js"></script>
+<script src="../shared/profile-panel.js"></script>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;700;800&amp;family=Inter:wght@400;500;600&amp;family=Space_Grotesk:wght@300;500;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container": "#141422",
+                    "secondary": "#00ffcc",
+                    "tertiary": "#ffe04a",
+                    "surface-tint": "#ff2d78",
+                    "on-primary-fixed-variant": "#8c0038",
+                    "primary-container": "#b3004e",
+                    "on-tertiary": "#1a1000",
+                    "tertiary-fixed-dim": "#ffe04a",
+                    "surface-variant": "#1e1e30",
+                    "on-tertiary-fixed-variant": "#665200",
+                    "on-secondary-container": "#c0fff4",
+                    "on-error-container": "#ffa0a0",
+                    "secondary-fixed": "#c0fff4",
+                    "background": "#0a0a12",
+                    "inverse-on-surface": "#0a0a12",
+                    "surface-container-high": "#1e1e30",
+                    "on-secondary": "#001a1a",
+                    "on-secondary-fixed-variant": "#004d4d",
+                    "outline-variant": "#302840",
+                    "surface-container-highest": "#28283e",
+                    "on-surface": "#e8e0f0",
+                    "primary-fixed-dim": "#ff80aa",
+                    "on-tertiary-fixed": "#1a1000",
+                    "on-error": "#1a0000",
+                    "inverse-surface": "#e8e0f0",
+                    "inverse-primary": "#8c0038",
+                    "surface-container-low": "#111118",
+                    "surface-container-lowest": "#0a0a12",
+                    "secondary-fixed-dim": "#00e6b8",
+                    "surface-dim": "#0f0f1a",
+                    "on-secondary-fixed": "#001a1a",
+                    "on-primary-fixed": "#3d0020",
+                    "on-primary-container": "#ffe0ec",
+                    "tertiary-container": "#665200",
+                    "surface-bright": "#1a1a2e",
+                    "primary": "#ff2d78",
+                    "on-background": "#e8e0f0",
+                    "error": "#ff4444",
+                    "tertiary-fixed": "#fff0c0",
+                    "secondary-container": "#004d3d",
+                    "error-container": "#3d0f0f",
+                    "on-primary": "#1a0010",
+                    "surface": "#0f0f1a",
+                    "outline": "#5a5068",
+                    "on-surface-variant": "#a098b0",
+                    "primary-fixed": "#ffe0ec",
+                    "on-tertiary-container": "#fff0c0"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Sora"],
+                    "body": ["Inter"],
+                    "label": ["Space_Grotesk"]
+            }
+          },
+        }
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #0a0a12;
+            background-image: 
+                linear-gradient(rgba(255, 45, 120, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 45, 120, 0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+        .neon-border-primary {
+            border: 1px solid rgba(255, 45, 120, 0.3);
+            box-shadow: inset 0 0 12px rgba(255, 45, 120, 0.1);
+        }
+        .neon-border-secondary {
+            border: 1px solid rgba(0, 255, 204, 0.3);
+            box-shadow: inset 0 0 12px rgba(0, 255, 204, 0.1);
+        }
+        .text-glow-primary {
+            text-shadow: 0 0 8px #ff2d78;
+        }
+        .text-glow-secondary {
+            text-shadow: 0 0 8px #00ffcc;
+        }
+        .scan-line {
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #ff2d78, transparent);
+            position: absolute;
+            top: 50%;
+            left: 0;
+            box-shadow: 0 0 15px #ff2d78;
+            opacity: 0.8;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body text-on-background selection:bg-primary selection:text-white">
+<!-- TopAppBar -->
+<nav class="fixed top-0 w-full z-50 flex items-center px-6 h-16 bg-[#0a0a12]/80 backdrop-blur-md border-b border-[#ff2d78]/30 shadow-[inset_0_0_12px_rgba(255,45,120,0.1)]">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[#ff2d78]" data-icon="neurology">neurology</span>
+<span class="text-xl font-black text-[#ff2d78] drop-shadow-[0_0_8px_rgba(255,45,120,0.8)] font-['Sora'] tracking-tight">NEURO_CORE_V1.0</span>
+</div>
+<div class="ml-auto flex items-center gap-4">
+<a href="../global_neural_dashboard_v1/code.html" class="font-label text-[10px] text-slate-400 hover:text-[#00ffcc] uppercase tracking-widest transition-all hidden md:block">Dashboard</a>
+<a href="../neural_archive_eeg_interpreter/code.html" class="font-label text-[10px] text-slate-400 hover:text-[#00ffcc] uppercase tracking-widest transition-all hidden md:block">Archive</a>
+<a href="../research_papers_1/code.html" class="font-label text-[10px] text-slate-400 hover:text-[#00ffcc] uppercase tracking-widest transition-all hidden md:block">Research</a>
+<div id="profile-panel-trigger"></div>
+</div>
+</nav>
+<main class="pt-20 pb-32 px-4 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-6 h-full">
+<!-- Left: Analysis Metrics (Desktop) / Header (Mobile) -->
+<div class="md:col-span-3 space-y-6">
+<div class="neon-border-primary p-4 bg-surface-container/60 rounded-xl">
+<span class="font-label text-[10px] text-primary uppercase tracking-[0.2em] mb-2 block">Data Source</span>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-sm" data-icon="database">database</span>
+<span class="font-bold text-sm">Mayo Clinic PET-MRI Dataset</span>
+</div>
+<div class="mt-4 pt-4 border-t border-white/5 space-y-4">
+<div>
+<div class="flex justify-between items-center mb-1">
+<span class="font-label text-[10px] text-on-surface-variant uppercase">Core Load</span>
+<span class="font-label text-[10px] text-primary">89%</span>
+</div>
+<div class="h-1 bg-surface-variant w-full overflow-hidden">
+<div class="h-full bg-primary" style="width: 89%;"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between items-center mb-1">
+<span class="font-label text-[10px] text-on-surface-variant uppercase">Voxel Check</span>
+<span class="font-label text-[10px] text-secondary">ACTIVE</span>
+</div>
+<div class="h-1 bg-surface-variant w-full overflow-hidden">
+<div class="h-full bg-secondary" style="width: 65%;"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="hidden md:block neon-border-secondary p-4 bg-surface-container/60 rounded-xl">
+<span class="font-label text-[10px] text-secondary uppercase tracking-[0.2em] mb-4 block">System Metrics</span>
+<div class="space-y-4">
+<div class="flex items-center justify-between">
+<span class="text-xs text-on-surface-variant">Pathway Mapping</span>
+<span class="text-xs font-bold text-secondary">92.4%</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-xs text-on-surface-variant">Synaptic Drift</span>
+<span class="text-xs font-bold text-tertiary">0.04ms</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-xs text-on-surface-variant">Error Coefficient</span>
+<span class="text-xs font-bold text-primary">&lt; 0.001</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Center: Neural Visualization -->
+<div class="md:col-span-6 flex flex-col gap-6">
+<div class="relative flex-1 min-h-[400px] neon-border-primary rounded-2xl bg-surface-container/40 overflow-hidden flex items-center justify-center">
+<!-- Background Decorative Grid -->
+<div class="absolute inset-0 opacity-20 pointer-events-none" style="background-image: radial-gradient(circle at 2px 2px, #ff2d78 1px, transparent 0); background-size: 24px 24px;"></div>
+<!-- Scanning Line Animation Simulation -->
+<div class="scan-line"></div>
+<!-- Neural Visualization Canvas -->
+<div class="relative w-full h-full flex items-center justify-center group">
+<div class="absolute inset-0 z-0">
+<img alt="Neural network visualization" class="w-full h-full object-contain opacity-70 mix-blend-screen scale-110" data-alt="abstract 3D neural network structure with glowing magenta nodes and cyan connection filaments on a dark void background futuristic science aesthetic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDNdXSZC8ku4uWIHhZdTodFMSbhOLDLyTMEKt8lINaUG741S3h77L1KFHD58V8AnebebcqpRb_ndg8rbSoFPrJ6XDjGRcEVCPtpbn7V3O02Czt709eT7J9amRtYehh14pEYJiPbq91nSxK08D1JeHvqUYnGEo_VRuxaigqdE5WcdukC9UTidgwKh9HH2Mjb8AGSNMvWHM3NNzy4Elw1p86UOHHDiPxlTtpShhhHC7s11OOE76ZzDaloXepBKoYm3zcD4x8lErRPbLc"/>
+</div>
+<!-- Overlay Progress Ring -->
+<div class="relative z-10 flex flex-col items-center">
+<div class="relative w-48 h-48 flex items-center justify-center">
+<svg class="w-full h-full -rotate-90">
+<circle class="text-surface-variant" cx="96" cy="96" fill="transparent" r="88" stroke="currentColor" stroke-width="4"></circle>
+<circle class="text-primary drop-shadow-[0_0_10px_rgba(255,45,120,0.8)]" cx="96" cy="96" fill="transparent" r="88" stroke="currentColor" stroke-dasharray="553" stroke-dashoffset="143" stroke-width="6"></circle>
+</svg>
+<div class="absolute flex flex-col items-center">
+<span class="text-5xl font-black font-headline text-glow-primary">74<span class="text-2xl font-normal opacity-70">%</span></span>
+<span class="font-label text-[10px] tracking-widest text-on-surface-variant uppercase">Analyzing</span>
+</div>
+</div>
+</div>
+<!-- Floating Data Pointers (Simulated) -->
+<div class="absolute top-10 left-10 p-2 neon-border-secondary bg-surface-container/80 rounded-lg text-[10px] font-label text-secondary backdrop-blur-sm">
+                        SEC_A_88: ACTIVE
+                    </div>
+<div class="absolute bottom-20 right-10 p-2 neon-border-primary bg-surface-container/80 rounded-lg text-[10px] font-label text-primary backdrop-blur-sm">
+                        LOBE_FRONT_ALPHA: 0.12
+                    </div>
+</div>
+</div>
+<!-- Terminal Feed -->
+<div id="terminalFeed" class="h-40 neon-border-secondary bg-[#05050a]/90 rounded-xl p-4 font-label overflow-hidden">
+<div class="flex items-center gap-2 mb-2 border-b border-white/10 pb-2">
+<span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
+<span class="text-[10px] text-secondary tracking-widest uppercase">System Log — NEURO_ANALYSIS_V2.0.4</span>
+</div>
+<div id="logContent" class="text-[11px] space-y-1 text-on-surface-variant/80 overflow-y-auto max-h-24">
+<p><span class="text-primary">[INIT]</span> Neural analysis system ready. Awaiting patient selection...</p>
+</div>
+</div>
+</div>
+<!-- Right: Status & Actions (Desktop) -->
+<div class="md:col-span-3 flex flex-col gap-6">
+<div class="neon-border-primary p-6 bg-surface-container-high rounded-xl text-center">
+<span class="material-symbols-outlined text-4xl text-primary mb-2" data-icon="psychology">psychology</span>
+<h3 class="font-headline font-bold text-lg mb-1">Neural Profile</h3>
+<p id="patientInfo" class="text-xs text-on-surface-variant mb-6 uppercase tracking-wider">Select a patient to begin</p>
+<select id="patientSelect" class="w-full mb-3 bg-surface-container border border-outline-variant text-on-surface text-xs font-label py-2 px-3 rounded-lg focus:border-primary outline-none">
+<option value="">Loading patients...</option>
+</select>
+<button id="analyzeBtn" onclick="runAnalysis()" class="w-full py-3 neon-border-primary bg-transparent text-primary font-bold text-xs uppercase tracking-widest hover:bg-primary hover:text-white transition-all active:scale-95 duration-200">
+                    RUN_ANALYSIS
+                </button>
+</div>
+<div class="flex-1 neon-border-secondary p-4 bg-surface-container/60 rounded-xl">
+<span class="font-label text-[10px] text-secondary uppercase tracking-[0.2em] mb-4 block">Regional Map</span>
+<div class="aspect-square bg-surface-variant rounded-lg relative overflow-hidden">
+<img alt="Brain scan region" class="w-full h-full object-cover grayscale brightness-125 contrast-125 opacity-40" data-alt="top-down high contrast neurological MRI scan cross-section with neon cyan highlighted active regions and glitch texture overlay" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAyyPfaPcixiN6KmLdgjjDQiSlVcrxjnnGnc0WpMsYH8k6ESQ34z9CuEEfOxUz1FEymp-Xl9c_kbv0GcBUJBVUfj62riGLquailPeOxDeKJJPvbjuwct_8G16we6GHrLRu_dsVQ166Of6YgNFtwP4_4N0NrnNG6yfBVolpAJXZ90RQ7XMP5DfBQQTkZcU6JyCdOvqxPGPhy6TZh77luof6eD2JfapVFqHbKTDhD_o_9-7rufLI18_4NZeKvuKkzuhdsjC-YSL4EnbE"/>
+<div class="absolute inset-0 flex items-center justify-center">
+<div class="w-12 h-12 border-2 border-secondary rounded-full animate-ping opacity-30"></div>
+<div class="w-4 h-4 bg-secondary rounded-full drop-shadow-[0_0_8px_#00ffcc]"></div>
+</div>
+</div>
+<div class="mt-4 flex flex-col gap-2">
+<div class="flex items-center gap-3">
+<div class="w-2 h-2 rounded-full bg-secondary"></div>
+<span class="text-[10px] text-on-surface">Target: Hippocampus</span>
+</div>
+<div class="flex items-center gap-3">
+<div class="w-2 h-2 rounded-full bg-surface-variant"></div>
+<span class="text-[10px] text-on-surface-variant">Ref: Lateral Ventricles</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center h-20 px-4 pb-4 bg-[#0a0a12]/90 backdrop-blur-lg border-t border-[#00ffcc]/20 shadow-[0_-4px_20px_rgba(0,255,204,0.1)] rounded-t-2xl">
+<a href="../global_neural_dashboard_v1/code.html" class="flex flex-col items-center justify-center text-slate-400 opacity-60 hover:opacity-100 hover:text-[#00ffcc] transition-all duration-200 cursor-pointer active:scale-95">
+<span class="material-symbols-outlined mb-1" data-icon="grid_view">grid_view</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase tracking-widest">Dashboard</span>
+</a>
+<a href="../neural_archive_eeg_interpreter/code.html" class="flex flex-col items-center justify-center text-slate-400 opacity-60 hover:opacity-100 hover:text-[#00ffcc] transition-all duration-200 cursor-pointer active:scale-95">
+<span class="material-symbols-outlined mb-1" data-icon="database">database</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase tracking-widest">Archive</span>
+</a>
+<a href="../ai_analysis/code.html" class="flex flex-col items-center justify-center text-[#ff2d78] drop-shadow-[0_0_8px_rgba(255,45,120,0.6)] font-bold transition-all duration-200 cursor-pointer active:scale-95">
+<span class="material-symbols-outlined mb-1" data-icon="analytics" style="font-variation-settings: 'FILL' 1;">analytics</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase tracking-widest">Analysis</span>
+</a>
+<a href="../research_papers_1/code.html" class="flex flex-col items-center justify-center text-slate-400 opacity-60 hover:opacity-100 hover:text-[#00ffcc] transition-all duration-200 cursor-pointer active:scale-95">
+<span class="material-symbols-outlined mb-1" data-icon="science">science</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase tracking-widest">Research</span>
+</a>
+</nav>
+<script>
+let selectedPatientId = null;
+
+(async () => {
+  await Auth.ready();
+  ProfilePanel.mountInto('profile-panel-trigger');
+})();
+
+function addLog(msg, type = 'primary') {
+  const el = document.getElementById('logContent');
+  const time = new Date().toTimeString().slice(0,8);
+  el.innerHTML += `<p><span class="text-${type}">[${time}]</span> ${msg}</p>`;
+  el.scrollTop = el.scrollHeight;
+}
+
+(async () => {
+  try {
+    const data = await Api.patients.list({ per_page: 50 });
+    const select = document.getElementById('patientSelect');
+    select.innerHTML = '<option value="">Select Patient</option>';
+    data.patients.forEach(p => {
+      select.innerHTML += `<option value="${p.id}">${p.first_name} ${p.last_name} (${p.medical_record_number || 'N/A'})</option>`;
+    });
+    select.onchange = (e) => {
+      selectedPatientId = e.target.value;
+      const p = data.patients.find(x => x.id === selectedPatientId);
+      if (p) document.getElementById('patientInfo').textContent = `${p.first_name} ${p.last_name} // ${p.medical_record_number || 'N/A'}`;
+    };
+    addLog('Patient database loaded: ' + data.total + ' records', 'secondary');
+  } catch(e) { addLog('ERROR: ' + e.message, 'primary'); }
+})();
+
+async function runAnalysis() {
+  if (!selectedPatientId) {
+    UI.toast('Select a patient first', 'warning');
+    return;
+  }
+  const btn = document.getElementById('analyzeBtn');
+  btn.innerHTML = '<span class="material-symbols-outlined animate-spin">refresh</span> ANALYZING...';
+  btn.disabled = true;
+  addLog('Starting neural analysis for patient...', 'secondary');
+  addLog('Initializing layer 4 feature extraction...', 'primary');
+  addLog('Pattern recognition engine engaged. Core temp: 42C.', 'primary');
+
+  try {
+    const result = await Api.analysis.predict({
+      patient_id: selectedPatientId,
+      symptoms: ['memory_loss', 'confusion', 'disorientation', 'difficulty_with_tasks'],
+      medical_history: 'Patient presents with progressive cognitive decline'
+    });
+    addLog('Matching patterns to disease baselines...', 'secondary');
+    addLog('Analysis complete. ' + result.predictions.length + ' predictions generated.', 'secondary');
+    
+    // Update progress ring
+    const confidence = Math.round(result.ai_confidence * 100);
+    const circle = document.querySelector('.text-primary.drop-shadow');
+    if (circle) {
+      const offset = 553 - (553 * confidence / 100);
+      circle.setAttribute('stroke-dashoffset', offset);
+    }
+    document.querySelector('.text-glow-primary').innerHTML = confidence + '<span class="text-2xl font-normal opacity-70">%</span>';
+    
+    // Show top prediction
+    if (result.predictions.length > 0) {
+      const top = result.predictions[0];
+      addLog('Top prediction: ' + top.disease + ' (' + (top.confidence * 100).toFixed(1) + '%)', 'secondary');
+    }
+    
+    // Show brain regions
+    Object.entries(result.brain_regions).forEach(([region, data]) => {
+      if (data.status !== 'normal') {
+        addLog('Region ' + region + ': ' + data.status + ' (activity: ' + data.activity + ')', 'tertiary');
+      }
+    });
+    
+    addLog('Scan complete. Results stored in patient record.', 'secondary');
+    UI.toast('Analysis complete!', 'success');
+  } catch(e) {
+    addLog('ERROR: ' + e.message, 'primary');
+    UI.toast('Analysis failed', 'error');
+  }
+  btn.innerHTML = 'RUN_ANALYSIS';
+  btn.disabled = false;
+}
+</script>
+</body></html>

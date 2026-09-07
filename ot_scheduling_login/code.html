@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>OT_SCHEDULING_HUB | NEURO_PREDICT_SYS</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;700;800&amp;family=Inter:wght@400;500;600&amp;family=Space_Grotesk:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"></script>
+<script src="../shared/auth.js"></script>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-highest": "#28283e",
+                        "primary": "#ff2d78",
+                        "surface": "#0f0f1a",
+                        "on-surface-variant": "#a098b0",
+                        "tertiary-container": "#665200",
+                        "on-error": "#1a0000",
+                        "inverse-primary": "#8c0038",
+                        "error": "#ff4444",
+                        "primary-container": "#b3004e",
+                        "secondary": "#00ffcc",
+                        "on-primary": "#1a0010",
+                        "surface-tint": "#ff2d78",
+                        "surface-bright": "#1a1a2e",
+                        "tertiary": "#ffe04a",
+                        "surface-container-lowest": "#0a0a12",
+                        "outline": "#5a5068",
+                        "on-secondary-fixed": "#001a1a",
+                        "background": "#0a0a12",
+                        "primary-fixed": "#ffe0ec",
+                        "on-tertiary": "#1a1000",
+                        "inverse-surface": "#e8e0f0",
+                        "on-secondary": "#001a1a",
+                        "on-primary-fixed-variant": "#8c0038",
+                        "on-secondary-fixed-variant": "#004d4d",
+                        "secondary-fixed-dim": "#00e6b8",
+                        "on-secondary-container": "#c0fff4",
+                        "surface-container-low": "#111118",
+                        "secondary-fixed": "#c0fff4",
+                        "secondary-container": "#004d3d",
+                        "outline-variant": "#302840",
+                        "on-surface": "#e8e0f0",
+                        "primary-fixed-dim": "#ff80aa",
+                        "on-background": "#e8e0f0",
+                        "on-tertiary-container": "#fff0c0",
+                        "surface-container": "#141422",
+                        "surface-container-high": "#1e1e30",
+                        "on-tertiary-fixed": "#1a1000",
+                        "surface-variant": "#1e1e30",
+                        "error-container": "#3d0f0f",
+                        "on-primary-fixed": "#3d0020",
+                        "on-primary-container": "#ffe0ec",
+                        "inverse-on-surface": "#0a0a12",
+                        "tertiary-fixed-dim": "#ffe04a",
+                        "tertiary-fixed": "#fff0c0",
+                        "surface-dim": "#0f0f1a",
+                        "on-error-container": "#ffa0a0",
+                        "on-tertiary-fixed-variant": "#665200"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Sora"],
+                        "body": ["Inter"],
+                        "label": ["Space Grotesk"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #0a0a12;
+            background-image: 
+                linear-gradient(rgba(255, 45, 120, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 45, 120, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+        .neon-glow-primary { text-shadow: 0 0 8px #ff2d78; }
+        .neon-glow-secondary { text-shadow: 0 0 8px #00ffcc; }
+        .neon-border-glow { 
+            border: 1px solid rgba(255, 45, 120, 0.3);
+            box-shadow: inset 0 0 12px rgba(255, 45, 120, 0.1), 0 0 16px rgba(255, 45, 120, 0.05);
+        }
+        .scanline {
+            width: 100%;
+            height: 2px;
+            background: rgba(0, 255, 204, 0.1);
+            position: absolute;
+            z-index: 10;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+        }
+        .theater-grid-cell {
+            background: rgba(0, 255, 204, 0.02);
+            border: 1px solid rgba(0, 255, 204, 0.1);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body text-on-background selection:bg-primary/30 min-h-screen flex flex-col">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-6 h-16 bg-[#0a0a12]/80 backdrop-blur-md border-b border-[#ff2d78]/30 shadow-[0_0_16px_rgba(255,45,120,0.2)]">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[#ff2d78] drop-shadow-[0_0_8px_rgba(255,45,120,0.8)]" style="font-variation-settings: 'FILL' 1;">fingerprint</span>
+<span class="text-xl font-black text-[#ff2d78] drop-shadow-[0_0_8px_rgba(255,45,120,0.8)] font-headline tracking-tighter">NEURO_PREDICT_SYS</span>
+</div>
+<div class="flex items-center gap-6">
+<nav class="hidden md:flex gap-8 font-label text-[12px] uppercase tracking-widest text-slate-500">
+<a class="hover:text-[#00ffcc] hover:drop-shadow-[0_0_8px_rgba(0,255,204,0.8)] transition-all" href="#">Protocols</a>
+<a class="hover:text-[#00ffcc] hover:drop-shadow-[0_0_8px_rgba(0,255,204,0.8)] transition-all" href="#">Telemetry</a>
+<a class="text-[#ff2d78] drop-shadow-[0_0_8px_currentColor]" href="#">Portal</a>
+</nav>
+<div class="h-8 w-8 rounded-full border border-primary/50 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="close-up headshot of a male medical professional in futuristic blue lighting with subtle biometric HUD overlays" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD2MSdjld3_zbgt_Gzz5wTSG4WvX1xe_zclwZ_oXYi0hD1420VT-226FY2TtEripGF6x0ZOd7eNAJlUhw4PGHi0ZoPh0too9tATI-K1-zatGmj_DcR-P-mX1VYS1nlFkIyE7CnZ_GeACN9Nbp0KHzBl-PadeYGEVmAEKBIdMbbeaDefyoNn3ZCCfy1rnY_IgPNL-FkYnSH4ybxqTnOf-RqxssanFoJmhrSUwNGGYcJ111NAZxnJoBoB2u3z5auT9MFP_Qee634Ia_s"/>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="flex-grow pt-24 pb-20 px-6 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+<!-- Left: Branding & Visuals -->
+<div class="lg:col-span-7 space-y-10">
+<div>
+<h1 class="text-5xl md:text-7xl font-headline font-black tracking-tighter mb-4">
+<span class="text-on-background">OT_</span><span class="text-primary neon-glow-primary">SCHEDULING_HUB</span>
+</h1>
+<p class="text-on-surface-variant font-label tracking-wide max-w-md uppercase text-sm border-l-2 border-secondary pl-4">
+                    Neural interface for high-frequency surgical theater allocation. System status: <span class="text-secondary neon-glow-secondary">STABLE</span>
+</p>
+</div>
+<!-- 3D Theater Grid Simulation -->
+<div class="relative w-full aspect-video rounded-xl bg-surface-container-low neon-border-glow overflow-hidden group">
+<div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-secondary/5"></div>
+<div class="absolute inset-0 grid grid-cols-8 grid-rows-6 p-4 gap-2 opacity-40">
+<!-- Grid cells for visual texture -->
+<div class="theater-grid-cell"></div><div class="theater-grid-cell bg-secondary/10 border-secondary/30"></div><div class="theater-grid-cell"></div><div class="theater-grid-cell"></div><div class="theater-grid-cell"></div><div class="theater-grid-cell"></div><div class="theater-grid-cell"></div><div class="theater-grid-cell"></div>
+<div class="theater-grid-cell"></div><div class="theater-grid-cell"></div><div class="theater-grid-cell"></div><div class="theater-grid-cell bg-primary/10 border-primary/30"></div><div class="theater-grid-cell"></div><div class="theater-grid-cell"></div><div class="theater-grid-cell"></div><div class="theater-grid-cell"></div>
+<div class="theater-grid-cell"></div><div class="theater-grid-cell"></div><div class="theater-grid-cell"></div><div class="theater-grid-cell"></div><div class="theater-grid-cell"></div><div class="theater-grid-cell"></div><div class="theater-grid-cell"></div><div class="theater-grid-cell"></div>
+<div class="theater-grid-cell"></div><div class="theater-grid-cell"></div><div class="theater-grid-cell"></div><div class="theater-grid-cell"></div><div class="theater-grid-cell bg-secondary/20 border-secondary/50"></div><div class="theater-grid-cell"></div><div class="theater-grid-cell"></div><div class="theater-grid-cell"></div>
+</div>
+<div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+<div class="text-center">
+<div class="text-6xl font-headline font-bold text-secondary neon-glow-secondary mb-2">04:22:15</div>
+<div class="text-on-surface-variant font-label text-[10px] tracking-[0.3em] uppercase">Universal Terminal Time</div>
+</div>
+</div>
+<div class="absolute bottom-4 left-4 flex gap-2">
+<span class="px-2 py-1 bg-primary/20 text-primary text-[10px] font-label rounded">THEATER_04: ACTIVE</span>
+<span class="px-2 py-1 bg-surface-container-highest text-on-surface-variant text-[10px] font-label rounded">SENSORS: NOMINAL</span>
+</div>
+</div>
+</div>
+<!-- Right: Login Portal -->
+<div class="lg:col-span-5">
+<div class="bg-surface-container-low neon-border-glow p-8 rounded-xl relative overflow-hidden backdrop-blur-xl">
+<div class="absolute top-0 right-0 p-4 opacity-20">
+<span class="material-symbols-outlined text-7xl text-primary">security</span>
+</div>
+<h2 class="text-xl font-headline font-bold text-on-background mb-8 flex items-center gap-2">
+<span class="w-2 h-2 bg-primary animate-pulse"></span>
+                    SECURITY_GATEWAY
+                </h2>
+<form class="space-y-6">
+<div class="space-y-1">
+<label class="block text-secondary font-label text-[10px] tracking-widest uppercase mb-2">THEATER_RESERVATION_ID</label>
+<div class="relative group">
+<input class="w-full bg-surface-container-highest border-b-2 border-slate-700 focus:border-secondary transition-all outline-none py-3 px-4 text-secondary font-label placeholder:text-slate-600 focus:shadow-[0_4px_12px_rgba(0,255,204,0.1)]" placeholder="TR-XXXX-8821" type="text"/>
+<span class="absolute right-3 top-3 material-symbols-outlined text-slate-500 group-focus-within:text-secondary">token</span>
+</div>
+</div>
+<div class="space-y-1">
+<label class="block text-secondary font-label text-[10px] tracking-widest uppercase mb-2">SURGICAL_TEAM_PIN</label>
+<div class="relative group">
+<input class="w-full bg-surface-container-highest border-b-2 border-slate-700 focus:border-primary transition-all outline-none py-3 px-4 text-primary font-label placeholder:text-slate-600 focus:shadow-[0_4px_12px_rgba(255,45,120,0.1)]" placeholder="••••••••" type="password"/>
+<span class="absolute right-3 top-3 material-symbols-outlined text-slate-500 group-focus-within:text-primary">emergency</span>
+</div>
+</div>
+<div class="pt-4">
+<button class="w-full bg-surface-container border border-primary/50 text-primary py-4 font-headline font-bold uppercase tracking-widest hover:bg-primary/10 hover:shadow-[0_0_16px_rgba(255,45,120,0.4)] transition-all active:scale-95 duration-200 flex items-center justify-center gap-3" type="submit">
+                            OPEN_SCHEDULER
+                            <span class="material-symbols-outlined">bolt</span>
+</button>
+</div>
+<div class="flex justify-between items-center text-[10px] font-label text-slate-600 uppercase tracking-tighter pt-4">
+<a class="hover:text-tertiary transition-colors" href="#">Emergency_Bypass</a>
+<a class="hover:text-secondary transition-colors" href="#">Request_Access</a>
+</div>
+</form>
+</div>
+<!-- Contextual Data Card -->
+<div class="mt-6 grid grid-cols-2 gap-4">
+<div class="bg-surface-container p-4 rounded-lg border border-outline-variant">
+<div class="text-[10px] font-label text-slate-500 uppercase mb-1">Queue_Density</div>
+<div class="text-2xl font-headline font-bold text-tertiary neon-glow-tertiary">08_OPS</div>
+</div>
+<div class="bg-surface-container p-4 rounded-lg border border-outline-variant">
+<div class="text-[10px] font-label text-slate-500 uppercase mb-1">Grid_Latency</div>
+<div class="text-2xl font-headline font-bold text-secondary neon-glow-secondary">1.2ms</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center h-20 bg-[#0a0a12]/90 backdrop-blur-lg pb-safe border-t border-[#00ffcc]/30 shadow-[0_-4px_20px_rgba(0,255,204,0.1)]">
+<a class="flex flex-col items-center justify-center text-[#ff2d78] drop-shadow-[0_0_8px_rgba(255,45,120,0.6)] active:translate-y-[-2px] transition-transform" href="#">
+<span class="material-symbols-outlined mb-1">theater_comedy</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase tracking-widest">Theater</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 hover:bg-[#ff2d78]/10 transition-colors active:translate-y-[-2px]" href="#">
+<span class="material-symbols-outlined mb-1">biotech</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase tracking-widest">Surgery</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 hover:bg-[#ff2d78]/10 transition-colors active:translate-y-[-2px]" href="#">
+<span class="material-symbols-outlined mb-1">folder_managed</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase tracking-widest">History</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 hover:bg-[#ff2d78]/10 transition-colors active:translate-y-[-2px]" href="#">
+<span class="material-symbols-outlined mb-1">pill</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase tracking-widest">Pharmacy</span>
+</a>
+</nav>
+<!-- Scanline effect layer -->
+<div class="fixed inset-0 pointer-events-none overflow-hidden opacity-20 mix-blend-overlay">
+<div class="scanline h-[884px] w-full bg-gradient-to-b from-transparent via-secondary/20 to-transparent"></div>
+</div>
+<script src="../shared/ui.js"></script>
+<script>
+if (!Auth.isSignedIn()) window.location.href = '../3fa_pharmacy_login/code.html';
+</script>
+</body></html>

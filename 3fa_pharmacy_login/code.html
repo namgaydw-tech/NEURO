@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PHARMA_CORE_ACCESS | NEURO_PREDICT_SYS</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;700;800&amp;family=Inter:wght@400;500;600&amp;family=Space_Grotesk:wght@300;400;500;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"></script>
+<script src="../shared/auth.js"></script>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-highest": "#28283e",
+                        "primary": "#ff2d78",
+                        "surface": "#0f0f1a",
+                        "on-surface-variant": "#a098b0",
+                        "tertiary-container": "#665200",
+                        "on-error": "#1a0000",
+                        "inverse-primary": "#8c0038",
+                        "error": "#ff4444",
+                        "primary-container": "#b3004e",
+                        "secondary": "#00ffcc",
+                        "on-primary": "#1a0010",
+                        "surface-tint": "#ff2d78",
+                        "surface-bright": "#1a1a2e",
+                        "tertiary": "#ffe04a",
+                        "surface-container-lowest": "#0a0a12",
+                        "outline": "#5a5068",
+                        "on-secondary-fixed": "#001a1a",
+                        "background": "#0a0a12",
+                        "primary-fixed": "#ffe0ec",
+                        "on-tertiary": "#1a1000",
+                        "inverse-surface": "#e8e0f0",
+                        "on-secondary": "#001a1a",
+                        "on-primary-fixed-variant": "#8c0038",
+                        "on-secondary-fixed-variant": "#004d4d",
+                        "secondary-fixed-dim": "#00e6b8",
+                        "on-secondary-container": "#c0fff4",
+                        "surface-container-low": "#111118",
+                        "secondary-fixed": "#c0fff4",
+                        "secondary-container": "#004d3d",
+                        "outline-variant": "#302840",
+                        "on-surface": "#e8e0f0",
+                        "primary-fixed-dim": "#ff80aa",
+                        "on-background": "#e8e0f0",
+                        "on-tertiary-container": "#fff0c0",
+                        "surface-container": "#141422",
+                        "surface-container-high": "#1e1e30",
+                        "on-tertiary-fixed": "#1a1000",
+                        "surface-variant": "#1e1e30",
+                        "error-container": "#3d0f0f",
+                        "on-primary-fixed": "#3d0020",
+                        "on-primary-container": "#ffe0ec",
+                        "inverse-on-surface": "#0a0a12",
+                        "tertiary-fixed-dim": "#ffe04a",
+                        "tertiary-fixed": "#fff0c0",
+                        "surface-dim": "#0f0f1a",
+                        "on-error-container": "#ffa0a0",
+                        "on-tertiary-fixed-variant": "#665200"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Sora"],
+                        "body": ["Inter"],
+                        "label": ["Space Grotesk"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .neon-glow-primary {
+            text-shadow: 0 0 8px #ff2d78;
+        }
+        .neon-glow-secondary {
+            text-shadow: 0 0 8px #00ffcc;
+        }
+        .scanline {
+            background: linear-gradient(to bottom, transparent 50%, rgba(0, 255, 204, 0.05) 51%);
+            background-size: 100% 4px;
+        }
+        .scanner-ring {
+            border: 2px solid transparent;
+            border-top-color: #00ffcc;
+            animation: spin 3s linear infinite;
+        }
+        .scanner-grid {
+            background-image: radial-gradient(#00ffcc 1px, transparent 1px);
+            background-size: 10px 10px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); opacity: 0.5; }
+            50% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.5; }
+        }
+        .pulse-secondary {
+            animation: pulse-ring 2s ease-in-out infinite;
+        }
+    </style>
+<style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body selection:bg-primary/30 min-h-screen flex flex-col">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-6 h-16 bg-[#0a0a12]/80 backdrop-blur-md border-b border-[#ff2d78]/30 shadow-[0_0_16px_rgba(255,45,120,0.2)]">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-2xl" data-icon="fingerprint">fingerprint</span>
+<h1 class="text-xl font-black text-[#ff2d78] drop-shadow-[0_0_8px_rgba(255,45,120,0.8)] font-headline tracking-tighter">NEURO_PREDICT_SYS</h1>
+</div>
+<div class="flex items-center gap-4">
+<div class="hidden md:flex gap-6 font-label text-xs tracking-widest uppercase text-slate-500">
+<span class="hover:text-[#00ffcc] hover:drop-shadow-[0_0_8px_rgba(0,255,204,0.8)] transition-all cursor-pointer">System_Status: Optimal</span>
+<span class="hover:text-[#00ffcc] hover:drop-shadow-[0_0_8px_rgba(0,255,204,0.8)] transition-all cursor-pointer">Node: Tokyo_03</span>
+</div>
+<div class="w-8 h-8 rounded-full border border-primary/50 overflow-hidden shadow-[0_0_8px_rgba(255,45,120,0.3)]">
+<img alt="Biometric Profile" data-alt="Cyberpunk style biometric profile avatar with neon pink geometric patterns and dark background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCWWRQwJ_LmEezb1RpYBs_tbV99sKfJNTuJAV9LKR0ReG8GU5IOpT10Vj3V66OIvnf0hjPT5i3jhPg9_9_-5WJgS9tRQ1ZOIGfL6D9HcmJnp7Pd1AQBSpRDH0ttvwibLhwVaknegGuopt_Uo8Zmm6o3m8--vIaatV8NDkTaZRXmBb7PKDymVIDblxKeJzimTTuw5sDpnRAycZczpKlu7-o1EavdNjW7ZR3s6D4a8TYpuvGtFuQKl3xRF9F08Lx6lKK2JnFu5dXvQN4"/>
+</div>
+</div>
+</header>
+<main class="flex-grow flex items-center justify-center pt-16 pb-20 px-4 relative overflow-hidden">
+<!-- Background Decorative Elements -->
+<div class="absolute inset-0 scanline pointer-events-none opacity-20"></div>
+<div class="absolute top-1/4 -left-20 w-96 h-96 bg-primary/10 blur-[120px] rounded-full"></div>
+<div class="absolute bottom-1/4 -right-20 w-96 h-96 bg-secondary/10 blur-[120px] rounded-full"></div>
+<!-- Login Container -->
+<div class="relative w-full max-w-md">
+<!-- Glassmorphic Bento Panel -->
+<div class="bg-surface-container/60 backdrop-blur-xl border border-primary/30 p-8 rounded-lg shadow-[inset_0_0_24px_rgba(255,45,120,0.05)] relative overflow-hidden">
+<!-- Corner Accents -->
+<div class="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-secondary/50"></div>
+<div class="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-secondary/50"></div>
+<div class="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-secondary/50"></div>
+<div class="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-secondary/50"></div>
+<!-- Header -->
+<div class="mb-8 text-center">
+<div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-surface-container-highest border border-secondary/30 mb-4 shadow-[0_0_15px_rgba(0,255,204,0.2)]">
+<span class="material-symbols-outlined text-secondary text-2xl" data-icon="pill" style="font-variation-settings: 'FILL' 1;">pill</span>
+</div>
+<h2 class="text-2xl md:text-3xl font-headline font-extrabold text-on-surface tracking-tight neon-glow-primary">PHARMA_CORE_ACCESS</h2>
+<p class="font-label text-[10px] uppercase tracking-[0.3em] text-on-surface-variant mt-2">3-Factor Authentication Required</p>
+</div>
+<!-- Clerk Sign-In Component -->
+<div id="clerk-sign-in" class="w-full"></div>
+
+<!-- Legacy 3FA Flow (hidden when Clerk is active) -->
+<form id="loginForm" class="space-y-6" onsubmit="return handleLogin(event)" style="display:none;">
+<!-- Login Error -->
+<div id="loginError" class="hidden bg-error-container border border-primary/30 text-primary px-4 py-3 rounded-lg text-sm font-label"></div>
+<!-- Factor 1: Official Pharma ID -->
+<div class="space-y-2">
+<label class="flex justify-between font-label text-[10px] uppercase tracking-widest text-secondary neon-glow-secondary">
+<span>01_OFFICIAL_PHARMA_ID</span>
+<span class="text-on-surface-variant/50">REQ</span>
+</label>
+<div class="relative">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline text-lg" data-icon="badge">badge</span>
+<input id="loginEmail" class="w-full bg-surface-container-low border-b-2 border-outline focus:border-primary outline-none py-3 pl-12 pr-4 text-on-surface font-label transition-all focus:shadow-[0_4px_12px_rgba(255,45,120,0.1)] placeholder:text-outline/50" placeholder="EMAIL // AUTH_CODE" type="text"/>
+</div>
+</div>
+<!-- Factor 2: Secure Password -->
+<div class="space-y-2">
+<label class="flex justify-between font-label text-[10px] uppercase tracking-widest text-secondary neon-glow-secondary">
+<span>02_SECURE_AUTH_CODE</span>
+<span class="text-on-surface-variant/50">REQ</span>
+</label>
+<div class="relative">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline text-lg" data-icon="key">key</span>
+<input id="loginPassword" class="w-full bg-surface-container-low border-b-2 border-outline focus:border-primary outline-none py-3 pl-12 pr-4 text-on-surface font-label transition-all focus:shadow-[0_4px_12px_rgba(255,45,120,0.1)] placeholder:text-outline/50" placeholder="••••••••••••" type="password"/>
+</div>
+</div>
+<!-- Factor 3: Biometric Face Scan Stage -->
+<div class="space-y-4 py-2">
+<label class="flex justify-between font-label text-[10px] uppercase tracking-widest text-secondary neon-glow-secondary">
+<span>03_BIOMETRIC_FACE_SCAN</span>
+<span class="text-secondary/80">READY</span>
+</label>
+<div class="flex flex-col items-center justify-center py-4 bg-surface-container-low/50 rounded-xl border border-outline-variant/30 relative">
+<!-- Circular Scanner UI -->
+<div class="relative w-28 h-28 flex items-center justify-center">
+<div class="absolute inset-0 scanner-ring rounded-full pulse-secondary"></div>
+<div class="absolute inset-2 border border-secondary/20 rounded-full scanner-grid opacity-30"></div>
+<div class="w-20 h-20 rounded-full overflow-hidden bg-surface-container-highest border border-secondary/40 flex items-center justify-center shadow-[0_0_20px_rgba(0,255,204,0.1)]">
+<span class="material-symbols-outlined text-secondary text-5xl opacity-40" data-icon="face">face</span>
+</div>
+<!-- Scanning Line -->
+<div class="absolute top-1/2 left-0 w-full h-[1px] bg-secondary shadow-[0_0_8px_#00ffcc] -translate-y-1/2 opacity-60"></div>
+</div>
+<div class="mt-4 flex items-center gap-2">
+<div class="w-1.5 h-1.5 bg-secondary rounded-full animate-pulse"></div>
+<span class="font-label text-[9px] uppercase tracking-widest text-on-surface-variant">Awaiting_Optics_Sync...</span>
+</div>
+</div>
+</div>
+<!-- Action Button -->
+<button class="w-full group relative flex items-center justify-center gap-3 bg-background border border-primary py-4 text-primary font-headline font-bold uppercase tracking-[0.2em] hover:bg-primary/10 hover:shadow-[0_0_16px_rgba(255,45,120,0.4)] transition-all active:scale-95 duration-200" type="submit">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform" data-icon="verified_user">verified_user</span>
+                        INITIALIZE_DECRYPT
+                        <div class="absolute right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-sm" data-icon="chevron_right">chevron_right</span>
+</div>
+</button>
+</form>
+<!-- Demo Accounts -->
+<div id="demoAccounts" class="mt-6 grid grid-cols-2 gap-2"></div>
+<!-- Footer Links -->
+<div class="mt-8 flex justify-between items-center text-[10px] font-label uppercase tracking-wider text-outline">
+<a class="hover:text-tertiary transition-colors flex items-center gap-1" href="#"><span class="material-symbols-outlined text-[12px]" data-icon="priority_high">priority_high</span> Emergency_Override</a>
+<a class="hover:text-tertiary transition-colors" href="#">Secure_Reset</a>
+</div>
+</div>
+<!-- Side Deco Image -->
+<div class="mt-6 grid grid-cols-3 gap-4">
+<div class="h-16 border border-secondary/20 rounded overflow-hidden relative">
+<img alt="Lab Equipment" class="w-full h-full object-cover grayscale brightness-50 contrast-125" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDw-bDlIOaPPqNsp3U8-VvxAkvaQE8sllcH0nbOPsg3FqyQxtFHf2wO9JnaTXxmytFm6wx3u_0rruyCTU8QzxhEasOu6JjrECwYZnmH92ztAf2VCs8ixyrcqt291KVG27zFDSfBup7fPoCp_ZH2lqEyp9c6bSzLR17s7PeNJJVagX5seTodujtm5OPud7aq9s3W6-UYwwDX8DVTImVDblsBNl-fVlTroBJ5m_GrPOsw4wTcAM93-Lf0vPys8QIm0K1pbufhGy7EmLg"/>
+<div class="absolute inset-0 bg-secondary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary/60 text-lg" data-icon="science">science</span>
+</div>
+</div>
+<div class="h-16 border border-primary/20 rounded overflow-hidden relative">
+<img alt="Circuitry" class="w-full h-full object-cover grayscale brightness-50 contrast-125" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCpwbGNYmQcaXuWXgm1MP9_i17fucKnOBVYcsU8nwY7_HDOie1TD0RY2MiHcebehnO3JAm8i6bcIgmZDkov5OyItc7VdcHftDboqkz3Lu5uDqa-GnWJo8CZy8rZ_YX1JwVh3uJSzKoHJb5jEjyBYLMKELtdOUKD5PQoBrkQmWu49cfKs2CPsP_Uas0JO2Li9tfyvU2mT_OnYtGNZvKswd73qvUdEaRJCS-9YEv0nksIPNXjtJg_RvWqbOfJxBBEYCpJl3S7xZg2964"/>
+<div class="absolute inset-0 bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary/60 text-lg" data-icon="memory">memory</span>
+</div>
+</div>
+<div class="h-16 border border-tertiary/20 rounded overflow-hidden relative">
+<img alt="Research Lab" class="w-full h-full object-cover grayscale brightness-50 contrast-125" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAVNutXfqTpHj3Ho9dIXzM8UIJvbIGodSvmnMgCU_cU22FfqvIMwwA4uWm8TGN8Hr2sjyVNmMmX2-reaoCBwwUoyKQETEbC5hzh3Pt_aJu80X4TP-1UP3QNsKOJmspCxhby4a4q3xlI1qB_cLlvsYOQ85cDriKAQua1APu2Ef_hmnh34a5nP9Cg-JzY-HmDTrtLs5v36tsaht521uh8HVHMQqUAvpnA6WSZDpzHypIRJdngkUkK7MddpPH0fe-EfqBc_D3Db78C1Kk"/>
+<div class="absolute inset-0 bg-tertiary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-tertiary/60 text-lg" data-icon="hub">hub</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center h-20 bg-[#0a0a12]/90 backdrop-blur-lg pb-safe border-t border-[#00ffcc]/30 shadow-[0_-4px_20px_rgba(0,255,204,0.1)]">
+<div class="flex flex-col items-center justify-center text-slate-500 hover:bg-[#ff2d78]/10 transition-colors w-full h-full cursor-pointer">
+<span class="material-symbols-outlined" data-icon="biotech">biotech</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase tracking-widest mt-1">Surgery</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-500 hover:bg-[#ff2d78]/10 transition-colors w-full h-full cursor-pointer">
+<span class="material-symbols-outlined" data-icon="folder_managed">folder_managed</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase tracking-widest mt-1">History</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#ff2d78] drop-shadow-[0_0_8px_rgba(255,45,120,0.6)] translate-y-[-2px] transition-transform w-full h-full cursor-pointer">
+<span class="material-symbols-outlined" data-icon="pill" style="font-variation-settings: 'FILL' 1;">pill</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase tracking-widest mt-1">Pharmacy</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-500 hover:bg-[#ff2d78]/10 transition-colors w-full h-full cursor-pointer">
+<span class="material-symbols-outlined" data-icon="emergency_recording">emergency_recording</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase tracking-widest mt-1">Theater</span>
+</div>
+</nav>
+<script src="../shared/ui.js"></script>
+<script>
+(async () => {
+  await Auth.ready();
+
+  // If already signed in, redirect to intended page
+  if (Auth.isSignedIn()) {
+    Auth.redirectToIntended();
+    return;
+  }
+
+  // Clerk sign-in not configured yet — show legacy login form
+  document.getElementById('clerk-sign-in').style.display = 'none';
+  document.getElementById('loginForm').style.display = '';
+
+  // Load demo accounts
+  try {
+    const accounts = await Api.auth.demoAccounts();
+    const container = document.getElementById('demoAccounts');
+    if (container && accounts.length) {
+      container.innerHTML = accounts.map(a => 
+        `<button type="button" onclick="document.getElementById('loginEmail').value='${a.email}';document.getElementById('loginPassword').value='${a.password}'" class="text-left px-3 py-2 bg-surface-container-high/50 hover:bg-surface-container-high border border-outline-variant/30 hover:border-secondary/30 rounded-lg transition-all group">
+          <p class="font-label text-[10px] text-secondary group-hover:neon-glow-secondary">${a.role.toUpperCase()}</p>
+          <p class="font-label text-[9px] text-on-surface-variant">${a.full_name}</p>
+        </button>`
+      ).join('');
+    }
+  } catch(e) { console.log('Demo accounts loading...', e); }
+})();
+
+async function handleLogin(e) {
+  e.preventDefault();
+  const email = document.getElementById('loginEmail').value;
+  const password = document.getElementById('loginPassword').value;
+  const errorEl = document.getElementById('loginError');
+  const btn = e.target.querySelector('button[type=submit]');
+  
+  errorEl.classList.add('hidden');
+  btn.innerHTML = '<span class="material-symbols-outlined animate-spin">refresh</span> AUTHENTICATING...';
+  btn.disabled = true;
+
+  try {
+    const data = await Auth.login(email, password);
+    UI.toast('Welcome back, ' + data.user.full_name, 'success');
+    setTimeout(() => {
+      Auth.redirectToIntended();
+    }, 800);
+  } catch (err) {
+    errorEl.textContent = 'ACCESS DENIED: ' + err.message;
+    errorEl.classList.remove('hidden');
+    btn.innerHTML = '<span class="material-symbols-outlined group-hover:scale-110 transition-transform" data-icon="verified_user">verified_user</span> INITIALIZE_DECRYPT <div class="absolute right-4 opacity-0 group-hover:opacity-100 transition-opacity"><span class="material-symbols-outlined text-sm" data-icon="chevron_right">chevron_right</span></div>';
+    btn.disabled = false;
+  }
+}
+</script>
+</body></html>

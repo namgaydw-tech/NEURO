@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>NEUROSURGERY_SECURE_ENTRY</title>
+<script src="/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"></script>
+<script src="../shared/auth.js"></script>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;700;800&amp;family=Inter:wght@400;500;600&amp;family=Space_Grotesk:wght@300;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-highest": "#28283e",
+                        "primary": "#ff2d78",
+                        "surface": "#0f0f1a",
+                        "on-surface-variant": "#a098b0",
+                        "tertiary-container": "#665200",
+                        "on-error": "#1a0000",
+                        "inverse-primary": "#8c0038",
+                        "error": "#ff4444",
+                        "primary-container": "#b3004e",
+                        "secondary": "#00ffcc",
+                        "on-primary": "#1a0010",
+                        "surface-tint": "#ff2d78",
+                        "surface-bright": "#1a1a2e",
+                        "tertiary": "#ffe04a",
+                        "surface-container-lowest": "#0a0a12",
+                        "outline": "#5a5068",
+                        "on-secondary-fixed": "#001a1a",
+                        "background": "#0a0a12",
+                        "primary-fixed": "#ffe0ec",
+                        "on-tertiary": "#1a1000",
+                        "inverse-surface": "#e8e0f0",
+                        "on-secondary": "#001a1a",
+                        "on-primary-fixed-variant": "#8c0038",
+                        "on-secondary-fixed-variant": "#004d4d",
+                        "secondary-fixed-dim": "#00e6b8",
+                        "on-secondary-container": "#c0fff4",
+                        "surface-container-low": "#111118",
+                        "secondary-fixed": "#c0fff4",
+                        "secondary-container": "#004d3d",
+                        "outline-variant": "#302840",
+                        "on-surface": "#e8e0f0",
+                        "primary-fixed-dim": "#ff80aa",
+                        "on-background": "#e8e0f0",
+                        "on-tertiary-container": "#fff0c0",
+                        "surface-container": "#141422",
+                        "surface-container-high": "#1e1e30",
+                        "on-tertiary-fixed": "#1a1000",
+                        "surface-variant": "#1e1e30",
+                        "error-container": "#3d0f0f",
+                        "on-primary-fixed": "#3d0020",
+                        "on-primary-container": "#ffe0ec",
+                        "inverse-on-surface": "#0a0a12",
+                        "tertiary-fixed-dim": "#ffe04a",
+                        "tertiary-fixed": "#fff0c0",
+                        "surface-dim": "#0f0f1a",
+                        "on-error-container": "#ffa0a0",
+                        "on-tertiary-fixed-variant": "#665200"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Sora"],
+                        "body": ["Inter"],
+                        "label": ["Space Grotesk"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .neon-glow-primary { text-shadow: 0 0 8px #ff2d78; }
+        .neon-glow-secondary { text-shadow: 0 0 8px #00ffcc; }
+        .neon-border-primary { border: 1px solid rgba(255, 45, 120, 0.5); box-shadow: inset 0 0 12px rgba(255, 45, 120, 0.1); }
+        .neon-border-secondary { border: 1px solid rgba(0, 255, 204, 0.5); box-shadow: inset 0 0 12px rgba(0, 255, 204, 0.1); }
+        .scan-line {
+            background: linear-gradient(to bottom, rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+        }
+        .grid-bg {
+            background-image: linear-gradient(rgba(255, 45, 120, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 45, 120, 0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body min-h-screen relative overflow-hidden flex flex-col">
+<!-- Grid Overlay -->
+<div class="fixed inset-0 grid-bg opacity-30 z-0"></div>
+<div class="fixed inset-0 scan-line z-10 opacity-20"></div>
+<!-- Top Navigation (Shell suppressed for login focus, using localized branding) -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-6 h-16 bg-[#0a0a12]/80 backdrop-blur-md border-b border-primary/30 shadow-[0_0_16px_rgba(255,45,120,0.2)]">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-2xl drop-shadow-[0_0_8px_rgba(255,45,120,0.8)]" style="font-variation-settings: 'FILL' 1;">fingerprint</span>
+<span class="font-headline font-black text-xl tracking-tighter text-primary drop-shadow-[0_0_8px_rgba(255,45,120,0.8)]">NEURO_PREDICT_SYS</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-full border border-secondary/50 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="abstract neural network visualization with glowing cyan fibers on a dark blue tech background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7qye0QaRlUWyPb1HBRAPgm6XlucFsB2qEDJMQlrQsgNVRESiEkmnsTYyCfdyofiMmfTaizZY0eer3QikOr936zpzq-1__v2NhQF4-jf2eZoERPd1nSqyj8tIDhDFHdIUsm_B1NazkrHVpyNpeEe8f4zkyVyOP7_J1VMWllE1DQrCOmRVN1Rq4FGqc60gsx_eOx9piGxt5w2zwk77Pvq_uU1-MHX0xjgiymm2_CDRe1_SgxpoeA6kfbraaHktUdrNO4gJcj0gz9MY"/>
+</div>
+<span class="font-label text-[10px] text-secondary tracking-widest uppercase">System_Offline</span>
+</div>
+</header>
+<main class="flex-grow flex items-center justify-center p-6 relative z-20 mt-16">
+<div class="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+<!-- Left Side: Visuals & Scanning -->
+<div class="flex flex-col items-center justify-center space-y-8 order-2 md:order-1">
+<div class="relative group">
+<!-- Scanner Frame -->
+<div class="w-64 h-80 neon-border-secondary rounded-xl bg-surface-container-low flex flex-col items-center justify-center p-4 relative overflow-hidden">
+<!-- Scanning Line -->
+<div class="absolute top-0 left-0 w-full h-1 bg-secondary shadow-[0_0_15px_#00ffcc] opacity-70 animate-pulse"></div>
+<div class="text-secondary opacity-80 mb-4 font-label text-xs tracking-widest uppercase">Biometric_Interface</div>
+<!-- Fingerprint Visual -->
+<div class="relative w-40 h-40 flex items-center justify-center">
+<span class="material-symbols-outlined text-[120px] text-secondary/40 drop-shadow-[0_0_20px_rgba(0,255,204,0.3)]">fingerprint</span>
+<!-- Scanning light effect -->
+<div class="absolute inset-0 bg-gradient-to-b from-transparent via-secondary/20 to-transparent h-1/2 w-full"></div>
+</div>
+<div class="mt-8 flex flex-col items-center text-center space-y-2">
+<div class="font-label text-[10px] text-on-surface-variant uppercase tracking-tighter">Status: awaiting_input</div>
+<div class="flex gap-1">
+<div class="w-2 h-1 bg-secondary shadow-[0_0_5px_#00ffcc]"></div>
+<div class="w-2 h-1 bg-secondary/30"></div>
+<div class="w-2 h-1 bg-secondary/30"></div>
+</div>
+</div>
+</div>
+<!-- Decorative HUD elements -->
+<div class="absolute -top-4 -right-4 w-12 h-12 border-t-2 border-r-2 border-primary/40"></div>
+<div class="absolute -bottom-4 -left-4 w-12 h-12 border-b-2 border-l-2 border-primary/40"></div>
+</div>
+<div class="hidden md:block w-full max-w-xs p-4 bg-surface-container/50 border-l-2 border-secondary/50">
+<p class="font-label text-[10px] text-on-surface-variant leading-relaxed">
+                        NOTICE: AUTHORIZED PERSONNEL ONLY. ALL ATTEMPTS TO BYPASS NEURAL_KEY ENCRYPTION ARE LOGGED BY CENTRAL_SENTINEL.
+                    </p>
+</div>
+</div>
+<!-- Right Side: Login Form -->
+<div class="space-y-8 order-1 md:order-2">
+<div class="space-y-2">
+<h1 class="font-headline font-extrabold text-4xl md:text-5xl text-on-surface tracking-tight leading-none uppercase">
+                        NEUROSURGERY<br/>
+<span class="text-primary neon-glow-primary">SECURE_ENTRY</span>
+</h1>
+<div class="h-1 w-24 bg-primary shadow-[0_0_10px_#ff2d78]"></div>
+</div>
+<div id="clerk-sign-in" class="w-full"></div>
+<form class="space-y-6">
+<!-- SURGEON_ID Input -->
+<div class="space-y-2 group">
+<label class="font-label text-[11px] text-secondary uppercase tracking-[0.2em] block ml-1">SURGEON_ID</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">badge</span>
+<input class="w-full bg-surface-container-high border-b border-outline-variant text-on-surface px-10 py-4 focus:outline-none focus:border-secondary focus:ring-0 transition-all font-label tracking-wider placeholder:text-outline" placeholder="DR_NAME_0X00" type="text"/>
+</div>
+</div>
+<!-- NEURAL_KEY Input -->
+<div class="space-y-2 group">
+<label class="font-label text-[11px] text-primary uppercase tracking-[0.2em] block ml-1">NEURAL_KEY</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">key</span>
+<input class="w-full bg-surface-container-high border-b border-outline-variant text-on-surface px-10 py-4 focus:outline-none focus:border-primary focus:ring-0 transition-all font-label tracking-wider placeholder:text-outline" placeholder="••••••••••••" type="password"/>
+</div>
+</div>
+<div class="flex items-center justify-between py-2">
+<label class="flex items-center gap-2 cursor-pointer">
+<input class="rounded-none bg-surface-container-highest border-outline-variant text-primary focus:ring-primary focus:ring-offset-background" type="checkbox"/>
+<span class="font-label text-[10px] text-on-surface-variant uppercase tracking-widest">Keep_Sync</span>
+</label>
+<a class="font-label text-[10px] text-secondary uppercase tracking-widest hover:neon-glow-secondary transition-all" href="#">Recover_Key?</a>
+</div>
+<!-- ACCESS_PORTAL Button -->
+<button class="w-full py-5 bg-surface-container-lowest border border-primary/50 text-primary font-headline font-bold uppercase tracking-[0.3em] relative group overflow-hidden transition-all hover:shadow-[0_0_20px_rgba(255,45,120,0.4)] active:scale-95" type="submit">
+<span class="relative z-10 drop-shadow-[0_0_5px_rgba(255,45,120,0.5)]">ACCESS_PORTAL</span>
+<div class="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<!-- Decorative corners -->
+<div class="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-primary"></div>
+<div class="absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2 border-primary"></div>
+</button>
+</form>
+<div class="pt-4 flex items-center gap-4">
+<div class="h-px flex-grow bg-outline-variant/30"></div>
+<span class="font-label text-[10px] text-on-surface-variant uppercase tracking-[0.2em]">External_Verification</span>
+<div class="h-px flex-grow bg-outline-variant/30"></div>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<button class="flex items-center justify-center gap-2 py-3 bg-surface-container/30 border border-outline-variant hover:border-secondary/50 transition-colors">
+<span class="material-symbols-outlined text-sm text-secondary">genetics</span>
+<span class="font-label text-[10px] text-on-surface uppercase tracking-widest">DNA_LINK</span>
+</button>
+<button class="flex items-center justify-center gap-2 py-3 bg-surface-container/30 border border-outline-variant hover:border-secondary/50 transition-colors">
+<span class="material-symbols-outlined text-sm text-secondary">visibility</span>
+<span class="font-label text-[10px] text-on-surface uppercase tracking-widest">RETINA_SCAN</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+<!-- Background Elements -->
+<div class="fixed top-1/4 -left-20 w-96 h-96 bg-primary/5 blur-[120px] rounded-full z-0"></div>
+<div class="fixed bottom-1/4 -right-20 w-96 h-96 bg-secondary/5 blur-[120px] rounded-full z-0"></div>
+<!-- Footer Stats -->
+<footer class="fixed bottom-0 w-full h-8 flex justify-between items-center px-6 bg-surface-container-lowest/50 border-t border-outline-variant/20 z-50">
+<div class="flex gap-4">
+<span class="font-label text-[8px] text-on-surface-variant uppercase tracking-[0.2em]">LATENCY: 4MS</span>
+<span class="font-label text-[8px] text-on-surface-variant uppercase tracking-[0.2em]">ENCRYPTION: QUANTUM_R6</span>
+</div>
+<div class="flex gap-4">
+<span class="font-label text-[8px] text-on-surface-variant uppercase tracking-[0.2em]">NODE: TOKYO_CENTRAL_04</span>
+<span class="font-label text-[8px] text-primary uppercase tracking-[0.2em] neon-glow-primary">SYSTEM_READY</span>
+</div>
+</footer>
+<script src="../shared/ui.js"></script>
+<script>
+(async () => {
+  await Auth.ready();
+  if (Auth.isSignedIn()) { Auth.redirectToIntended(); return; }
+  if (Auth.isSignedIn()) { window.location.href = '../global_neural_dashboard_v1/code.html'; return; }
+
+  // Mount Clerk SignIn
+  if (clerkMounted) {
+    document.querySelector('form').style.display = 'none';
+  }
+})();
+
+// Neurosurgery login form
+document.querySelector('form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const inputs = e.target.querySelectorAll('input');
+  const email = inputs[0].value;
+  const password = inputs[1].value;
+  try {
+    await Auth.login(email, password);
+    UI.toast('Access granted', 'success');
+    setTimeout(() => window.location.href = '../global_neural_dashboard_v1/code.html', 800);
+  } catch(err) {
+    UI.toast('ACCESS DENIED: ' + err.message, 'error');
+  }
+});
+</script>
+</body></html>

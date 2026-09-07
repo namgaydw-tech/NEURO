@@ -1,0 +1,43 @@
+{
+  "name": "NEURO_PREDICT_SYS - Medical AI Platform",
+  "short_name": "NEURO_PREDICT",
+  "description": "Neural interface for AI-driven disease prediction, pharmacy management, and OT scheduling",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#0a0a12",
+  "theme_color": "#ff2d78",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23ff2d78'/%3E%3Cpath d='M50 20 L50 80 M20 50 L80 50' stroke='white' stroke-width='8' stroke-linecap='round'/%3E%3Ccircle cx='50' cy='50' r='15' fill='none' stroke='%2300ffcc' stroke-width='4'/%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23ff2d78'/%3E%3Cpath d='M50 20 L50 80 M20 50 L80 50' stroke='white' stroke-width='8' stroke-linecap='round'/%3E%3Ccircle cx='50' cy='50' r='15' fill='none' stroke='%2300ffcc' stroke-width='4'/%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["health", "medical", "productivity"],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "url": "/global_neural_dashboard_v1/code.html",
+      "icons": [{ "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23ff2d78'/%3E%3Cpath d='M50 20 L50 80 M20 50 L80 50' stroke='white' stroke-width='8'/%3E%3C/svg%3E", "sizes": "96x96" }]
+    },
+    {
+      "name": "Pharmacy",
+      "url": "/3fa_pharmacy_login/code.html",
+      "icons": [{ "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%2300ffcc'/%3E%3Cpath d='M50 20 v60 M20 50 h60' stroke='white' stroke-width='8' stroke-linecap='round'/%3E%3C/svg%3E", "sizes": "96x96" }]
+    },
+    {
+      "name": "OT Scheduling",
+      "url": "/ot_scheduling_login/code.html",
+      "icons": [{ "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23ffe04a'/%3E%3Crect x='20' y='30' width='60' height='40' rx='4' fill='none' stroke='white' stroke-width='6'/%3E%3C/svg%3E", "sizes": "96x96" }]
+    }
+  ]
+}

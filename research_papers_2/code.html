@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>NEURO_CORE | Research Papers</title>
+<script src="/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"></script>
+<link rel="stylesheet" href="../shared/styles.css"/>
+<script src="/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"></script>
+<script src="../shared/auth.js"></script>
+<script src="../shared/api.js"></script>
+<script src="../shared/ui.js"></script>
+<script src="../shared/profile-panel.js"></script>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;700;800&amp;family=Inter:wght@300;400;600&amp;family=Space_Grotesk:wght@300;500;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "on-surface": "#e8e0f0",
+            "tertiary-fixed-dim": "#ffe04a",
+            "surface": "#0f0f1a",
+            "on-secondary-fixed-variant": "#004d4d",
+            "outline": "#5a5068",
+            "on-primary-container": "#ffe0ec",
+            "surface-dim": "#0f0f1a",
+            "on-surface-variant": "#a098b0",
+            "surface-container-highest": "#28283e",
+            "error-container": "#3d0f0f",
+            "on-error-container": "#ffa0a0",
+            "on-error": "#1a0000",
+            "surface-container-high": "#1e1e30",
+            "secondary": "#00ffcc",
+            "inverse-primary": "#8c0038",
+            "tertiary-fixed": "#fff0c0",
+            "on-tertiary": "#1a1000",
+            "background": "#0a0a12",
+            "primary-fixed": "#ffe0ec",
+            "primary": "#ff2d78",
+            "inverse-on-surface": "#0a0a12",
+            "primary-container": "#b3004e",
+            "surface-bright": "#1a1a2e",
+            "outline-variant": "#302840",
+            "on-tertiary-container": "#fff0c0",
+            "on-primary-fixed-variant": "#8c0038",
+            "secondary-fixed": "#c0fff4",
+            "on-primary-fixed": "#3d0020",
+            "secondary-fixed-dim": "#00e6b8",
+            "error": "#ff4444",
+            "surface-variant": "#1e1e30",
+            "surface-tint": "#ff2d78",
+            "on-tertiary-fixed": "#1a1000",
+            "on-secondary-fixed": "#001a1a",
+            "surface-container": "#141422",
+            "tertiary": "#ffe04a",
+            "on-secondary": "#001a1a",
+            "secondary-container": "#004d3d",
+            "inverse-surface": "#e8e0f0",
+            "surface-container-lowest": "#0a0a12",
+            "on-background": "#e8e0f0",
+            "surface-container-low": "#111118",
+            "primary-fixed-dim": "#ff80aa",
+            "on-tertiary-fixed-variant": "#665200",
+            "tertiary-container": "#665200",
+            "on-secondary-container": "#c0fff4",
+            "on-primary": "#1a0010"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          },
+          "fontFamily": {
+            "headline": ["Sora"],
+            "body": ["Inter"],
+            "label": ["Space Grotesk"]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    body {
+      background-color: #0a0a12;
+      background-image: 
+        linear-gradient(rgba(255, 45, 120, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 45, 120, 0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .neon-text-pink { text-shadow: 0 0 8px rgba(255, 45, 120, 0.8); }
+    .neon-text-cyan { text-shadow: 0 0 8px rgba(0, 255, 204, 0.8); }
+    .neon-border-pink { border: 1px solid rgba(255, 45, 120, 0.3); box-shadow: inset 0 0 12px rgba(255, 45, 120, 0.1); }
+    .glass-panel { background: rgba(20, 20, 34, 0.7); backdrop-filter: blur(12px); }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="text-on-surface font-body selection:bg-primary selection:text-white">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#0a0a12]/80 backdrop-blur-md border-b border-[#ff2d78]/30 shadow-[inset_0_0_12px_rgba(255,45,120,0.1)] flex justify-between items-center px-6 h-16">
+<div class="flex items-center gap-2 cursor-pointer active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-pink-500" data-icon="biotech">biotech</span>
+<h1 class="font-['Sora'] font-black tracking-tight text-xl text-[#ff2d78] drop-shadow-[0_0_8px_rgba(255,45,120,0.8)]">RESEARCH</h1>
+</div>
+<div class="ml-auto flex items-center gap-4">
+<a href="../global_neural_dashboard_v1/code.html" class="font-label text-[10px] text-slate-400 hover:text-[#00ffcc] uppercase tracking-widest transition-all hidden md:block">Dashboard</a>
+<a href="../neural_archive_eeg_interpreter/code.html" class="font-label text-[10px] text-slate-400 hover:text-[#00ffcc] uppercase tracking-widest transition-all hidden md:block">Archive</a>
+<a href="../ai_analysis/code.html" class="font-label text-[10px] text-slate-400 hover:text-[#00ffcc] uppercase tracking-widest transition-all hidden md:block">Analysis</a>
+<span class="material-symbols-outlined text-slate-400 hover:text-[#00ffcc] transition-colors cursor-pointer" data-icon="search">search</span>
+<div id="profile-panel-trigger"></div>
+</header>
+<main class="pt-24 pb-32 px-4 md:px-8 max-w-7xl mx-auto">
+<!-- Search & Filter Bar -->
+<section class="mb-10">
+<div class="flex flex-col md:flex-row gap-4 items-center">
+<div class="relative w-full md:flex-1">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary" data-icon="terminal">terminal</span>
+<input class="w-full bg-surface-container border-b-2 border-primary/30 focus:border-primary focus:ring-0 text-secondary font-label p-4 pl-12 rounded-t-lg transition-all placeholder:text-slate-600" placeholder="QUERY_DATABASE: [disease, author, journal]" type="text"/>
+</div>
+<div class="flex gap-2 w-full md:w-auto">
+<button class="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-4 bg-surface-container border border-secondary/30 text-secondary font-label hover:bg-secondary/10 transition-all rounded-lg group">
+<span class="material-symbols-outlined group-hover:neon-text-cyan" data-icon="filter_list">filter_list</span>
+            FILTER
+          </button>
+<button class="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-4 bg-surface-container border border-tertiary/30 text-tertiary font-label hover:bg-tertiary/10 transition-all rounded-lg group">
+<span class="material-symbols-outlined group-hover:text-shadow" data-icon="history">history</span>
+            RECENT
+          </button>
+</div>
+</div>
+<!-- Fast Tags -->
+<div class="flex flex-wrap gap-2 mt-4">
+<span class="px-3 py-1 rounded-full border border-primary/20 bg-primary/5 text-primary text-[10px] font-label font-bold uppercase tracking-widest cursor-pointer hover:bg-primary/20 transition-all">Alzheimer's</span>
+<span class="px-3 py-1 rounded-full border border-secondary/20 bg-secondary/5 text-secondary text-[10px] font-label font-bold uppercase tracking-widest cursor-pointer hover:bg-secondary/20 transition-all">Parkinson's</span>
+<span class="px-3 py-1 rounded-full border border-tertiary/20 bg-tertiary/5 text-tertiary text-[10px] font-label font-bold uppercase tracking-widest cursor-pointer hover:bg-tertiary/20 transition-all">AI Diagnostics</span>
+<span class="px-3 py-1 rounded-full border border-on-surface-variant/20 bg-on-surface-variant/5 text-on-surface-variant text-[10px] font-label font-bold uppercase tracking-widest cursor-pointer hover:bg-on-surface-variant/20 transition-all">Neurogenesis</span>
+</div>
+</section>
+<!-- Content Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<!-- Featured Paper (Large Bento Card) -->
+<article class="lg:col-span-2 relative group p-6 rounded-2xl glass-panel neon-border-pink overflow-hidden">
+<div class="absolute -right-10 -top-10 w-40 h-40 bg-primary/10 blur-[80px] rounded-full"></div>
+<div class="relative z-10">
+<div class="flex justify-between items-start mb-6 border-b border-primary/20 pb-4">
+<div>
+<span class="font-label text-[10px] text-primary bg-primary/10 px-2 py-0.5 border border-primary/30 rounded mb-2 inline-block uppercase tracking-widest">Official Medical Record // SECURE</span>
+<h2 class="font-headline text-2xl md:text-3xl font-extrabold tracking-tight text-on-surface">MRI/ECD NEURAL DIAGNOSTIC REPORT</h2>
+</div>
+<div class="flex flex-col items-end">
+<span class="text-[10px] font-label text-secondary mb-1">STATUS: ANALYSIS_COMPLETE</span>
+<div class="h-2 w-24 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-secondary w-full shadow-[0_0_8px_#00ffcc]"></div>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+<div class="space-y-3">
+<div class="flex justify-between border-b border-white/5 pb-1">
+<span class="text-[10px] font-label text-slate-500 uppercase">Patient ID</span>
+<span class="text-xs font-label text-on-surface">PX-7721-OMEGA</span>
+</div>
+<div class="flex justify-between border-b border-white/5 pb-1">
+<span class="text-[10px] font-label text-slate-500 uppercase">Attending Physician</span>
+<span class="text-xs font-label text-on-surface">Dr. Aris Thorne, Ph.D.</span>
+</div>
+<div class="flex justify-between border-b border-white/5 pb-1">
+<span class="text-[10px] font-label text-slate-500 uppercase">Scan Timestamp</span>
+<span class="text-xs font-label text-on-surface">2024.05.22 // 09:14 UTC</span>
+</div>
+</div>
+<div class="bg-surface-container/50 p-4 rounded border border-outline-variant/30">
+<h4 class="text-[10px] font-label text-primary uppercase mb-2">Scan Parameters</h4>
+<p class="text-[11px] text-on-surface-variant font-label leading-relaxed">
+        Modality: High-Res 7T MRI + Electron Capture Detector (ECD)<br/>
+        Resolution: 0.2mm isotropic<br/>
+        Focus: Frontal Lobe // Synaptic Density Mapping
+      </p>
+</div>
+</div>
+<div class="mb-8">
+<h4 class="text-xs font-headline font-bold text-secondary mb-3 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">clinical_notes</span>
+      NEUROSURGERY PRE-OP SUMMARY
+    </h4>
+<div class="text-on-surface-variant text-sm leading-relaxed space-y-4">
+<p>
+        Imaging reveals a localized micro-calcification within the left hippocampal corridor. Neural firing patterns show a 14% deviation from baseline efficiency in the surrounding glial networks.
+      </p>
+<p class="border-l-2 border-primary pl-4 bg-primary/5 py-2">
+<strong class="text-primary">Recommendation:</strong> Proceed with robotic-assisted micro-shunting. Targeted zone: A-12 through B-4. Expected success rate for cognitive restoration is 89% based on current neuro-plasticity metrics.
+      </p>
+</div>
+</div>
+<div class="flex flex-wrap gap-4">
+<button class="flex items-center gap-2 px-6 py-2 bg-primary text-on-primary font-label font-bold rounded hover:shadow-[0_0_16px_rgba(255,45,120,0.6)] transition-all active:scale-95">
+<span class="material-symbols-outlined text-sm" data-icon="content_paste">content_paste</span>
+      EXPORT_MEDICAL_RECORD
+    </button>
+<button class="flex items-center gap-2 px-6 py-2 border border-secondary/50 text-secondary font-label font-bold rounded hover:bg-secondary/10 transition-all">
+<span class="material-symbols-outlined text-sm" data-icon="precision_manufacturing">precision_manufacturing</span>
+      INITIATE_PRE_OP
+    </button>
+</div>
+</div>
+</article>
+<!-- Sidebar Items -->
+<div class="flex flex-col gap-6">
+<!-- Small Card 1 -->
+<article class="p-5 rounded-2xl bg-surface-container border border-outline-variant/30 hover:border-secondary/40 transition-all group">
+<span class="font-label text-[10px] text-secondary mb-2 block uppercase tracking-tighter">Mayo Clinic Proceedings</span>
+<h3 class="font-headline text-lg font-bold mb-2 group-hover:neon-text-cyan transition-all">Genetic Markers in Parkinsonian Tremors</h3>
+<p class="text-on-surface-variant text-xs line-clamp-2 mb-4">Investigating the LRRK2 gene mutation frequency in diverse populations...</p>
+<div class="flex justify-between items-center">
+<span class="text-[10px] font-label text-slate-500">SEPT 12, 2023</span>
+<span class="material-symbols-outlined text-slate-400 cursor-pointer hover:text-primary" data-icon="bookmark">bookmark</span>
+</div>
+</article>
+<!-- Small Card 2 -->
+<article class="p-5 rounded-2xl bg-surface-container border border-outline-variant/30 hover:border-tertiary/40 transition-all group">
+<span class="font-label text-[10px] text-tertiary mb-2 block uppercase tracking-tighter">Journal of Neuroscience</span>
+<h3 class="font-headline text-lg font-bold mb-2 group-hover:text-tertiary transition-all">Synaptic Plasticity &amp; Virtual Environments</h3>
+<p class="text-on-surface-variant text-xs line-clamp-2 mb-4">How immersive simulation affects neural pathway recovery post-stroke...</p>
+<div class="flex justify-between items-center">
+<span class="text-[10px] font-label text-slate-500">OCT 05, 2023</span>
+<span class="material-symbols-outlined text-slate-400 cursor-pointer hover:text-primary" data-icon="bookmark">bookmark</span>
+</div>
+</article>
+</div>
+<!-- Main Feed Row 2 -->
+<article class="p-6 rounded-2xl glass-panel border border-outline-variant/30 hover:shadow-[0_0_20px_rgba(0,255,204,0.05)] transition-all">
+<div class="aspect-video w-full mb-4 rounded-lg overflow-hidden border border-white/5">
+<img alt="Brain Scan" class="w-full h-full object-cover" data-alt="highly detailed digital render of a human brain with glowing blue neural pathways and pink electrical impulses cyberpunk style" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDCCvX7ke0s3Bnx0W5_I1Jw4KKzE6lg7rvWAKwr3R7d-h07HmPlz25FayDCqNlmoHkuBfoY8cPAcPkXZv0SC6RVffE9H9FI4RlTJ17LFduRVZizlJtqpcWyjmvBH5ddA7svkbOPN4AsBDVWdQGchQsJu6xs1yBgzGn9o3K1gnIIEZihahEokRHYGrrKikC861YVdODJHQR1eQZ90bUM9Kn1nv0xY25SqcdnD5kYRwFHsNc-6NOSxcM6tvmz4xBhT_el6aiFXDy4fOo"/>
+</div>
+<span class="font-label text-[10px] text-secondary bg-secondary/10 px-2 py-0.5 rounded">PUBMED_CENTRAL</span>
+<h3 class="font-headline text-xl font-bold mt-3 mb-2">Automated EEG Classification via RNN</h3>
+<p class="text-slate-400 text-sm mb-4">Real-time seizure prediction using recurrent neural networks on mobile hardware...</p>
+<button class="w-full py-2 border border-secondary/30 text-secondary font-label text-xs tracking-widest hover:bg-secondary/10 rounded transition-all">ACCESS_FULL_TEXT</button>
+</article>
+<article class="p-6 rounded-2xl bg-surface-container/50 border border-outline-variant/30">
+<div class="flex items-center gap-3 mb-4">
+<div class="w-10 h-10 rounded-lg bg-pink-500/20 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" data-icon="history_edu">history_edu</span>
+</div>
+<div>
+<p class="font-label text-[10px] text-slate-500 uppercase">Johns Hopkins Medicine</p>
+<p class="font-headline text-sm font-bold">Research Archive</p>
+</div>
+</div>
+<h3 class="font-headline text-lg font-bold mb-3">Longitudinal Study: Gut-Brain Axis</h3>
+<p class="text-on-surface-variant text-sm mb-6 leading-relaxed">Evaluating the impact of probiotic intervention on cognitive decline in late-stage dementia patients over 36 months.</p>
+<div class="pt-4 border-t border-white/5 flex justify-between">
+<div class="flex -space-x-2">
+<img alt="Author" class="w-6 h-6 rounded-full border border-background" data-alt="scientist portrait" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDaNpC9jS68xXTWoAIMOndi1UPamNVVGOi435boHVMrk5lhn90RiXIxND7Dfb5U-8D7Ct5NcwT2UN5x626Z07l0iHWYpXaaGaq5LuFf8_QL2BMB0Fxp-ee59ABvBEfn3O5A5P8yDb8jxDKfVQm5gYtA-kzC6yLjoYXL4tLsGQydbGozNDGFwWb5sqfSRrzp5HygBz1VHiNdqqFqng3fph-4PTTA4JFFEhBWR_yI9cH-B1VVzd8yr0EabDuDHMCBWNhpoxrx8F_f9Vo"/>
+<img alt="Author" class="w-6 h-6 rounded-full border border-background" data-alt="scientist portrait" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC-oZYPRyslO4_k7VkZOZZlYSS4y0ETG3V17M_M5EKRAOSUsGcCXYoVYEHVdIo8be477Qm8h1Sz_Wna28m8XZwxQ90h7g6-rz05-gWHrJXErSZKrzN08IIIgxMqL7j45_BJVZkcCjKI2EbwyZ4GVnyeJ_xTsLX6_NjCYXkdgLvYEBRvbtOHUHWMYv8QZM9ZhK3WZF5crVJep-laYI_E4EnQMDQSeT_e2tkfHnvS3ojs5lMTxcSiS0vicfKStzGjU8XMm5jU7kJs94A"/>
+<div class="w-6 h-6 rounded-full bg-slate-800 border border-background flex items-center justify-center text-[8px]">+4</div>
+</div>
+<span class="material-symbols-outlined text-slate-500 cursor-pointer hover:text-white" data-icon="share">share</span>
+</div>
+</article>
+<article class="p-6 rounded-2xl glass-panel border border-primary/20 relative overflow-hidden group">
+<div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<span class="font-label text-[10px] text-primary mb-2 block">QUICK_PREVIEW</span>
+<h3 class="font-headline text-lg font-bold mb-3">AI in Neuro-Surgery Navigation</h3>
+<ul class="space-y-3 mb-6">
+<li class="flex items-start gap-2 text-xs text-on-surface-variant">
+<span class="material-symbols-outlined text-primary text-[14px] mt-0.5" data-icon="check_circle">check_circle</span>
+            AR integration success rates
+          </li>
+<li class="flex items-start gap-2 text-xs text-on-surface-variant">
+<span class="material-symbols-outlined text-primary text-[14px] mt-0.5" data-icon="check_circle">check_circle</span>
+            Latency benchmarks: &lt; 5ms
+          </li>
+<li class="flex items-start gap-2 text-xs text-on-surface-variant">
+<span class="material-symbols-outlined text-primary text-[14px] mt-0.5" data-icon="check_circle">check_circle</span>
+            Patient recovery data: +12%
+          </li>
+</ul>
+<button class="w-full py-2 bg-surface text-primary border border-primary/50 font-label text-xs rounded hover:bg-primary/10 transition-all">VIEW_INFOGRAPHIC</button>
+</article>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center h-20 pb-safe px-4 bg-[#0a0a12]/90 backdrop-blur-xl z-50 rounded-t-2xl border-t border-[#ff2d78]/30 shadow-[0_-4px_20px_rgba(255,45,120,0.15)]">
+<a href="../global_neural_dashboard_v1/code.html" class="flex flex-col items-center justify-center text-slate-500 hover:text-[#00ffcc] transition-all cursor-pointer active:scale-90">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase tracking-widest mt-1">Dashboard</span>
+</a>
+<a href="../neural_archive_eeg_interpreter/code.html" class="flex flex-col items-center justify-center text-slate-500 hover:text-[#00ffcc] transition-all cursor-pointer active:scale-90">
+<span class="material-symbols-outlined" data-icon="database">database</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase tracking-widest mt-1">Archive</span>
+</a>
+<a href="../ai_analysis/code.html" class="flex flex-col items-center justify-center text-slate-500 hover:text-[#00ffcc] transition-all cursor-pointer active:scale-90">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase tracking-widest mt-1">Analysis</span>
+</a>
+<a href="../research_papers_2/code.html" class="flex flex-col items-center justify-center text-[#ff2d78] drop-shadow-[0_0_8px_rgba(255,45,120,0.6)] font-bold cursor-pointer active:scale-90">
+<span class="material-symbols-outlined" data-icon="menu_book" style="font-variation-settings: 'FILL' 1;">menu_book</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase tracking-widest mt-1">Research</span>
+</a>
+</nav>
+<script>
+(async () => {
+  await Auth.ready();
+  if (!Auth.isSignedIn() && !Auth.isSignedIn()) {
+    window.location.href = '../3fa_pharmacy_login/code.html?redirect_url=' + encodeURIComponent(window.location.pathname);
+    return;
+  }
+  if (Auth.isSignedIn()) {
+    try { 
+    try { await true; } catch(e) {}
+  } else if (Auth.isSignedIn()) {
+    const el = document.getElementById('clerk-user-button');
+    if (el) el.innerHTML = '<a href="javascript:void(0)" onclick="Auth.signOut()" class="font-label text-[10px] text-[#ff2d78] hover:text-[#ff5090] uppercase tracking-widest transition-all">Sign Out</a>';
+  }
+})();
+</script>
+</body></html>
