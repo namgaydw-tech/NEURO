@@ -1,16 +1,27 @@
 // NEURO_PREDICT_SYS - Service Worker
 // Handles offline caching and background sync
 
-const CACHE_NAME = 'neuro-predict-v1';
+const CACHE_NAME = 'neuro-predict-v2';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
   '/manifest.json',
-  '/config.js'
+  '/config.js',
+  '/landing/index.html',
+  '/app/dashboard.html',
+  '/app/dashboard.js',
+  '/shared/design-system.css',
+  '/shared/layout.css',
+  '/shared/layout.js',
+  '/shared/ui.js',
+  '/shared/auth.js',
+  '/shared/api.js'
 ];
 
 // Files to cache from each module
 const MODULE_PATHS = [
+  '/app/dashboard.html',
+  '/landing/index.html',
   '/3fa_pharmacy_login/code.html',
   '/ot_scheduling_login/code.html',
   '/global_neural_dashboard_v1/code.html',

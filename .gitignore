@@ -1,4 +1,19 @@
-# Python
+# ══════════════════════════════════════════════════════════════════
+# NEURO_PREDICT_SYS — .gitignore
+# ══════════════════════════════════════════════════════════════════
+
+# ── Secrets (NEVER commit) ───────────────────────────────────────
+.env
+.env.local
+.env.*.local
+.env.production
+.env.staging
+*.pem
+*.key
+*credentials*
+*secret*
+
+# ── Python ────────────────────────────────────────────────────────
 __pycache__/
 *.py[cod]
 *$py.class
@@ -8,39 +23,49 @@ venv/
 backendvenv/
 *.egg-info/
 *.egg
+.pytest_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
 
-# Virtual environments
+# ── Virtual environments ─────────────────────────────────────────
 backend/venv/
+NEURO/backend/venv/
 stitch_neuro_ai_disease_predictorbackendvenv/
 
-# Environment variables
-.env
-.env.local
-.env.*.local
-
-# IDE
+# ── IDE ───────────────────────────────────────────────────────────
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
 
-# Logs
-*.log
-*.log.*
-
-# OS
+# ── OS ────────────────────────────────────────────────────────────
 .DS_Store
 Thumbs.db
 *.lnk
 
-# Build/output
+# ── Build/output ──────────────────────────────────────────────────
 dist/
 build/
 *.pyc
+.mypy_cache/
 
-# ML model artifacts (keep metadata, exclude large files if needed)
-# backend/ml/models/*.pkl  # Uncomment if you want to exclude model files
+# ── ML model artifacts (keep small metadata, exclude large files) ─
+# backend/ml/models/*.pkl  # Uncomment to exclude trained models
 
-# Freebuff temporary files
+# ── Logs ──────────────────────────────────────────────────────────
+*.log
+*.log.*
+
+# ── Freebuff temporary files ──────────────────────────────────────
 .freebuff/
+.freebuff*/
+
+# ── Node (if any) ────────────────────────────────────────────────
+node_modules/
+
+# ── Docker ────────────────────────────────────────────────────────
+docker-compose.override.yml

@@ -5,7 +5,10 @@ Demo data for testing all modules.
 import uuid
 import random
 from datetime import datetime, timedelta
-from database import get_db
+try:
+    from core.database import get_db
+except ImportError:
+    from database import get_db
 
 
 def seed_all():

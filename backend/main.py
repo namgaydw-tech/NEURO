@@ -10,9 +10,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
 
-from config import get_settings
-from auth import seed_demo_accounts
-from database import get_db
+try:
+    from core.config import get_settings
+    from core.auth import seed_demo_accounts
+    from core.database import get_db
+except ImportError:
+    from config import get_settings
+    from auth import seed_demo_accounts
+    from database import get_db
 from routes import router
 from seed import seed_all
 

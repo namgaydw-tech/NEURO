@@ -233,7 +233,7 @@
   if (Auth.isSignedIn()) { window.location.href = '../global_neural_dashboard_v1/code.html'; return; }
 
   // Mount Clerk SignIn
-  if (clerkMounted) {
+  if (window.clerkMounted) {
     const form = document.querySelector('form');
     if (form) form.style.display = 'none';
   }

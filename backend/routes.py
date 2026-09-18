@@ -7,13 +7,15 @@ from datetime import datetime
 from typing import Optional, List
 
 from fastapi import APIRouter, HTTPException, Depends, Query
+from pydantic import BaseModel, Field
 
-from auth import (
+from core.auth import (
     hash_password, verify_password, create_access_token,
-    get_current_user, require_admin, seed_demo_accounts,
-    DEMO_ACCOUNTS
+    get_current_user, require_admin, seed_demo_accounts, require_role,
+    require_permission, audit_logger, DEMO_ACCOUNTS, create_refresh_token,
+    hash_token, generate_refresh_token
 )
-from database import get_db
+from core.database import get_db
 from models import (
     UserCreate, UserLogin, TokenResponse,
     PatientCreate, PatientResponse, PatientListResponse,
@@ -22,7 +24,9 @@ from models import (
     EEGRecordingCreate, EEGRecordingResponse,
     ResearchPaperCreate, ResearchPaperResponse,
     MedicationCreate, MedicationResponse,
-    DashboardStats
+    DashboardStats,
+    PharmacyProfileCreate, PharmacyProfileUpdate, PharmacyProfileResponse,
+    UserProfileUpdate, UserProfileResponse
 )
 from ml import predictor
 
@@ -33,8 +37,13 @@ router = APIRouter()
 # AUTH ROUTES
 # ══════════════════════════════════════════════════════════════════
 
-@router.post("/auth/register", response_model=TokenResponse)
-async def register(user: UserCreate):
+from fastapi import Request
+from core.auth import require_rate_limit
+
+
+@router.post("/auth/register", response_model=TokenResponse,
+             dependencies=[Depends(require_rate_limit(5, 60, "register"))])
+async def register(user: UserCreate, request: Request):
     db = get_db()
     # Check existing
     existing = [u for u in db.get_all("users") if u.get("email") == user.email]
@@ -52,26 +61,34 @@ async def register(user: UserCreate):
         "is_active": True,
     }
     db.insert("users", user_data)
+    audit_logger.log("user.registered", user_data["id"], "user", user_data["id"], request=request)
 
-    token = create_access_token({"sub": user_data["id"], "role": user_data["role"]})
+    access_token = create_access_token({"sub": user_data["id"], "role": user_data["role"]})
+    refresh_token = create_refresh_token({"sub": user_data["id"], "role": user_data["role"]})
     return TokenResponse(
-        access_token=token,
+        access_token=access_token,
+        refresh_token=refresh_token,
         user={k: v for k, v in user_data.items() if k != "password_hash"}
     )
 
 
-@router.post("/auth/login", response_model=TokenResponse)
-async def login(creds: UserLogin):
+@router.post("/auth/login", response_model=TokenResponse,
+             dependencies=[Depends(require_rate_limit(10, 60, "login"))])
+async def login(creds: UserLogin, request: Request):
     db = get_db()
     users = db.get_all("users")
     user = next((u for u in users if u.get("email") == creds.email), None)
 
     if not user or not verify_password(creds.password, user.get("password_hash", "")):
+        audit_logger.log("login.failed", creds.email, "auth", result="failure", request=request)
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
-    token = create_access_token({"sub": user["id"], "role": user["role"]})
+    access_token = create_access_token({"sub": user["id"], "role": user["role"]})
+    refresh_token = create_refresh_token({"sub": user["id"], "role": user["role"]})
+    audit_logger.log("login.success", user["id"], "auth", result="success", request=request)
     return TokenResponse(
-        access_token=token,
+        access_token=access_token,
+        refresh_token=refresh_token,
         user={k: v for k, v in user.items() if k != "password_hash"}
     )
 
@@ -83,9 +100,9 @@ async def get_me(user=Depends(get_current_user)):
 
 @router.get("/auth/demo-accounts")
 async def list_demo_accounts():
-    """List available demo accounts for testing."""
+    """List available demo accounts for testing. Passwords excluded."""
     return [
-        {"email": a["email"], "password": a["password"], "role": a["role"],
+        {"email": a["email"], "role": a["role"],
          "full_name": a["full_name"], "department": a["department"]}
         for a in DEMO_ACCOUNTS
     ]
@@ -145,7 +162,7 @@ async def get_patient(patient_id: str, user=Depends(get_current_user)):
 
 
 @router.post("/patients")
-async def create_patient(patient: PatientCreate, user=Depends(get_current_user)):
+async def create_patient(patient: PatientCreate, user=Depends(require_role("admin", "neurologist", "surgeon"))):
     db = get_db()
     data = patient.model_dump()
     data["id"] = str(uuid.uuid4())
@@ -155,7 +172,7 @@ async def create_patient(patient: PatientCreate, user=Depends(get_current_user))
 
 
 @router.put("/patients/{patient_id}")
-async def update_patient(patient_id: str, patient: PatientCreate, user=Depends(get_current_user)):
+async def update_patient(patient_id: str, patient: PatientCreate, user=Depends(require_role("admin", "neurologist", "surgeon"))):
     db = get_db()
     existing = db.get("patients", patient_id)
     if not existing:
@@ -204,7 +221,7 @@ async def get_diagnosis(diagnosis_id: str, user=Depends(get_current_user)):
 
 
 @router.post("/diagnoses")
-async def create_diagnosis(diag: DiagnosisCreate, user=Depends(get_current_user)):
+async def create_diagnosis(diag: DiagnosisCreate, user=Depends(require_role("admin", "neurologist", "surgeon"))):
     db = get_db()
     data = diag.model_dump()
     data["id"] = str(uuid.uuid4())
@@ -214,13 +231,27 @@ async def create_diagnosis(diag: DiagnosisCreate, user=Depends(get_current_user)
     return data
 
 
+class DiagnosisUpdate(BaseModel):
+    status: Optional[str] = None
+    severity: Optional[str] = None
+    notes: Optional[str] = None
+    confidence_score: Optional[float] = Field(ge=0.0, le=1.0, default=None)
+
+
 @router.put("/diagnoses/{diagnosis_id}")
-async def update_diagnosis(diagnosis_id: str, update: dict, user=Depends(get_current_user)):
+async def update_diagnosis(diagnosis_id: str, update: DiagnosisUpdate,
+                           user=Depends(require_role("admin", "neurologist", "surgeon"))):
     db = get_db()
     existing = db.get("diagnoses", diagnosis_id)
     if not existing:
         raise HTTPException(status_code=404, detail="Diagnosis not found")
-    db.update("diagnoses", diagnosis_id, update)
+    # Only update fields that were explicitly set (whitelist)
+    allowed_updates = update.model_dump(exclude_unset=True)
+    if not allowed_updates:
+        return existing
+    db.update("diagnoses", diagnosis_id, allowed_updates)
+    audit_logger.log("diagnosis.updated", user.get("id"), "diagnosis", diagnosis_id,
+                     action="update", request=None)
     return db.get("diagnoses", diagnosis_id)
 
 
@@ -229,7 +260,7 @@ async def update_diagnosis(diagnosis_id: str, update: dict, user=Depends(get_cur
 # ══════════════════════════════════════════════════════════════════
 
 @router.post("/analysis/predict")
-async def run_prediction(request: AnalysisRequest, user=Depends(get_current_user)):
+async def run_prediction(request: AnalysisRequest, user=Depends(require_role("admin", "neurologist", "researcher"))):
     """Run AI disease prediction for a patient."""
     db = get_db()
 
@@ -278,7 +309,7 @@ async def get_patient_analyses(patient_id: str, user=Depends(get_current_user)):
 # ══════════════════════════════════════════════════════════════════
 
 @router.post("/eeg/record")
-async def record_eeg(recording: EEGRecordingCreate, user=Depends(get_current_user)):
+async def record_eeg(recording: EEGRecordingCreate, user=Depends(require_role("admin", "neurologist"))):
     db = get_db()
 
     # Analyze the EEG data
@@ -348,7 +379,7 @@ async def get_research_paper(paper_id: str, user=Depends(get_current_user)):
 
 
 @router.post("/research")
-async def create_research_paper(paper: ResearchPaperCreate, user=Depends(get_current_user)):
+async def create_research_paper(paper: ResearchPaperCreate, user=Depends(require_role("admin", "researcher"))):
     db = get_db()
     data = paper.model_dump()
     data["id"] = str(uuid.uuid4())
@@ -457,7 +488,7 @@ async def get_pharmacy_profile(user=Depends(get_current_user)):
 @router.post("/pharmacy/profile")
 async def create_pharmacy_profile(
     profile: PharmacyProfileCreate,
-    user=Depends(get_current_user)
+    user=Depends(require_role("admin", "pharmacist"))
 ):
     """Create or update the pharmacy profile."""
     db = get_db()
@@ -483,7 +514,7 @@ async def create_pharmacy_profile(
 async def update_pharmacy_profile(
     profile_id: str,
     profile: PharmacyProfileUpdate,
-    user=Depends(get_current_user)
+    user=Depends(require_role("admin", "pharmacist"))
 ):
     """Update a pharmacy profile."""
     db = get_db()
@@ -535,6 +566,11 @@ async def update_my_profile(
         raise HTTPException(status_code=404, detail="User not found")
     
     update_data = profile.model_dump(exclude_unset=True)
+    # Prevent mass assignment of privileged fields
+    forbidden_fields = {"role", "clearance_level", "is_active", "id"}
+    if user.get("role") != "admin":
+        for field in forbidden_fields:
+            update_data.pop(field, None)
     update_data["updated_at"] = datetime.utcnow().isoformat()
     db.update("users", user_id, update_data)
     
@@ -607,6 +643,14 @@ class TimeSlotResponse(BaseModel):
     created_at: Optional[str] = None
 
 
+class BookingUpdate(BaseModel):
+    status: Optional[str] = None
+    priority: Optional[str] = None
+    notes: Optional[str] = None
+    assistant_name: Optional[str] = None
+    anesthesia_type: Optional[str] = None
+
+
 class BookingCreate(BaseModel):
     slot_id: str
     patient_name: str
@@ -645,7 +689,7 @@ async def list_theaters(user=Depends(get_current_user)):
 @router.post("/ot/theaters")
 async def create_theater(
     theater: TheaterCreate,
-    user=Depends(get_current_user)
+    user=Depends(require_role("admin", "surgeon"))
 ):
     """Create a new operating theater."""
     db = get_db()
@@ -677,7 +721,7 @@ async def list_slots(
 @router.post("/ot/slots")
 async def create_slot(
     slot: TimeSlotCreate,
-    user=Depends(get_current_user)
+    user=Depends(require_role("admin", "surgeon"))
 ):
     """Create a new time slot."""
     db = get_db()
@@ -718,26 +762,34 @@ async def get_slot(slot_id: str, user=Depends(get_current_user)):
     return TimeSlotResponse(**slot)
 
 
+class TimeSlotUpdate(BaseModel):
+    status: Optional[str] = None
+    slot_type: Optional[str] = None
+    notes: Optional[str] = None
+
+
 @router.put("/ot/slots/{slot_id}")
 async def update_slot(
     slot_id: str,
-    updates: dict,
-    user=Depends(get_current_user)
+    updates: TimeSlotUpdate,
+    user=Depends(require_role("admin", "surgeon"))
 ):
     """Update a time slot."""
     db = get_db()
     existing = db.get("ot_slots", slot_id)
     if not existing:
         raise HTTPException(status_code=404, detail="Time slot not found")
-    
-    db.update("ot_slots", slot_id, updates)
+    allowed = updates.model_dump(exclude_unset=True)
+    if not allowed:
+        return TimeSlotResponse(**existing)
+    db.update("ot_slots", slot_id, allowed)
     return TimeSlotResponse(**db.get("ot_slots", slot_id))
 
 
 @router.post("/ot/bookings")
 async def create_booking(
     booking: BookingCreate,
-    user=Depends(get_current_user)
+    user=Depends(require_role("admin", "surgeon"))
 ):
     """Create a new booking for a time slot."""
     db = get_db()
@@ -836,19 +888,21 @@ async def get_booking(booking_id: str, user=Depends(get_current_user)):
 @router.put("/ot/bookings/{booking_id}")
 async def update_booking(
     booking_id: str,
-    updates: dict,
-    user=Depends(get_current_user)
+    updates: BookingUpdate,
+    user=Depends(require_role("admin", "surgeon"))
 ):
     """Update a booking."""
     db = get_db()
     existing = db.get("ot_bookings", booking_id)
     if not existing:
         raise HTTPException(status_code=404, detail="Booking not found")
-    
-    db.update("ot_bookings", booking_id, updates)
+    allowed = updates.model_dump(exclude_unset=True)
+    if not allowed:
+        return {**existing}
+    db.update("ot_bookings", booking_id, allowed)
     
     # If status changed to cancelled, free up the slot
-    if updates.get("status") == "cancelled":
+    if allowed.get("status") == "cancelled":
         slot = db.get("ot_slots", existing.get("slot_id"))
         if slot:
             db.update("ot_slots", existing.get("slot_id"), {
@@ -857,12 +911,13 @@ async def update_booking(
                 "patient_name": None,
                 "procedure": None
             })
-    
+    audit_logger.log("booking.updated", user.get("id"), "ot_booking", booking_id,
+                     action="update", request=None)
     return {**db.get("ot_bookings", booking_id)}
 
 
 @router.delete("/ot/bookings/{booking_id}")
-async def cancel_booking(booking_id: str, user=Depends(get_current_user)):
+async def cancel_booking(booking_id: str, user=Depends(require_role("admin", "surgeon"))):
     """Cancel a booking."""
     db = get_db()
     booking = db.get("ot_bookings", booking_id)

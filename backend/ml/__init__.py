@@ -14,7 +14,10 @@ from datetime import datetime
 from typing import List, Dict, Optional
 
 import joblib
-from config import get_settings
+try:
+    from core.config import get_settings
+except ImportError:
+    from config import get_settings
 
 settings = get_settings()
 

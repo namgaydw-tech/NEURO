@@ -7,7 +7,10 @@ import uuid
 import json
 from datetime import datetime
 from typing import Any, Dict, List, Optional
-from config import get_settings
+try:
+    from core.config import get_settings
+except ImportError:
+    from config import get_settings
 
 settings = get_settings()
 

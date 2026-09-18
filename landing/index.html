@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <meta name="theme-color" content="#08080f"/>
+  <meta name="description" content="AI-powered neurological disease prediction platform. 94%+ accuracy across 8 diseases using EEG, handwriting, and clinical data fusion."/>
+  <title>NEURO_PREDICT — AI Neurological Disease Prediction</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/shared/design-system.css"/>
+  <style>
+    .landing { overflow: hidden; }
+    .hero {
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: var(--space-6);
+      position: relative;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 20%, rgba(232, 62, 108, 0.06) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-1) var(--space-4);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      color: var(--color-text-secondary);
+      letter-spacing: 0.04em;
+      margin-bottom: var(--space-8);
+      background: var(--color-surface);
+    }
+    .hero-badge .dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--color-success);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.3} }
+    .hero h1 {
+      font-family: var(--font-display);
+      font-size: clamp(2.25rem, 5vw, 4rem);
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: var(--space-5);
+      letter-spacing: -0.03em;
+    }
+    .hero p {
+      font-size: clamp(var(--text-base), 1.5vw, var(--text-lg));
+      color: var(--color-text-secondary);
+      max-width: 560px;
+      line-height: var(--leading-relaxed);
+      margin-bottom: var(--space-8);
+    }
+    .hero-actions {
+      display: flex;
+      gap: var(--space-3);
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .hero-stats {
+      display: flex;
+      gap: var(--space-10);
+      margin-top: var(--space-12);
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .hero-stat-val {
+      font-family: var(--font-display);
+      font-size: var(--text-3xl);
+      font-weight: 800;
+      color: var(--color-primary);
+    }
+    .hero-stat-label {
+      font-size: var(--text-xs);
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-top: var(--space-1);
+    }
+
+    /* ── Sections ─────────────────────────────────────────────── */
+    .section { padding: var(--space-20) var(--space-6); }
+    .section-inner { max-width: 1100px; margin: 0 auto; }
+    .section-title {
+      font-family: var(--font-display);
+      font-size: var(--text-2xl);
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: var(--space-2);
+    }
+    .section-desc {
+      text-align: center;
+      color: var(--color-text-secondary);
+      font-size: var(--text-base);
+      margin-bottom: var(--space-12);
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: var(--space-4);
+    }
+    .feature-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border-subtle);
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+      transition: border-color var(--duration-normal), transform var(--duration-normal);
+    }
+    .feature-card:hover {
+      border-color: var(--color-border);
+      transform: translateY(-2px);
+    }
+    .feature-icon {
+      width: 44px; height: 44px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: var(--space-4);
+    }
+    .feature-icon.pink { background: var(--color-primary-bg); color: var(--color-primary); }
+    .feature-icon.green { background: var(--color-success-bg); color: var(--color-success); }
+    .feature-icon.blue { background: var(--color-info-bg); color: var(--color-info); }
+    .feature-icon.yellow { background: var(--color-warning-bg); color: var(--color-warning); }
+    .feature-card h3 {
+      font-family: var(--font-display);
+      font-size: var(--text-md);
+      font-weight: 600;
+      margin-bottom: var(--space-2);
+    }
+    .feature-card p {
+      font-size: var(--text-sm);
+      color: var(--color-text-secondary);
+      line-height: var(--leading-relaxed);
+    }
+
+    /* ── How It Works ─────────────────────────────────────────── */
+    .steps-section { background: var(--color-surface); }
+    .steps { max-width: 700px; margin: 0 auto; display: flex; flex-direction: column; gap: var(--space-8); }
+    .step { display: flex; gap: var(--space-5); align-items: flex-start; }
+    .step-num {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: var(--color-primary-bg); color: var(--color-primary);
+      font-family: var(--font-display); font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; font-size: var(--text-md);
+      border: 1px solid var(--color-primary-border);
+    }
+    .step h3 { font-family: var(--font-display); font-weight: 600; margin-bottom: var(--space-1); }
+    .step p { font-size: var(--text-sm); color: var(--color-text-secondary); line-height: var(--leading-relaxed); }
+
+    /* ── CTA ──────────────────────────────────────────────────── */
+    .cta-section { text-align: center; }
+    .cta-box {
+      max-width: 600px;
+      margin: 0 auto;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border-subtle);
+      border-radius: var(--radius-xl);
+      padding: var(--space-10) var(--space-8);
+    }
+    .cta-box h2 {
+      font-family: var(--font-display);
+      font-size: var(--text-2xl);
+      font-weight: 700;
+      margin-bottom: var(--space-3);
+    }
+    .cta-box p {
+      color: var(--color-text-secondary);
+      margin-bottom: var(--space-6);
+      font-size: var(--text-base);
+    }
+
+    /* ── Footer ───────────────────────────────────────────────── */
+    .landing-footer {
+      text-align: center;
+      padding: var(--space-8) var(--space-6);
+      border-top: 1px solid var(--color-border-subtle);
+      color: var(--color-text-muted);
+      font-size: var(--text-sm);
+    }
+    .landing-footer a { color: var(--color-text-secondary); }
+    .landing-footer a:hover { color: var(--color-text); }
+
+    /* ── Responsive ───────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      .hero-stats { gap: var(--space-6); }
+      .feature-grid { grid-template-columns: 1fr; }
+      .section { padding: var(--space-12) var(--space-4); }
+    }
+  </style>
+</head>
+<body class="landing">
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-badge"><span class="dot"></span> AI-Powered Clinical Platform</div>
+    <h1>Predict. Diagnose.<br>Save Lives.</h1>
+    <p>Multi-modal AI system combining EEG analysis, handwriting analysis, and clinical data to detect neurological diseases with 94%+ accuracy — before symptoms appear.</p>
+    <div class="hero-actions">
+      <a href="/app/dashboard.html" class="btn btn-primary btn-lg">
+        <span class="material-symbols-outlined">rocket_launch</span> Launch Platform
+      </a>
+      <a href="#features" class="btn btn-secondary btn-lg">
+        <span class="material-symbols-outlined">info</span> Learn More
+      </a>
+    </div>
+    <div class="hero-stats">
+      <div><div class="hero-stat-val">94.2%</div><div class="hero-stat-label">Accuracy</div></div>
+      <div><div class="hero-stat-val">2</div><div class="hero-stat-label">ML Models</div></div>
+      <div><div class="hero-stat-val">8</div><div class="hero-stat-label">Diseases</div></div>
+      <div><div class="hero-stat-val">12</div><div class="hero-stat-label">Modules</div></div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="section" id="features">
+    <div class="section-inner">
+      <h2 class="section-title">Built for Clinical Impact</h2>
+      <p class="section-desc">Three AI engines working together to catch what manual screening misses</p>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="feature-icon pink"><span class="material-symbols-outlined">psychology</span></div>
+          <h3>BrainLat — EEG + Clinical AI</h3>
+          <p>CatBoost model trained on 780 participants. Analyzes EEG band powers, MRI volumes, CSF biomarkers, and cognitive scores across 5 neurological conditions.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon green"><span class="material-symbols-outlined">draw</span></div>
+          <h3>DARWIN — Handwriting Analysis</h3>
+          <p>Random Forest trained on 174 participants with 450 handwriting features. Detects Alzheimer's from air time, pen pressure, and kinematic patterns.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon blue"><span class="material-symbols-outlined">merge</span></div>
+          <h3>Multimodal Fusion</h3>
+          <p>When both modalities are available, results are fused and conflicts flagged — giving clinicians a single calibrated confidence score.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon yellow"><span class="material-symbols-outlined">shield</span></div>
+          <h3>Anti-Hallucination</h3>
+          <p>Every prediction validated against known disease profiles. Input injection attacks blocked. Confidence scores calibrated against brain region consistency.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon pink"><span class="material-symbols-outlined">sync</span></div>
+          <h3>Real-Time WebSocket Hub</h3>
+          <p>All 12 modules communicate in real-time. Run analysis → dashboard updates instantly. Book OT from diagnosis. Everything connected.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon green"><span class="material-symbols-outlined">phone_iphone</span></div>
+          <h3>PWA + Native Mobile</h3>
+          <p>Install as PWA on any device. Capacitor builds for Android and iOS. Offline support with service worker caching.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section class="section steps-section" id="how">
+    <div class="section-inner">
+      <h2 class="section-title">How It Works</h2>
+      <p class="section-desc">From patient selection to clinical decision — in four steps</p>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div>
+            <h3>Patient Selection</h3>
+            <p>Select a patient from the database. The system loads their history, previous analyses, and EEG recordings.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div>
+            <h3>AI Analysis</h3>
+            <p>Run BrainLat (EEG/clinical) or DARWIN (handwriting). The model processes data, checks for hallucinations, and generates predictions.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div>
+            <h3>Clinical Decision</h3>
+            <p>Review predictions, brain region analysis, and recommendations. Generate a report. Book OT if surgery is needed.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div>
+            <h3>Track Progression</h3>
+            <p>Every analysis stored in the patient timeline. Compare results over time to track disease progression or treatment response.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="section cta-section">
+    <div class="cta-box">
+      <h2>Ready to See It in Action?</h2>
+      <p>Explore the full platform with 10 pre-seeded patients, real ML predictions, and all 12 interconnected modules.</p>
+      <a href="/app/dashboard.html" class="btn btn-primary btn-lg">
+        <span class="material-symbols-outlined">arrow_forward</span> Enter Platform
+      </a>
+    </div>
+  </section>
+
+  <footer class="landing-footer">
+    <p>NEURO_PREDICT_SYS v2.0 — FastAPI · Supabase · CatBoost · Random Forest<br>
+    <a href="/docs">API Docs</a> · <a href="/app/dashboard.html">Dashboard</a></p>
+  </footer>
+</body>
+</html>

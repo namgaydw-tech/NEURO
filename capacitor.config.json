@@ -1,0 +1,41 @@
+{
+  "appId": "sys.neuropredict.app",
+  "appName": "NEURO_PREDICT",
+  "webDir": ".",
+  "server": {
+    "androidScheme": "https",
+    "url": "http://127.0.0.1:3000",
+    "cleartext": true,
+    "allowNavigation": ["*"]
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchAutoHide": true,
+      "launchShowDuration": 2000,
+      "backgroundColor": "#0a0a12",
+      "androidSplashResourceName": "splash",
+      "showSpinner": true,
+      "spinnerColor": "#ff2d78"
+    },
+    "StatusBar": {
+      "style": "DARK",
+      "backgroundColor": "#0a0a12"
+    },
+    "Keyboard": {
+      "resize": "body",
+      "style": "DARK"
+    },
+    "PushNotifications": {
+      "presentationOptions": ["badge", "sound", "notification"]
+    }
+  },
+  "android": {
+    "allowMixedContent": true,
+    "captureInput": true,
+    "webContentsDebuggingEnabled": true
+  },
+  "ios": {
+    "contentInset": "automatic",
+    "backgroundColor": "#0a0a12"
+  }
+}

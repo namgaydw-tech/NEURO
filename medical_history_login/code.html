@@ -178,7 +178,7 @@
 <p class="font-label text-sm text-secondary tracking-widest uppercase opacity-80">Access_Portal: Terminal_4492</p>
 </div>
 <div id="clerk-sign-in" class="w-full mb-6"></div>
-<div class="surface-container-high glow-border p-8 rounded-xl bg-surface-container/60 backdrop-blur-xl space-y-6">
+<form class="surface-container-high glow-border p-8 rounded-xl bg-surface-container/60 backdrop-blur-xl space-y-6">
 <div class="space-y-4">
 <div class="space-y-2">
 <label class="font-label text-xs text-primary uppercase tracking-widest ml-1">DATA_SET_IDENTIFIER</label>
@@ -216,6 +216,7 @@
 </div>
 </div>
 </div>
+</form>
 </div>
 </div>
 </main>
@@ -246,13 +247,14 @@
   if (Auth.isSignedIn()) { window.location.href = '../global_neural_dashboard_v1/code.html'; return; }
 
   // Mount Clerk SignIn
-  if (clerkMounted) {
+  if (window.clerkMounted) {
     const form = document.querySelector('form');
     if (form) form.style.display = 'none';
   }
 })();
 
-document.querySelector('form').addEventListener('submit', async (e) => {
+const form = document.querySelector('form');
+if (form) form.addEventListener('submit', async (e) => {
   e.preventDefault();
   const inputs = e.target.querySelectorAll('input');
   const email = inputs[0].value;

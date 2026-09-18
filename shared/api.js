@@ -53,6 +53,7 @@ const Api = (() => {
   const analysis = {
     predict: (data) => request('/analysis/predict', { method: 'POST', body: JSON.stringify(data) }),
     byPatient: (patientId) => request(`/analysis/patient/${patientId}`),
+    darwinPredict: (data) => request('/darwin/predict', { method: 'POST', body: JSON.stringify(data) }),
   };
 
   // ── EEG ──────────────────────────────────────────────────────
@@ -71,11 +72,21 @@ const Api = (() => {
     list: (params = {}) => request('/medications' + _qs(params)),
   };
 
+  // ── OT Scheduling ────────────────────────────────────────────
+  const ot = {
+    theaters: () => request('/ot/theaters'),
+    dailySchedule: (date) => request('/ot/daily-schedule' + (date ? `?date=${date}` : '')),
+    slots: (params = {}) => request('/ot/slots' + _qs(params)),
+    createSlot: (data) => request('/ot/slots', { method: 'POST', body: JSON.stringify(data) }),
+    createBooking: (data) => request('/ot/bookings', { method: 'POST', body: JSON.stringify(data) }),
+    cancelBooking: (id) => request(`/ot/bookings/${id}`, { method: 'DELETE' }),
+  };
+
   // ── Dashboard ────────────────────────────────────────────────
   const dashboard = {
     stats: () => request('/dashboard/stats'),
     activity: () => request('/dashboard/activity'),
   };
 
-  return { request, auth, patients, diagnoses, analysis, eeg, research, medications, dashboard };
+  return { request, auth, patients, diagnoses, analysis, eeg, research, medications, ot, dashboard };
 })();

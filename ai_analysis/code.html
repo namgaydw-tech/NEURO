@@ -246,6 +246,10 @@
 <button id="analyzeBtn" onclick="runAnalysis()" class="w-full py-3 neon-border-primary bg-transparent text-primary font-bold text-xs uppercase tracking-widest hover:bg-primary hover:text-white transition-all active:scale-95 duration-200">
                     RUN_ANALYSIS
                 </button>
+<button id="darwinAnalyzeBtn" onclick="runDarwinAnalysis()" class="w-full mt-3 py-3 neon-border-secondary bg-transparent text-secondary font-bold text-xs uppercase tracking-widest hover:bg-secondary hover:text-black transition-all active:scale-95 duration-200">
+    DARWIN_HANDWRITING_ANALYSIS
+                </button>
+<input type="file" id="darwinCsvInput" accept=".csv" class="hidden" onchange="handleDarwinCsv(event)">
 </div>
 <div class="flex-1 neon-border-secondary p-4 bg-surface-container/60 rounded-xl">
 <span class="font-label text-[10px] text-secondary uppercase tracking-[0.2em] mb-4 block">Regional Map</span>
@@ -304,6 +308,7 @@ function addLog(msg, type = 'primary') {
 }
 
 (async () => {
+  await Auth.ready();
   try {
     const data = await Api.patients.list({ per_page: 50 });
     const select = document.getElementById('patientSelect');
@@ -319,6 +324,35 @@ function addLog(msg, type = 'primary') {
     addLog('Patient database loaded: ' + data.total + ' records', 'secondary');
   } catch(e) { addLog('ERROR: ' + e.message, 'primary'); }
 })();
+
+function runDarwinAnalysis() {
+    document.getElementById('darwinCsvInput').click();
+}
+
+async function handleDarwinCsv(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    try {
+        const text = await file.text();
+        const lines = text.trim().split(/\r?\n/);
+        const headers = lines[0].split(',');
+        const values = lines[1].split(',');
+        const row = {};
+        headers.forEach((header, index) => {
+            row[header.trim()] = values[index]?.trim();
+        });
+        addLog('DARWIN handwriting sample loaded...', 'secondary');
+        addLog('Sending 450 handwriting features to model...', 'primary');
+        const response = await Api.analysis.darwinPredict(row);
+        console.log('DARWIN RESULT:', response);
+        addLog(`DARWIN Prediction: ${response.result.meaning}`, 'secondary');
+        addLog(`Confidence: ${(response.result.confidence * 100).toFixed(2)}%`, 'primary');
+    } catch (error) {
+        console.error(error);
+        addLog('DARWIN ERROR: ' + error.message, 'primary');
+    }
+    event.target.value = '';
+}
 
 async function runAnalysis() {
   if (!selectedPatientId) {

@@ -10,8 +10,12 @@ from jose import JWTError, jwt
 from fastapi import HTTPException, Depends, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
-from config import get_settings
-from database import get_db
+try:
+    from core.config import get_settings
+    from core.database import get_db
+except ImportError:
+    from config import get_settings
+    from database import get_db
 
 settings = get_settings()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")

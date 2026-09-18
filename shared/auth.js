@@ -84,6 +84,15 @@ const Auth = (() => {
         }
       }
       _resolveUser();
+      // Auto-login with demo account if no user is signed in
+      if (!_user) {
+        try {
+          await login('admin@neuropredict.sys', 'admin123');
+          console.log('[Auth] Auto-logged in with demo account');
+        } catch (e) {
+          console.warn('[Auth] Auto-demo-login failed:', e.message);
+        }
+      }
       resolve(true);
     });
     return _ready;

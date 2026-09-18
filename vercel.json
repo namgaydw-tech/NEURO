@@ -1,0 +1,60 @@
+{
+  "version": 2,
+  "name": "neuro-predict-sys",
+  "builds": [
+    {
+      "src": "api/**/*.py",
+      "use": "@vercel/python"
+    },
+    {
+      "src": "landing/**",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "**/*.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "shared/**",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
+    },
+    {
+      "src": "/ws/(.*)",
+      "dest": "/api/websocket.py"
+    },
+    {
+      "src": "/health",
+      "dest": "/api/health.py"
+    },
+    {
+      "src": "/",
+      "dest": "/landing/index.html"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
+    }
+  ],
+  "env": {
+    "SUPABASE_URL": "@supabase-url",
+    "SUPABASE_ANON_KEY": "@supabase-anon-key",
+    "SUPABASE_SERVICE_KEY": "@supabase-service-key",
+    "JWT_SECRET": "@jwt-secret",
+    "CLERK_SECRET_KEY": "@clerk-secret-key",
+    "CLERK_PUBLISHABLE_KEY": "@clerk-publishable-key",
+    "CLERK_WEBHOOK_SECRET": "@clerk-webhook-secret",
+    "HALLUCINATION_CHECK": "true",
+    "DEBUG": "false"
+  },
+  "functions": {
+    "api/**/*.py": {
+      "maxDuration": 30
+    }
+  }
+}
