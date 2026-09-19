@@ -3,286 +3,396 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>NEURO_PREDICT_SYS | Module Hub</title>
+<title>NEURO_PREDICT_SYS — Multimodal Neurological Intelligence Platform</title>
+<meta name="description" content="Clinical history, MRI, CT, EEG, laboratory findings and AI-assisted analysis in one connected neurological workspace."/>
+<link rel="manifest" href="/manifest.json"/>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>"/>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;700;800&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        "primary": "#ff2d78",
+        "secondary": "#00ffcc",
+        "tertiary": "#ffe04a",
+        "background": "#0a0a12",
+        "surface": "#0f0f1a",
+        "surface-container": "#141422",
+        "surface-container-high": "#1e1e30",
+        "on-surface": "#e8e0f0",
+        "on-surface-variant": "#a098b0",
+        "outline": "#5a5068",
+        "outline-variant": "#302840",
+      },
+      fontFamily: {
+        headline: ["Sora"],
+        body: ["Inter"],
+        label: ["Space Grotesk"],
+      },
+    },
+  },
+}
+</script>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
   body {
     min-height:100vh;
     background:#0a0a12;
-    background-image:
-      linear-gradient(rgba(255,45,120,0.04) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,45,120,0.04) 1px, transparent 1px);
-    background-size:40px 40px;
     font-family:'Inter',sans-serif;
     color:#e8e0f0;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    padding:2rem 1rem 4rem;
+    overflow-x:hidden;
   }
   .material-symbols-outlined {
     font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;
   }
-  header {
-    text-align:center;
-    margin-bottom:3rem;
+  .neon-glow-pink { text-shadow:0 0 8px rgba(255,45,120,0.8); }
+  .neon-glow-cyan { text-shadow:0 0 8px rgba(0,255,204,0.8); }
+  .neon-border-pink { border:1px solid rgba(255,45,120,0.3); box-shadow:0 0 15px rgba(255,45,120,0.1); }
+  .neon-border-cyan { border:1px solid rgba(0,255,204,0.3); box-shadow:0 0 15px rgba(0,255,204,0.1); }
+  .grid-bg {
+    background-image:linear-gradient(rgba(0,255,204,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,204,0.03) 1px,transparent 1px);
+    background-size:40px 40px;
   }
-  header .icon {
-    font-size:3rem;
-    color:#ff2d78;
-    text-shadow:0 0 12px rgba(255,45,120,0.8);
-    display:block;
-    margin-bottom:0.5rem;
+  .scanline {
+    background:linear-gradient(to bottom,transparent 50%,rgba(0,255,204,0.02) 50%);
+    background-size:100% 4px;
   }
-  header h1 {
-    font-family:'Sora',sans-serif;
-    font-weight:800;
-    font-size:2.5rem;
-    letter-spacing:-0.04em;
-    background:linear-gradient(135deg,#ff2d78,#00ffcc);
-    -webkit-background-clip:text;
-    -webkit-text-fill-color:transparent;
-    background-clip:text;
-    text-shadow:none;
-  }
-  header p {
-    font-family:'Space Grotesk',monospace;
-    font-size:0.7rem;
-    letter-spacing:0.25em;
-    text-transform:uppercase;
-    color:#a098b0;
-    margin-top:0.5rem;
-  }
-  .grid {
-    display:grid;
-    grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
-    gap:1.25rem;
-    width:100%;
-    max-width:1100px;
-  }
-  a.card {
-    display:flex;
-    flex-direction:column;
-    justify-content:space-between;
-    background:rgba(20,20,34,0.7);
-    backdrop-filter:blur(12px);
-    border:1px solid rgba(255,45,120,0.2);
-    border-radius:0.75rem;
-    padding:1.5rem;
-    text-decoration:none;
-    color:inherit;
-    transition:all 0.3s ease;
-    min-height:160px;
-    position:relative;
-    overflow:hidden;
-  }
-  a.card::before {
-    content:'';
-    position:absolute;
-    top:0;right:0;
-    width:80px;height:80px;
-    border-radius:50%;
-    filter:blur(40px);
-    opacity:0;
-    transition:opacity 0.3s;
-  }
-  a.card:hover::before { opacity:1; }
-  a.card:hover {
-    border-color:rgba(0,255,204,0.4);
-    transform:translateY(-2px);
-    box-shadow:0 0 20px rgba(0,255,204,0.1), inset 0 0 12px rgba(255,45,120,0.05);
-  }
-  a.card .tag {
-    font-family:'Space Grotesk',monospace;
-    font-size:0.6rem;
-    letter-spacing:0.2em;
-    text-transform:uppercase;
-    padding:0.2rem 0.5rem;
-    border-radius:0.25rem;
-    display:inline-block;
-    width:fit-content;
-    margin-bottom:0.75rem;
-  }
-  a.card .tag.pink { color:#ff2d78; background:rgba(255,45,120,0.1); border:1px solid rgba(255,45,120,0.3); }
-  a.card .tag.cyan { color:#00ffcc; background:rgba(0,255,204,0.1); border:1px solid rgba(0,255,204,0.3); }
-  a.card .tag.yellow { color:#ffe04a; background:rgba(255,224,74,0.1); border:1px solid rgba(255,224,74,0.3); }
-  a.card h2 {
-    font-family:'Sora',sans-serif;
-    font-weight:700;
-    font-size:1.1rem;
-    margin-bottom:0.4rem;
-  }
-  a.card p.desc {
-    font-size:0.8rem;
-    color:#a098b0;
-    line-height:1.5;
-  }
-  a.card .material-symbols-outlined {
-    position:absolute;
-    bottom:1rem;right:1rem;
-    font-size:2rem;
-    opacity:0.15;
-    transition:opacity 0.3s;
-  }
-  a.card:hover .material-symbols-outlined { opacity:0.4; }
-  a.card.cat-dashboard .tag { color:#ff2d78; background:rgba(255,45,120,0.1); border:1px solid rgba(255,45,120,0.3); }
-  a.card.cat-dashboard:hover { border-color:rgba(255,45,120,0.5); }
-  a.card.cat-dashboard::before { background:rgba(255,45,120,0.3); }
-  a.card.cat-login .tag { color:#00ffcc; background:rgba(0,255,204,0.1); border:1px solid rgba(0,255,204,0.3); }
-  a.card.cat-login:hover { border-color:rgba(0,255,204,0.5); }
-  a.card.cat-login::before { background:rgba(0,255,204,0.3); }
-  a.card.cat-analysis .tag { color:#ffe04a; background:rgba(255,224,74,0.1); border:1px solid rgba(255,224,74,0.3); }
-  a.card.cat-analysis:hover { border-color:rgba(255,224,74,0.5); }
-  a.card.cat-analysis::before { background:rgba(255,224,74,0.3); }
-  a.card.cat-research .tag { color:#00e6b8; background:rgba(0,230,184,0.1); border:1px solid rgba(0,230,184,0.3); }
-  a.card.cat-research:hover { border-color:rgba(0,230,184,0.5); }
-  a.card.cat-research::before { background:rgba(0,230,184,0.3); }
-  footer {
-    margin-top:3rem;
-    text-align:center;
-    font-family:'Space Grotesk',monospace;
-    font-size:0.6rem;
-    letter-spacing:0.2em;
-    text-transform:uppercase;
-    color:#5a5068;
-  }
-  footer span { color:#ff2d78; text-shadow:0 0 6px rgba(255,45,120,0.6); }
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+  .float { animation:float 4s ease-in-out infinite; }
+  @keyframes pulse-ring { 0%{transform:scale(0.95);opacity:0.5} 50%{transform:scale(1);opacity:1} 100%{transform:scale(0.95);opacity:0.5} }
+  .pulse { animation:pulse-ring 2s ease-in-out infinite; }
+  @keyframes dash { to { stroke-dashoffset: 0; } }
 </style>
-<link rel="manifest" href="/manifest.json">
+</head>
+<body>
+<!-- ═══════════════ NAVIGATION ═══════════════ -->
+<nav class="fixed top-0 w-full z-50 flex justify-between items-center px-6 h-16 bg-[#0a0a12]/80 backdrop-blur-md border-b border-[#ff2d78]/20">
+  <div class="flex items-center gap-3">
+    <span class="material-symbols-outlined text-primary text-2xl">fingerprint</span>
+    <h1 class="text-xl font-black text-[#ff2d78] neon-glow-pink font-headline tracking-tighter">NEURO_PREDICT</h1>
+  </div>
+  <div class="flex items-center gap-4">
+    <a href="#features" class="hidden md:block font-label text-xs uppercase tracking-widest text-[#a098b0] hover:text-secondary transition-colors">Features</a>
+    <a href="#workflow" class="hidden md:block font-label text-xs uppercase tracking-widest text-[#a098b0] hover:text-secondary transition-colors">Workflow</a>
+    <a href="#roles" class="hidden md:block font-label text-xs uppercase tracking-widest text-[#a098b0] hover:text-secondary transition-colors">Roles</a>
+    <a href="/login/index.html" class="px-4 py-2 bg-primary text-white font-label text-xs uppercase tracking-widest rounded hover:bg-primary/80 transition-colors font-bold">Sign In</a>
+  </div>
+</nav>
+
+<!-- ═══════════════ HERO ═══════════════ -->
+<section class="relative min-h-screen flex items-center justify-center pt-16 grid-bg overflow-hidden">
+  <div class="absolute inset-0 scanline pointer-events-none opacity-30"></div>
+  <!-- Decorative blurs -->
+  <div class="absolute top-1/4 -left-32 w-96 h-96 bg-primary/10 blur-[120px] rounded-full"></div>
+  <div class="absolute bottom-1/4 -right-32 w-96 h-96 bg-secondary/10 blur-[120px] rounded-full"></div>
+
+  <div class="relative z-10 text-center px-6 max-w-4xl mx-auto">
+    <!-- Brain icon with pulse -->
+    <div class="inline-flex items-center justify-center w-20 h-20 rounded-full border-2 border-secondary/30 mb-8 pulse relative">
+      <span class="material-symbols-outlined text-secondary text-4xl" style="font-variation-settings:'FILL' 1;">psychology</span>
+      <div class="absolute inset-0 rounded-full border border-secondary/10" style="animation:pulse-ring 3s ease-in-out infinite 0.5s;"></div>
+    </div>
+
+    <p class="font-label text-xs uppercase tracking-[0.4em] text-secondary neon-glow-cyan mb-4">Multimodal Neurological Intelligence Platform</p>
+    <h2 class="font-headline text-5xl md:text-7xl font-extrabold text-on-surface tracking-tighter leading-none mb-6">
+      NEURO<span class="text-primary neon-glow-pink">_PREDICT</span>
+    </h2>
+    <p class="text-on-surface-variant text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
+      Bring clinical history, MRI, CT, EEG, laboratory findings and AI-assisted analysis
+      into <span class="text-secondary font-semibold">one connected neurological workspace</span>.
+    </p>
+
+    <!-- CTAs -->
+    <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+      <a href="/login/index.html" class="group px-8 py-4 bg-primary text-white font-headline font-bold uppercase tracking-widest text-sm hover:shadow-[0_0_24px_rgba(255,45,120,0.4)] transition-all flex items-center gap-2">
+        <span class="material-symbols-outlined text-lg group-hover:scale-110 transition-transform">login</span>
+        Sign In
+      </a>
+      <a href="/login/index.html?mode=signup" class="group px-8 py-4 border border-secondary text-secondary font-headline font-bold uppercase tracking-widest text-sm hover:bg-secondary/10 transition-all flex items-center gap-2">
+        <span class="material-symbols-outlined text-lg group-hover:scale-110 transition-transform">person_add</span>
+        Create Account
+      </a>
+      <button onclick="demoLogin()" class="px-8 py-4 border border-outline-variant text-on-surface-variant font-label text-xs uppercase tracking-widest hover:border-tertiary hover:text-tertiary transition-all flex items-center gap-2">
+        <span class="material-symbols-outlined text-lg">science</span>
+        Explore Demo
+      </button>
+    </div>
+
+    <!-- Stats bar -->
+    <div class="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6 max-w-3xl mx-auto">
+      <div class="text-center">
+        <p class="font-headline text-2xl font-bold text-primary">94.2%</p>
+        <p class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">Model Accuracy</p>
+      </div>
+      <div class="text-center">
+        <p class="font-headline text-2xl font-bold text-secondary">6</p>
+        <p class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">Modalities</p>
+      </div>
+      <div class="text-center">
+        <p class="font-headline text-2xl font-bold text-tertiary">12</p>
+        <p class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">Disease Targets</p>
+      </div>
+      <div class="text-center">
+        <p class="font-headline text-2xl font-bold text-on-surface">10+</p>
+        <p class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">Clinical Modules</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scroll indicator -->
+  <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-50">
+    <span class="font-label text-[9px] uppercase tracking-widest text-on-surface-variant">Scroll</span>
+    <span class="material-symbols-outlined text-on-surface-variant animate-bounce">expand_more</span>
+  </div>
+</section>
+
+<!-- ═══════════════ FEATURES ═══════════════ -->
+<section id="features" class="py-24 px-6">
+  <div class="max-w-6xl mx-auto">
+    <div class="text-center mb-16">
+      <p class="font-label text-xs uppercase tracking-[0.3em] text-secondary mb-3">Capabilities</p>
+      <h3 class="font-headline text-3xl md:text-4xl font-extrabold text-on-surface tracking-tight">Clinical Intelligence Modules</h3>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- MRI/CT -->
+      <div class="bg-surface-container/60 backdrop-blur-xl p-6 rounded-lg neon-border-pink hover:scale-[1.02] transition-all group">
+        <span class="material-symbols-outlined text-primary text-3xl mb-4 group-hover:scale-110 transition-transform">radiology</span>
+        <h4 class="font-headline text-lg font-bold mb-2">MRI / CT Imaging</h4>
+        <p class="text-on-surface-variant text-sm leading-relaxed">DICOM/NIfTI viewer with axial, coronal, sagittal views. AI overlay for region highlighting.</p>
+      </div>
+
+      <!-- EEG -->
+      <div class="bg-surface-container/60 backdrop-blur-xl p-6 rounded-lg neon-border-cyan hover:scale-[1.02] transition-all group">
+        <span class="material-symbols-outlined text-secondary text-3xl mb-4 group-hover:scale-110 transition-transform">waves</span>
+        <h4 class="font-headline text-lg font-bold mb-2">EEG Interpretation</h4>
+        <p class="text-on-surface-variant text-sm leading-relaxed">Live waveform visualization, frequency band analysis, seizure detection, artifact marking.</p>
+      </div>
+
+      <!-- AI Analysis -->
+      <div class="bg-surface-container/60 backdrop-blur-xl p-6 rounded-lg border border-outline-variant hover:scale-[1.02] transition-all group">
+        <span class="material-symbols-outlined text-tertiary text-3xl mb-4 group-hover:scale-110 transition-transform">neurology</span>
+        <h4 class="font-headline text-lg font-bold mb-2">Multimodal AI</h4>
+        <p class="text-on-surface-variant text-sm leading-relaxed">Fusion of MRI, EEG, labs, clinical history, handwriting. Evidence-based differential suggestions.</p>
+      </div>
+
+      <!-- Pharmacy -->
+      <div class="bg-surface-container/60 backdrop-blur-xl p-6 rounded-lg neon-border-cyan hover:scale-[1.02] transition-all group">
+        <span class="material-symbols-outlined text-secondary text-3xl mb-4 group-hover:scale-110 transition-transform">local_pharmacy</span>
+        <h4 class="font-headline text-lg font-bold mb-2">Pharmacy</h4>
+        <p class="text-on-surface-variant text-sm leading-relaxed">Medication catalog, inventory, prescriptions, dispensing, urgent request workflow with real-time status.</p>
+      </div>
+
+      <!-- OT Scheduling -->
+      <div class="bg-surface-container/60 backdrop-blur-xl p-6 rounded-lg neon-border-pink hover:scale-[1.02] transition-all group">
+        <span class="material-symbols-outlined text-primary text-3xl mb-4 group-hover:scale-110 transition-transform">emergency_recording</span>
+        <h4 class="font-headline text-lg font-bold mb-2">OT Scheduling</h4>
+        <p class="text-on-surface-variant text-sm leading-relaxed">Theater management, slot booking, conflict detection, emergency queue, surgeon assignment.</p>
+      </div>
+
+      <!-- Research -->
+      <div class="bg-surface-container/60 backdrop-blur-xl p-6 rounded-lg border border-outline-variant hover:scale-[1.02] transition-all group">
+        <span class="material-symbols-outlined text-on-surface-variant text-3xl mb-4 group-hover:scale-110 transition-transform">science</span>
+        <h4 class="font-headline text-lg font-bold mb-2">Research</h4>
+        <p class="text-on-surface-variant text-sm leading-relaxed">Academic paper library, dataset access, model research tools, de-identified data for researchers.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ WORKFLOW ═══════════════ -->
+<section id="workflow" class="py-24 px-6 bg-surface/50">
+  <div class="max-w-5xl mx-auto">
+    <div class="text-center mb-16">
+      <p class="font-label text-xs uppercase tracking-[0.3em] text-secondary mb-3">How It Works</p>
+      <h3 class="font-headline text-3xl md:text-4xl font-extrabold text-on-surface tracking-tight">Evidence Pipeline</h3>
+    </div>
+
+    <div class="flex flex-col md:flex-row items-center justify-between gap-8">
+      <div class="flex-1 text-center p-6">
+        <div class="w-16 h-16 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center mx-auto mb-4">
+          <span class="material-symbols-outlined text-primary text-2xl">person</span>
+        </div>
+        <h4 class="font-headline font-bold mb-1">Patient</h4>
+        <p class="font-label text-xs text-on-surface-variant">Clinical intake</p>
+      </div>
+
+      <span class="material-symbols-outlined text-secondary/40 text-3xl rotate-90 md:rotate-0">arrow_forward</span>
+
+      <div class="flex-1 text-center p-6">
+        <div class="w-16 h-16 rounded-full bg-secondary/10 border border-secondary/30 flex items-center justify-center mx-auto mb-4">
+          <span class="material-symbols-outlined text-secondary text-2xl">biotech</span>
+        </div>
+        <h4 class="font-headline font-bold mb-1">Evidence</h4>
+        <p class="font-label text-xs text-on-surface-variant">MRI + EEG + Labs</p>
+      </div>
+
+      <span class="material-symbols-outlined text-secondary/40 text-3xl rotate-90 md:rotate-0">arrow_forward</span>
+
+      <div class="flex-1 text-center p-6">
+        <div class="w-16 h-16 rounded-full bg-tertiary/10 border border-tertiary/30 flex items-center justify-center mx-auto mb-4">
+          <span class="material-symbols-outlined text-tertiary text-2xl">memory</span>
+        </div>
+        <h4 class="font-headline font-bold mb-1">AI Models</h4>
+        <p class="font-label text-xs text-on-surface-variant">Specialist analysis</p>
+      </div>
+
+      <span class="material-symbols-outlined text-secondary/40 text-3xl rotate-90 md:rotate-0">arrow_forward</span>
+
+      <div class="flex-1 text-center p-6">
+        <div class="w-16 h-16 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center mx-auto mb-4">
+          <span class="material-symbols-outlined text-primary text-2xl">merge</span>
+        </div>
+        <h4 class="font-headline font-bold mb-1">Fusion</h4>
+        <p class="font-label text-xs text-on-surface-variant">Evidence synthesis</p>
+      </div>
+
+      <span class="material-symbols-outlined text-secondary/40 text-3xl rotate-90 md:rotate-0">arrow_forward</span>
+
+      <div class="flex-1 text-center p-6">
+        <div class="w-16 h-16 rounded-full bg-secondary/10 border border-secondary/30 flex items-center justify-center mx-auto mb-4">
+          <span class="material-symbols-outlined text-secondary text-2xl">stethoscope</span>
+        </div>
+        <h4 class="font-headline font-bold mb-1">Review</h4>
+        <p class="font-label text-xs text-on-surface-variant">Clinician decision</p>
+      </div>
+    </div>
+
+    <div class="mt-12 text-center">
+      <p class="text-on-surface-variant text-sm italic">AI output is decision-support — final diagnosis belongs to an authorized clinician.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ ROLES ═══════════════ -->
+<section id="roles" class="py-24 px-6">
+  <div class="max-w-6xl mx-auto">
+    <div class="text-center mb-16">
+      <p class="font-label text-xs uppercase tracking-[0.3em] text-secondary mb-3">Collaboration</p>
+      <h3 class="font-headline text-3xl md:text-4xl font-extrabold text-on-surface tracking-tight">Built for Every Specialist</h3>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+      <div class="text-center p-4 rounded-lg bg-surface-container/40 border border-outline-variant/50">
+        <span class="material-symbols-outlined text-primary text-2xl mb-2">psychology</span>
+        <p class="font-label text-xs uppercase tracking-wider text-on-surface">Neurologist</p>
+      </div>
+      <div class="text-center p-4 rounded-lg bg-surface-container/40 border border-outline-variant/50">
+        <span class="material-symbols-outlined text-secondary text-2xl mb-2">neurology</span>
+        <p class="font-label text-xs uppercase tracking-wider text-on-surface">Neurosurgeon</p>
+      </div>
+      <div class="text-center p-4 rounded-lg bg-surface-container/40 border border-outline-variant/50">
+        <span class="material-symbols-outlined text-tertiary text-2xl mb-2">radiology</span>
+        <p class="font-label text-xs uppercase tracking-wider text-on-surface">Radiologist</p>
+      </div>
+      <div class="text-center p-4 rounded-lg bg-surface-container/40 border border-outline-variant/50">
+        <span class="material-symbols-outlined text-secondary text-2xl mb-2">local_pharmacy</span>
+        <p class="font-label text-xs uppercase tracking-wider text-on-surface">Pharmacist</p>
+      </div>
+      <div class="text-center p-4 rounded-lg bg-surface-container/40 border border-outline-variant/50">
+        <span class="material-symbols-outlined text-primary text-2xl mb-2">emergency_recording</span>
+        <p class="font-label text-xs uppercase tracking-wider text-on-surface">OT Coordinator</p>
+      </div>
+      <div class="text-center p-4 rounded-lg bg-surface-container/40 border border-outline-variant/50">
+        <span class="material-symbols-outlined text-tertiary text-2xl mb-2">science</span>
+        <p class="font-label text-xs uppercase tracking-wider text-on-surface">Researcher</p>
+      </div>
+      <div class="text-center p-4 rounded-lg bg-surface-container/40 border border-outline-variant/50">
+        <span class="material-symbols-outlined text-secondary text-2xl mb-2">monitor_heart</span>
+        <p class="font-label text-xs uppercase tracking-wider text-on-surface">Anesthesiologist</p>
+      </div>
+      <div class="text-center p-4 rounded-lg bg-surface-container/40 border border-outline-variant/50">
+        <span class="material-symbols-outlined text-primary text-2xl mb-2">biotech</span>
+        <p class="font-label text-xs uppercase tracking-wider text-on-surface">Lab Professional</p>
+      </div>
+      <div class="text-center p-4 rounded-lg bg-surface-container/40 border border-outline-variant/50">
+        <span class="material-symbols-outlined text-tertiary text-2xl mb-2">medical_services</span>
+        <p class="font-label text-xs uppercase tracking-wider text-on-surface">Nurse / Staff</p>
+      </div>
+      <div class="text-center p-4 rounded-lg bg-surface-container/40 border border-outline-variant/50">
+        <span class="material-symbols-outlined text-secondary text-2xl mb-2">admin_panel_settings</span>
+        <p class="font-label text-xs uppercase tracking-wider text-on-surface">Administrator</p>
+      </div>
+    </div>
+
+    <p class="mt-8 text-center text-on-surface-variant text-xs font-label">Role-based access · Permissions assigned by administrators · Clicking a role does not grant access</p>
+  </div>
+</section>
+
+<!-- ═══════════════ CTA ═══════════════ -->
+<section class="py-24 px-6 bg-surface/30">
+  <div class="max-w-3xl mx-auto text-center">
+    <span class="material-symbols-outlined text-primary text-5xl mb-6 block">fingerprint</span>
+    <h3 class="font-headline text-3xl md:text-4xl font-extrabold text-on-surface tracking-tight mb-4">
+      Ready to Start?
+    </h3>
+    <p class="text-on-surface-variant mb-8 max-w-xl mx-auto">
+      Create a professional account or explore with a demo identity.
+      Role approval is required for clinical access.
+    </p>
+    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+      <a href="/login/index.html?mode=signup" class="px-8 py-4 bg-primary text-white font-headline font-bold uppercase tracking-widest text-sm hover:shadow-[0_0_24px_rgba(255,45,120,0.4)] transition-all">
+        Create Account
+      </a>
+      <a href="/login/index.html" class="px-8 py-4 border border-secondary text-secondary font-headline font-bold uppercase tracking-widest text-sm hover:bg-secondary/10 transition-all">
+        Sign In
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ FOOTER ═══════════════ -->
+<footer class="py-12 px-6 border-t border-outline-variant/30">
+  <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+    <div class="flex items-center gap-3">
+      <span class="material-symbols-outlined text-primary text-xl">fingerprint</span>
+      <span class="font-headline font-bold text-on-surface">NEURO_PREDICT</span>
+    </div>
+    <p class="font-label text-[10px] uppercase tracking-widest text-outline">
+      Research/prototype system · Not for clinical diagnosis without validation
+    </p>
+    <div class="flex gap-6">
+      <span class="font-label text-[10px] uppercase tracking-widest text-outline">v3.0</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ═══════════════ SCRIPTS ═══════════════ -->
 <script src="/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"></script>
+<script src="shared/auth.js"></script>
 <script>
-  // Register service worker for PWA
+  // Demo login — navigates to login page with demo mode
+  function demoLogin() {
+    window.location.href = '/login/index.html?mode=demo';
+  }
+
+  // Register service worker
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('/sw.js')
-        .then((reg) => console.log('[PWA] Service Worker registered:', reg.scope))
-        .catch((err) => console.log('[PWA] SW registration failed:', err));
+        .then(reg => console.log('[PWA] SW registered:', reg.scope))
+        .catch(err => console.log('[PWA] SW registration failed:', err));
     });
   }
-</script>
-<script src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"></script>
-<script src="shared/auth.js"></script>
-</head>
-<body>
-<header>
-  <div style="position:absolute;top:1rem;right:1.5rem;display:flex;align-items:center;gap:0.75rem;">
-    <span id="clerk-auth-status" style="font-family:'Space Grotesk',monospace;font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;color:#5a5068;"></span>
-    <div id="clerk-user-button"></div>
-  </div>
-  <span class="material-symbols-outlined icon">fingerprint</span>
-  <h1>NEURO_PREDICT_SYS</h1>
-  <p>Module Hub — Click any card to view that screen</p>
-</header>
 
-<div class="grid">
-
-  <!-- DASHBOARD CARDS -->
-  <a href="global_neural_dashboard_v1/code.html" class="card cat-dashboard">
-    <span class="tag pink">Dashboard</span>
-    <h2>Global Neural Dashboard</h2>
-    <p class="desc">5M+ nodes active. Research papers, EEG waveforms, clinical archive, smooth merge analysis.</p>
-    <span class="material-symbols-outlined">hub</span>
-  </a>
-
-  <a href="prediction_command_center_v1/code.html" class="card cat-dashboard">
-    <span class="tag pink">Dashboard</span>
-    <h2>Prediction Command Center</h2>
-    <p class="desc">Disease prediction vectors — Alzheimer's, Parkinson's, ALS, Huntington's, Epilepsy. Live ingestion feed.</p>
-    <span class="material-symbols-outlined">rocket_launch</span>
-  </a>
-
-  <!-- ANALYSIS CARDS -->
-  <a href="ai_analysis/code.html" class="card cat-analysis">
-    <span class="tag yellow">Analysis</span>
-    <h2>AI Analysis — Neuro Core</h2>
-    <p class="desc">Real-time scanning with progress ring, system terminal log, brain region mapping.</p>
-    <span class="material-symbols-outlined">neurology</span>
-  </a>
-
-  <a href="final_diagnosis_report_v1/code.html" class="card cat-analysis">
-    <span class="tag yellow">Analysis</span>
-    <h2>Final Diagnosis Report</h2>
-    <p class="desc">Clinical prediction V4.2 — Parkinson's at 94.2% confidence, anomaly detection, research citations.</p>
-    <span class="material-symbols-outlined">clinical_notes</span>
-  </a>
-
-  <a href="neural_archive_eeg_interpreter/code.html" class="card cat-analysis">
-    <span class="tag yellow">Analysis</span>
-    <h2>Neural Archive &amp; EEG Interpreter</h2>
-    <p class="desc">Live EEG waveform visualizer, signature correlation, AI insight panel.</p>
-    <span class="material-symbols-outlined">waves</span>
-  </a>
-
-  <!-- RESEARCH CARDS -->
-  <a href="research_papers_1/code.html" class="card cat-research">
-    <span class="tag cyan">Research</span>
-    <h2>Research Papers — Library</h2>
-    <p class="desc">Academic paper browser with search/filter, featured papers, bento grid layout.</p>
-    <span class="material-symbols-outlined">menu_book</span>
-  </a>
-
-  <a href="research_papers_2/code.html" class="card cat-research">
-    <span class="tag cyan">Research</span>
-    <h2>Research Papers — Diagnostic Report</h2>
-    <p class="desc">MRI/ECD neural diagnostic report, neurosurgery pre-op summary, medical record management.</p>
-    <span class="material-symbols-outlined">biotech</span>
-  </a>
-
-  <!-- LOGIN CARDS -->
-  <a href="neurosurgery_login/code.html" class="card cat-login">
-    <span class="tag cyan">Login</span>
-    <h2>Neurosurgery Secure Entry</h2>
-    <p class="desc">Fingerprint scanner, DNA link, retina scan. Quantum-R6 encryption.</p>
-    <span class="material-symbols-outlined">fingerprint</span>
-  </a>
-
-  <a href="3fa_pharmacy_login/code.html" class="card cat-login">
-    <span class="tag cyan">Login</span>
-    <h2>3FA Pharmacy Access</h2>
-    <p class="desc">3-Factor Authentication — Pharma ID, secure code, biometric face scan.</p>
-    <span class="material-symbols-outlined">pill</span>
-  </a>
-
-  <a href="pharmacist_login/code.html" class="card cat-login">
-    <span class="tag cyan">Login</span>
-    <h2>Pharmacist Portal</h2>
-    <p class="desc">Level 4 clearance pharmacy access with biometric sync visualization.</p>
-    <span class="material-symbols-outlined">science</span>
-  </a>
-
-  <a href="medical_history_login/code.html" class="card cat-login">
-    <span class="tag cyan">Login</span>
-    <h2>Medical History Archive</h2>
-    <p class="desc">Archive access portal with data packet stream buffer visualization.</p>
-    <span class="material-symbols-outlined">folder_managed</span>
-  </a>
-
-  <a href="ot_scheduling_login/code.html" class="card cat-login">
-    <span class="tag cyan">Login</span>
-    <h2>OT Scheduling Hub</h2>
-    <p class="desc">Operating theater scheduling with real-time clock and theater grid simulation.</p>
-    <span class="material-symbols-outlined">emergency_recording</span>
-  </a>
-
-</div>
-
-<footer>
-  <p><span>NEURO_PREDICT_SYS</span> — 12 Modules — Neon Tokyo Design System</p>
-</footer>
-<script>
-(async () => {
-  await Auth.ready();
-
-  const statusEl = document.getElementById('clerk-auth-status');
-  if (Auth.isSignedIn()) {
-    const user = Auth.getUser();
-    statusEl.innerHTML = `<span style="color:#00ffcc;">SIGNED IN</span> &mdash; ${user.full_name}`;
-  } else {
-    statusEl.innerHTML = `<a href="3fa_pharmacy_login/code.html" style="color:#ff2d78;text-decoration:none;">SIGN IN</a>`;
-  }
-})();
+  // If already signed in, show status in nav
+  Auth.ready().then(() => {
+    if (Auth.isSignedIn()) {
+      const user = Auth.getUser();
+      const nav = document.querySelector('nav');
+      const signinBtn = nav.querySelector('a[href*="login"]');
+      if (signinBtn) {
+        signinBtn.href = '/global_neural_dashboard_v1/code.html';
+        signinBtn.textContent = 'Dashboard';
+      }
+    }
+  });
 </script>
 </body>
 </html>

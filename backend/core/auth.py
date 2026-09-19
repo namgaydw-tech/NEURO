@@ -143,7 +143,11 @@ DEMO_ACCOUNTS = [
     {"id": "demo-pharm-001", "email": "pharma@neuropredict.sys", "password": "pharma123",
      "full_name": "Dr. Priya Sharma", "role": "pharmacist", "department": "Pharmacy", "clearance_level": 3},
     {"id": "demo-surg-001", "email": "surgery@neuropredict.sys", "password": "surgery123",
-     "full_name": "Dr. Marcus Thompson", "role": "surgeon", "department": "Neurosurgery", "clearance_level": 4},
+     "full_name": "Dr. Marcus Thompson", "role": "neurosurgeon", "department": "Neurosurgery", "clearance_level": 4},
+    {"id": "demo-rad-001", "email": "radiology@neuropredict.sys", "password": "radio123",
+     "full_name": "Dr. Aisha Patel", "role": "radiologist", "department": "Radiology", "clearance_level": 3},
+    {"id": "demo-ot-001", "email": "ot@neuropredict.sys", "password": "ot1234",
+     "full_name": "Nurse Rebecca Liu", "role": "ot_coordinator", "department": "Surgery", "clearance_level": 3},
     {"id": "demo-research-001", "email": "research@neuropredict.sys", "password": "research123",
      "full_name": "Dr. Elena Volkov", "role": "researcher", "department": "Research", "clearance_level": 3},
     {"id": "demo-user-001", "email": "demo@neuropredict.sys", "password": "demo123",
@@ -174,35 +178,54 @@ def seed_demo_accounts():
 
 # ── Permission Model ──────────────────────────────────────────────
 
+# All valid roles
+VALID_ROLES = {
+    "admin", "neurologist", "neurosurgeon", "radiologist",
+    "pharmacist", "ot_coordinator", "anesthesiologist",
+    "lab_professional", "nurse", "clinical_staff",
+    "researcher", "demo",
+}
+
 # Role hierarchy: higher number = more permissions
 ROLE_HIERARCHY = {
     "demo": 1,
+    "nurse": 2,
+    "clinical_staff": 2,
+    "lab_professional": 2,
     "researcher": 2,
+    "ot_coordinator": 3,
     "pharmacist": 3,
+    "radiologist": 3,
+    "anesthesiologist": 3,
     "neurologist": 4,
-    "surgeon": 4,
+    "neurosurgeon": 4,
     "admin": 5,
 }
 
 # Permission definitions
 PERMISSIONS = {
-    "patient.read": ["admin", "neurologist", "surgeon", "pharmacist", "researcher"],
-    "patient.write": ["admin", "neurologist", "surgeon"],
+    "patient.read": ["admin", "neurologist", "neurosurgeon", "radiologist", "pharmacist", "researcher", "nurse", "clinical_staff", "lab_professional", "anesthesiologist", "ot_coordinator"],
+    "patient.write": ["admin", "neurologist", "neurosurgeon"],
     "patient.delete": ["admin"],
-    "diagnosis.read": ["admin", "neurologist", "surgeon"],
-    "diagnosis.write": ["admin", "neurologist", "surgeon"],
+    "diagnosis.read": ["admin", "neurologist", "neurosurgeon", "radiologist"],
+    "diagnosis.write": ["admin", "neurologist", "neurosurgeon"],
     "analysis.run": ["admin", "neurologist", "researcher"],
-    "analysis.read": ["admin", "neurologist", "researcher", "surgeon"],
-    "eeg.read": ["admin", "neurologist", "researcher"],
+    "analysis.read": ["admin", "neurologist", "neurosurgeon", "researcher", "radiologist"],
+    "eeg.read": ["admin", "neurologist", "neurosurgeon", "researcher"],
     "eeg.write": ["admin", "neurologist"],
-    "pharmacy.read": ["admin", "pharmacist"],
+    "imaging.read": ["admin", "neurologist", "neurosurgeon", "radiologist"],
+    "imaging.write": ["admin", "radiologist"],
+    "pharmacy.read": ["admin", "pharmacist", "neurologist", "neurosurgeon"],
     "pharmacy.write": ["admin", "pharmacist"],
-    "prescription.create": ["admin", "neurologist", "surgeon"],
+    "pharmacy.inventory": ["admin", "pharmacist"],
+    "prescription.create": ["admin", "neurologist", "neurosurgeon"],
     "prescription.dispense": ["admin", "pharmacist"],
-    "ot.read": ["admin", "neurologist", "surgeon"],
-    "ot.schedule": ["admin", "surgeon"],
-    "ot.modify": ["admin", "surgeon"],
-    "research.read": ["admin", "neurologist", "researcher"],
+    "medication_request.create": ["admin", "neurologist", "neurosurgeon", "anesthesiologist"],
+    "medication_request.fulfill": ["admin", "pharmacist"],
+    "ot.read": ["admin", "neurologist", "neurosurgeon", "anesthesiologist", "ot_coordinator"],
+    "ot.schedule": ["admin", "neurosurgeon", "ot_coordinator"],
+    "ot.modify": ["admin", "neurosurgeon", "ot_coordinator"],
+    "research.read": ["admin", "neurologist", "neurosurgeon", "researcher"],
     "research.write": ["admin", "researcher"],
     "admin.users.manage": ["admin"],
     "admin.system": ["admin"],
@@ -291,14 +314,8 @@ async def get_current_user(
             raise HTTPException(status_code=401, detail="User not found or disabled")
         return {k: v for k, v in user.items() if k != "password_hash"}
 
-    # Demo auto-login (development only)
-    if settings.DEMO_MODE and settings.ENABLE_DEMO_DATA:
-        db = get_db()
-        admin = db.get("users", "demo-admin-001")
-        if admin:
-            return {k: v for k, v in admin.items() if k != "password_hash"}
-
-    raise HTTPException(status_code=401, detail="Not authenticated")
+    # No auto-login — user must authenticate explicitly
+    raise HTTPException(status_code=401, detail="Not authenticated. Please sign in or use a demo account.")
 
 
 async def require_admin(user=Depends(get_current_user)):

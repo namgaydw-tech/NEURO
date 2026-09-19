@@ -530,26 +530,26 @@ async def update_pharmacy_profile(
 
 @router.get("/users/me/profile")
 async def get_my_profile(user=Depends(get_current_user)):
-    """Get the current user's full profile with pharmacy info."""
-    db = get_db()
-    pharmacy_profiles = db.get_all("pharmacy_profiles")
-    pharmacy_profile = pharmacy_profiles[0] if pharmacy_profiles else None
-    
-    user_data = {
+    """Get the current user's full profile."""
+    return {
         "id": user.get("id"),
         "email": user.get("email"),
         "full_name": user.get("full_name"),
+        "first_name": user.get("first_name"),
+        "last_name": user.get("last_name"),
         "role": user.get("role"),
+        "requested_role": user.get("requested_role"),
+        "role_status": user.get("role_status"),
         "department": user.get("department"),
+        "specialty": user.get("specialty"),
+        "employee_id": user.get("employee_id"),
         "clearance_level": user.get("clearance_level"),
+        "phone": user.get("phone"),
+        "bio": user.get("bio"),
+        "avatar_url": user.get("avatar_url"),
         "created_at": user.get("created_at"),
         "updated_at": user.get("updated_at"),
     }
-    
-    if pharmacy_profile:
-        user_data["pharmacy_profile"] = PharmacyProfileResponse(**pharmacy_profile)
-    
-    return user_data
 
 
 @router.put("/users/me/profile")
@@ -575,26 +575,26 @@ async def update_my_profile(
     db.update("users", user_id, update_data)
     
     updated_user = db.get("users", user_id)
-    result = {
+    updated_user = db.get("users", user_id)
+    return {
         "id": updated_user.get("id"),
         "email": updated_user.get("email"),
         "full_name": updated_user.get("full_name"),
+        "first_name": updated_user.get("first_name"),
+        "last_name": updated_user.get("last_name"),
         "role": updated_user.get("role"),
+        "requested_role": updated_user.get("requested_role"),
+        "role_status": updated_user.get("role_status"),
         "department": updated_user.get("department"),
+        "specialty": updated_user.get("specialty"),
+        "employee_id": updated_user.get("employee_id"),
         "clearance_level": updated_user.get("clearance_level"),
-        "phone": update_data.get("phone"),
-        "bio": update_data.get("bio"),
-        "avatar_url": update_data.get("avatar_url"),
+        "phone": updated_user.get("phone"),
+        "bio": updated_user.get("bio"),
+        "avatar_url": updated_user.get("avatar_url"),
         "created_at": updated_user.get("created_at"),
         "updated_at": updated_user.get("updated_at"),
     }
-    
-    # Include pharmacy profile if exists
-    pharmacy_profiles = db.get_all("pharmacy_profiles")
-    if pharmacy_profiles:
-        result["pharmacy_profile"] = PharmacyProfileResponse(**pharmacy_profiles[0])
-    
-    return result
 
 
 # ══════════════════════════════════════════════════════════════════

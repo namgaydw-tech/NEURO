@@ -181,10 +181,10 @@ const ClerkAuth = (() => {
   }
 
   function buildLoginUrl() {
-    const loginPage = _getRelativePath('3fa_pharmacy_login/code.html');
+    const loginPage = _getRelativePath('login/index.html');
     const currentPath = getCurrentPagePath();
     // Don't add redirect if already on login page
-    if (currentPath.includes('3fa_pharmacy_login')) return loginPage;
+    if (currentPath.includes('login/index')) return loginPage;
     return loginPage + '?redirect_url=' + encodeURIComponent(currentPath);
   }
 

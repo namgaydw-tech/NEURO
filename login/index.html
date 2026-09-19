@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sign In — NEURO_PREDICT</title>
+<meta name="description" content="Sign in to NEURO_PREDICT_SYS"/>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;700;800&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        "primary": "#ff2d78",
+        "secondary": "#00ffcc",
+        "tertiary": "#ffe04a",
+        "background": "#0a0a12",
+        "surface": "#0f0f1a",
+        "surface-container": "#141422",
+        "surface-container-high": "#1e1e30",
+        "surface-container-highest": "#28283e",
+        "surface-container-low": "#111118",
+        "on-surface": "#e8e0f0",
+        "on-surface-variant": "#a098b0",
+        "outline": "#5a5068",
+        "outline-variant": "#302840",
+      },
+      fontFamily: {
+        headline: ["Sora"],
+        body: ["Inter"],
+        label: ["Space Grotesk"],
+      },
+    },
+  },
+}
+</script>
+<style>
+  .material-symbols-outlined {
+    font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;
+  }
+  .neon-glow-pink { text-shadow:0 0 8px rgba(255,45,120,0.8); }
+  .neon-glow-cyan { text-shadow:0 0 8px rgba(0,255,204,0.8); }
+  .scanline {
+    background:linear-gradient(to bottom,transparent 50%,rgba(0,255,204,0.02) 50%);
+    background-size:100% 4px;
+  }
+  @keyframes pulse-ring { 0%{transform:scale(0.95);opacity:0.5} 50%{transform:scale(1);opacity:1} 100%{transform:scale(0.95);opacity:0.5} }
+  .pulse { animation:pulse-ring 2s ease-in-out infinite; }
+  .scanner-ring {
+    border:2px solid transparent;
+    border-top-color:#00ffcc;
+    animation:spin 3s linear infinite;
+  }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  input:focus { outline:none; }
+  .tab-active { color:#ff2d78; border-bottom:2px solid #ff2d78; }
+  .tab-inactive { color:#5a5068; border-bottom:2px solid transparent; }
+  .tab-inactive:hover { color:#a098b0; }
+</style>
+</head>
+<body class="bg-background text-on-surface font-body min-h-screen flex flex-col">
+<!-- ═══════════════ HEADER ═══════════════ -->
+<header class="flex justify-between items-center px-6 h-16 bg-background/80 backdrop-blur-md border-b border-primary/20">
+  <a href="/" class="flex items-center gap-3 group">
+    <span class="material-symbols-outlined text-primary text-2xl group-hover:scale-110 transition-transform">fingerprint</span>
+    <h1 class="text-xl font-black text-primary neon-glow-pink font-headline tracking-tighter">NEURO_PREDICT</h1>
+  </a>
+  <a href="/" class="font-label text-xs uppercase tracking-widest text-on-surface-variant hover:text-secondary transition-colors">← Back</a>
+</header>
+
+<!-- ═══════════════ MAIN ═══════════════ -->
+<main class="flex-grow flex items-center justify-center py-12 px-4 relative overflow-hidden">
+  <div class="absolute inset-0 scanline pointer-events-none opacity-20"></div>
+  <div class="absolute top-1/3 -left-32 w-80 h-80 bg-primary/8 blur-[100px] rounded-full"></div>
+  <div class="absolute bottom-1/3 -right-32 w-80 h-80 bg-secondary/8 blur-[100px] rounded-full"></div>
+
+  <div class="relative w-full max-w-md">
+    <!-- Login Card -->
+    <div class="bg-surface-container/60 backdrop-blur-xl border border-primary/20 p-8 rounded-lg shadow-[inset_0_0_24px_rgba(255,45,120,0.03)]">
+      <!-- Corner accents -->
+      <div class="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-secondary/40"></div>
+      <div class="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-secondary/40"></div>
+      <div class="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-secondary/40"></div>
+      <div class="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-secondary/40"></div>
+
+      <!-- Header -->
+      <div class="mb-6 text-center">
+        <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-surface-container-highest border border-secondary/30 mb-4 shadow-[0_0_15px_rgba(0,255,204,0.15)]">
+          <span class="material-symbols-outlined text-secondary text-2xl" style="font-variation-settings:'FILL' 1;">fingerprint</span>
+        </div>
+        <h2 id="pageTitle" class="text-2xl font-headline font-extrabold text-on-surface tracking-tight neon-glow-pink">Welcome Back</h2>
+        <p id="pageSubtitle" class="font-label text-[10px] uppercase tracking-[0.3em] text-on-surface-variant mt-2">Sign in to your account</p>
+      </div>
+
+      <!-- Tabs: Sign In / Create Account -->
+      <div class="flex mb-6 border-b border-outline-variant/50">
+        <button id="tabSignin" onclick="showTab('signin')" class="flex-1 py-2 font-label text-xs uppercase tracking-widest tab-active transition-all">Sign In</button>
+        <button id="tabSignup" onclick="showTab('signup')" class="flex-1 py-2 font-label text-xs uppercase tracking-widest tab-inactive transition-all">Create Account</button>
+      </div>
+
+      <!-- ═══ SIGN IN FORM ═══ -->
+      <form id="signinForm" class="space-y-4" onsubmit="return handleSignin(event)">
+        <div id="signinError" class="hidden bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-lg text-sm font-label"></div>
+
+        <div class="space-y-1">
+          <label for="signinEmail" class="font-label text-[10px] uppercase tracking-widest text-secondary neon-glow-cyan">Email Address</label>
+          <input id="signinEmail" type="email" required autocomplete="email"
+            class="w-full bg-surface-container-low border border-outline-variant focus:border-primary py-3 px-4 text-on-surface font-label text-sm transition-all placeholder:text-outline/50 rounded"
+            placeholder="you@hospital.org"/>
+        </div>
+
+        <div class="space-y-1">
+          <label for="signinPassword" class="font-label text-[10px] uppercase tracking-widest text-secondary neon-glow-cyan">Password</label>
+          <div class="relative">
+            <input id="signinPassword" type="password" required autocomplete="current-password"
+              class="w-full bg-surface-container-low border border-outline-variant focus:border-primary py-3 px-4 pr-12 text-on-surface font-label text-sm transition-all placeholder:text-outline/50 rounded"
+              placeholder="••••••••••"/>
+            <button type="button" onclick="togglePassword('signinPassword', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-outline hover:text-on-surface transition-colors">
+              <span class="material-symbols-outlined text-lg">visibility</span>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" id="signinBtn"
+          class="w-full py-3 bg-primary text-white font-headline font-bold uppercase tracking-widest text-sm hover:shadow-[0_0_16px_rgba(255,45,120,0.4)] transition-all rounded flex items-center justify-center gap-2">
+          <span class="material-symbols-outlined text-lg">login</span>
+          Sign In
+        </button>
+      </form>
+
+      <!-- ═══ CREATE ACCOUNT FORM ═══ -->
+      <form id="signupForm" class="space-y-4 hidden" onsubmit="return handleSignup(event)">
+        <div id="signupError" class="hidden bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-lg text-sm font-label"></div>
+        <div id="signupSuccess" class="hidden bg-green-500/10 border border-green-500/30 text-green-400 px-4 py-3 rounded-lg text-sm font-label"></div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div class="space-y-1">
+            <label for="signupFirstName" class="font-label text-[10px] uppercase tracking-widest text-secondary neon-glow-cyan">First Name *</label>
+            <input id="signupFirstName" type="text" required
+              class="w-full bg-surface-container-low border border-outline-variant focus:border-primary py-3 px-4 text-on-surface font-label text-sm transition-all rounded"
+              placeholder="First name"/>
+          </div>
+          <div class="space-y-1">
+            <label for="signupLastName" class="font-label text-[10px] uppercase tracking-widest text-secondary neon-glow-cyan">Last Name *</label>
+            <input id="signupLastName" type="text" required
+              class="w-full bg-surface-container-low border border-outline-variant focus:border-primary py-3 px-4 text-on-surface font-label text-sm transition-all rounded"
+              placeholder="Last name"/>
+          </div>
+        </div>
+
+        <div class="space-y-1">
+          <label for="signupEmail" class="font-label text-[10px] uppercase tracking-widest text-secondary neon-glow-cyan">Work Email *</label>
+          <input id="signupEmail" type="email" required autocomplete="email"
+            class="w-full bg-surface-container-low border border-outline-variant focus:border-primary py-3 px-4 text-on-surface font-label text-sm transition-all rounded"
+            placeholder="you@hospital.org"/>
+        </div>
+
+        <div class="space-y-1">
+          <label for="signupPassword" class="font-label text-[10px] uppercase tracking-widest text-secondary neon-glow-cyan">Password *</label>
+          <input id="signupPassword" type="password" required minlength="8" autocomplete="new-password"
+            class="w-full bg-surface-container-low border border-outline-variant focus:border-primary py-3 px-4 text-on-surface font-label text-sm transition-all rounded"
+            placeholder="Minimum 8 characters"/>
+        </div>
+
+        <div class="space-y-1">
+          <label for="signupRole" class="font-label text-[10px] uppercase tracking-widest text-secondary neon-glow-cyan">Requested Role *</label>
+          <select id="signupRole" required
+            class="w-full bg-surface-container-low border border-outline-variant focus:border-primary py-3 px-4 text-on-surface font-label text-sm transition-all rounded appearance-none">
+            <option value="">Select your role</option>
+            <option value="neurologist">Neurologist</option>
+            <option value="neurosurgeon">Neurosurgeon</option>
+            <option value="radiologist">Radiologist</option>
+            <option value="pharmacist">Pharmacist</option>
+            <option value="ot_coordinator">OT Coordinator</option>
+            <option value="anesthesiologist">Anesthesiologist</option>
+            <option value="lab_professional">Lab Professional</option>
+            <option value="nurse">Nurse / Clinical Staff</option>
+            <option value="researcher">Researcher</option>
+          </select>
+        </div>
+
+        <div class="space-y-1">
+          <label for="signupDepartment" class="font-label text-[10px] uppercase tracking-widest text-secondary neon-glow-cyan">Department</label>
+          <input id="signupDepartment" type="text"
+            class="w-full bg-surface-container-low border border-outline-variant focus:border-primary py-3 px-4 text-on-surface font-label text-sm transition-all rounded"
+            placeholder="e.g. Neurology"/>
+        </div>
+
+        <button type="submit" id="signupBtn"
+          class="w-full py-3 bg-primary text-white font-headline font-bold uppercase tracking-widest text-sm hover:shadow-[0_0_16px_rgba(255,45,120,0.4)] transition-all rounded flex items-center justify-center gap-2">
+          <span class="material-symbols-outlined text-lg">person_add</span>
+          Create Account
+        </button>
+
+        <p class="text-center text-on-surface-variant text-xs font-label">
+          Role approval is required for clinical access.
+        </p>
+      </form>
+
+      <!-- ═══ DIVIDER ═══ -->
+      <div class="flex items-center gap-3 my-6">
+        <div class="flex-1 h-px bg-outline-variant/50"></div>
+        <span class="font-label text-[9px] uppercase tracking-widest text-outline">or try a demo</span>
+        <div class="flex-1 h-px bg-outline-variant/50"></div>
+      </div>
+
+      <!-- ═══ DEMO ACCOUNTS ═══ -->
+      <div id="demoAccounts" class="grid grid-cols-2 gap-2"></div>
+
+      <!-- ═══ FOOTER ═══ -->
+      <div class="mt-6 text-center">
+        <a href="/" class="font-label text-[10px] uppercase tracking-widest text-outline hover:text-secondary transition-colors">
+          <span class="material-symbols-outlined text-[12px] align-middle">arrow_back</span> Back to NEURO_PREDICT
+        </a>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- ═══════════════ SCRIPTS ═══════════════ -->
+<script src="/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"></script>
+<script src="../shared/auth.js"></script>
+<script>
+const DEMO_ACCOUNTS = [
+  { email: 'admin@neuropredict.sys', password: 'admin123', role: 'admin', name: 'Dr. Sarah Chen', dept: 'Neurology', icon: 'admin_panel_settings', color: '#ff2d78' },
+  { email: 'neuro@neuropredict.sys', password: 'neuro123', role: 'neurologist', name: 'Dr. James Wilson', dept: 'Neurology', icon: 'psychology', color: '#00ffcc' },
+  { email: 'surgery@neuropredict.sys', password: 'surgery123', role: 'neurosurgeon', name: 'Dr. Marcus Thompson', dept: 'Neurosurgery', icon: 'neurology', color: '#ffe04a' },
+  { email: 'pharma@neuropredict.sys', password: 'pharma123', role: 'pharmacist', name: 'Dr. Priya Sharma', dept: 'Pharmacy', icon: 'local_pharmacy', color: '#00ffcc' },
+  { email: 'radiology@neuropredict.sys', password: 'radio123', role: 'radiologist', name: 'Dr. Aisha Patel', dept: 'Radiology', icon: 'radiology', color: '#ffe04a' },
+  { email: 'ot@neuropredict.sys', password: 'ot1234', role: 'ot_coordinator', name: 'Nurse Rebecca Liu', dept: 'Surgery', icon: 'emergency_recording', color: '#00ffcc' },
+  { email: 'research@neuropredict.sys', password: 'research123', role: 'researcher', name: 'Dr. Elena Volkov', dept: 'Research', icon: 'science', color: '#ff2d78' },
+];
+
+// ── Tab switching ──────────────────────────────────────────────
+function showTab(tab) {
+  const signinForm = document.getElementById('signinForm');
+  const signupForm = document.getElementById('signupForm');
+  const tabSignin = document.getElementById('tabSignin');
+  const tabSignup = document.getElementById('tabSignup');
+  const title = document.getElementById('pageTitle');
+  const subtitle = document.getElementById('pageSubtitle');
+
+  if (tab === 'signin') {
+    signinForm.classList.remove('hidden');
+    signupForm.classList.add('hidden');
+    tabSignin.className = 'flex-1 py-2 font-label text-xs uppercase tracking-widest tab-active transition-all';
+    tabSignup.className = 'flex-1 py-2 font-label text-xs uppercase tracking-widest tab-inactive transition-all';
+    title.textContent = 'Welcome Back';
+    subtitle.textContent = 'Sign in to your account';
+  } else {
+    signinForm.classList.add('hidden');
+    signupForm.classList.remove('hidden');
+    tabSignup.className = 'flex-1 py-2 font-label text-xs uppercase tracking-widest tab-active transition-all';
+    tabSignin.className = 'flex-1 py-2 font-label text-xs uppercase tracking-widest tab-inactive transition-all';
+    title.textContent = 'Create Account';
+    subtitle.textContent = 'Join NEURO_PREDICT as a professional';
+  }
+}
+
+// ── Password visibility toggle ─────────────────────────────────
+function togglePassword(inputId, btn) {
+  const input = document.getElementById(inputId);
+  const icon = btn.querySelector('.material-symbols-outlined');
+  if (input.type === 'password') {
+    input.type = 'text';
+    icon.textContent = 'visibility_off';
+  } else {
+    input.type = 'password';
+    icon.textContent = 'visibility';
+  }
+}
+
+// ── Sign In ────────────────────────────────────────────────────
+async function handleSignin(e) {
+  e.preventDefault();
+  const email = document.getElementById('signinEmail').value;
+  const password = document.getElementById('signinPassword').value;
+  const errorEl = document.getElementById('signinError');
+  const btn = document.getElementById('signinBtn');
+
+  errorEl.classList.add('hidden');
+  btn.innerHTML = '<span class="material-symbols-outlined animate-spin text-lg">refresh</span> Authenticating...';
+  btn.disabled = true;
+
+  try {
+    await Auth.login(email, password);
+    Auth.redirectToIntended();
+  } catch (err) {
+    errorEl.textContent = err.message || 'Invalid credentials';
+    errorEl.classList.remove('hidden');
+    btn.innerHTML = '<span class="material-symbols-outlined text-lg">login</span> Sign In';
+    btn.disabled = false;
+  }
+  return false;
+}
+
+// ── Sign Up ────────────────────────────────────────────────────
+async function handleSignup(e) {
+  e.preventDefault();
+  const errorEl = document.getElementById('signupError');
+  const successEl = document.getElementById('signupSuccess');
+  const btn = document.getElementById('signupBtn');
+
+  errorEl.classList.add('hidden');
+  successEl.classList.add('hidden');
+  btn.innerHTML = '<span class="material-symbols-outlined animate-spin text-lg">refresh</span> Creating account...';
+  btn.disabled = true;
+
+  const data = {
+    email: document.getElementById('signupEmail').value,
+    password: document.getElementById('signupPassword').value,
+    full_name: document.getElementById('signupFirstName').value + ' ' + document.getElementById('signupLastName').value,
+    role: document.getElementById('signupRole').value,
+    department: document.getElementById('signupDepartment').value || null,
+  };
+
+  try {
+    await Api.auth.register(data);
+    successEl.textContent = 'Account created! Your role is pending approval. Signing in...';
+    successEl.classList.remove('hidden');
+    // Auto-sign in after registration
+    setTimeout(() => Auth.redirectToIntended(), 1500);
+  } catch (err) {
+    errorEl.textContent = err.message || 'Registration failed';
+    errorEl.classList.remove('hidden');
+    btn.innerHTML = '<span class="material-symbols-outlined text-lg">person_add</span> Create Account';
+    btn.disabled = false;
+  }
+  return false;
+}
+
+// ── Demo login ─────────────────────────────────────────────────
+async function demoLoginAs(email, password) {
+  try {
+    await Auth.login(email, password);
+    Auth.redirectToIntended();
+  } catch (err) {
+    console.error('Demo login failed:', err);
+  }
+}
+
+// ── Init ───────────────────────────────────────────────────────
+(async () => {
+  await Auth.ready();
+
+  // If already signed in, redirect
+  if (Auth.isSignedIn()) {
+    Auth.redirectToIntended();
+    return;
+  }
+
+  // Check URL params for mode
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('mode') === 'signup') {
+    showTab('signup');
+  }
+
+  // Render demo accounts
+  const container = document.getElementById('demoAccounts');
+  container.innerHTML = DEMO_ACCOUNTS.map(a => `
+    <button type="button" onclick="demoLoginAs('${a.email}', '${a.password}')"
+      class="text-left px-3 py-2.5 bg-surface-container-high/50 hover:bg-surface-container-high border border-outline-variant/30 hover:border-secondary/30 rounded transition-all group">
+      <div class="flex items-center gap-2 mb-1">
+        <span class="material-symbols-outlined text-sm" style="color:${a.color}">${a.icon}</span>
+        <span class="font-label text-[10px] uppercase tracking-wider" style="color:${a.color}">${a.role.replace('_', ' ')}</span>
+      </div>
+      <p class="font-label text-[9px] text-on-surface-variant">${a.name}</p>
+      <p class="font-label text-[8px] text-outline">${a.dept}</p>
+    </button>
+  `).join('');
+})();
+</script>
+</body>
+</html>

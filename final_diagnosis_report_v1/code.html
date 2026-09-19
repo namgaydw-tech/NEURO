@@ -298,7 +298,7 @@
 </div>
 </div>
 <script>
-(async () => { await Auth.ready(); if (!Auth.isSignedIn() && !Auth.isSignedIn()) { window.location.href = '../3fa_pharmacy_login/code.html?redirect_url=' + encodeURIComponent(window.location.pathname); } else if (Auth.isSignedIn()) { try { await true; } catch(e) {} } })();
+(async () => { await Auth.ready(); if (!Auth.isSignedIn() && !Auth.isSignedIn()) { window.location.href = '../login/index.html?redirect_url=' + encodeURIComponent(window.location.pathname); } else if (Auth.isSignedIn()) { try { await true; } catch(e) {} } })();
     try { ProfilePanel.mountInto("profile-panel-trigger"); } catch(e) {}
 </script>
 </body></html>

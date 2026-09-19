@@ -13,8 +13,14 @@ from enum import Enum
 class UserRole(str, Enum):
     ADMIN = "admin"
     NEUROLOGIST = "neurologist"
+    NEUROSURGEON = "neurosurgeon"
+    RADIOLOGIST = "radiologist"
     PHARMACIST = "pharmacist"
-    SURGEON = "surgeon"
+    OT_COORDINATOR = "ot_coordinator"
+    ANESTHESIOLOGIST = "anesthesiologist"
+    LAB_PROFESSIONAL = "lab_professional"
+    NURSE = "nurse"
+    CLINICAL_STAFF = "clinical_staff"
     RESEARCHER = "researcher"
     DEMO = "demo"
 
@@ -276,9 +282,12 @@ class PharmacyProfileResponse(BaseModel):
 
 class UserProfileUpdate(BaseModel):
     full_name: Optional[str] = None
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
     phone: Optional[str] = None
     department: Optional[str] = None
-    clearance_level: Optional[int] = None
+    specialty: Optional[str] = None
+    employee_id: Optional[str] = None
     bio: Optional[str] = None
     avatar_url: Optional[str] = None
 
@@ -287,13 +296,18 @@ class UserProfileResponse(BaseModel):
     id: str
     email: str
     full_name: str
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
     role: str
+    requested_role: Optional[str] = None
+    role_status: Optional[str] = None
     department: Optional[str] = None
+    specialty: Optional[str] = None
+    employee_id: Optional[str] = None
     clearance_level: int
     phone: Optional[str] = None
     bio: Optional[str] = None
     avatar_url: Optional[str] = None
-    pharmacy_profile: Optional[PharmacyProfileResponse] = None
     created_at: Optional[str] = None
     updated_at: Optional[str] = None
 

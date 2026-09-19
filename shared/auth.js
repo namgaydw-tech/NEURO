@@ -10,9 +10,9 @@
  *   Auth.requireAuth();  // redirects if not signed in
  */
 const Auth = (() => {
-  const LOGIN_PATH = '../3fa_pharmacy_login/code.html';
-  const DASHBOARD_PATH = '../global_neural_dashboard_v1/code.html';
-  const LANDING_PATH = '../index.html';
+  const LOGIN_PATH = '/login/index.html';
+  const DASHBOARD_PATH = '/global_neural_dashboard_v1/code.html';
+  const LANDING_PATH = '/';
 
   let _user = null;
   let _token = null;
@@ -21,6 +21,8 @@ const Auth = (() => {
 
   // ── Path resolution ──────────────────────────────────────────
   function _rel(target) {
+    // Absolute paths pass through directly
+    if (target.startsWith('/')) return target;
     const depth = window.location.pathname.split('/').filter(Boolean).length - 1;
     return '../'.repeat(depth) + target;
   }
@@ -84,15 +86,6 @@ const Auth = (() => {
         }
       }
       _resolveUser();
-      // Auto-login with demo account if no user is signed in
-      if (!_user) {
-        try {
-          await login('admin@neuropredict.sys', 'admin123');
-          console.log('[Auth] Auto-logged in with demo account');
-        } catch (e) {
-          console.warn('[Auth] Auto-demo-login failed:', e.message);
-        }
-      }
       resolve(true);
     });
     return _ready;
@@ -125,6 +118,10 @@ const Auth = (() => {
     } else {
       window.location.href = _rel(DASHBOARD_PATH);
     }
+  }
+
+  function redirectToSignup() {
+    window.location.href = _rel(LOGIN_PATH) + '?mode=signup&redirect_url=' + encodeURIComponent(window.location.pathname);
   }
 
   function redirectToLanding() {

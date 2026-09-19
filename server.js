@@ -48,8 +48,8 @@ function serve(req, res) {
     return;
   }
 
-  // Root → landing page
-  if (url === '/') url = '/landing/index.html';
+  // Root → index.html
+  if (url === '/') url = '/index.html';
 
   // Clean URL fallback: /foo → /foo.html
   const safe = path.normalize(url).replace(/^(\.\.[\/\\])+/, '');

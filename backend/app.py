@@ -197,6 +197,77 @@ async def demo_quick_login(email: str = "admin@neuropredict.sys"):
     }
 
 
+# ── Clerk Sync Endpoint ─────────────────────────────────────────
+
+class ClerkSyncRequest(BaseModel):
+    clerk_user_id: str
+    email: str
+    full_name: str = ""
+    first_name: str = ""
+    last_name: str = ""
+
+
+@app.post(f"{settings.API_PREFIX}/auth/clerk-sync")
+async def clerk_sync(body: ClerkSyncRequest, request: Request):
+    """
+    Upsert a user from Clerk session.
+    If user exists by clerk_user_id, return their token.
+    If user exists by email, link them.
+    If user is new, create a pending-role account.
+    """
+    if not settings.CLERK_SECRET_KEY:
+        raise HTTPException(status_code=403, detail="Clerk not configured")
+
+    db = get_db()
+    users = db.get_all("users")
+
+    # Find by clerk_user_id first
+    user = next((u for u in users if u.get("clerk_user_id") == body.clerk_user_id), None)
+
+    # Find by email
+    if not user:
+        user = next((u for u in users if u.get("email") == body.email), None)
+        if user:
+            # Link Clerk ID to existing account
+            db.update("users", user["id"], {"clerk_user_id": body.clerk_user_id})
+            user["clerk_user_id"] = body.clerk_user_id
+
+    # Create new account
+    if not user:
+        import uuid
+        user_data = {
+            "id": str(uuid.uuid4()),
+            "clerk_user_id": body.clerk_user_id,
+            "email": body.email,
+            "full_name": body.full_name or f"{body.first_name} {body.last_name}".strip() or body.email,
+            "first_name": body.first_name,
+            "last_name": body.last_name,
+            "role": "demo",
+            "requested_role": None,
+            "role_status": "pending",
+            "department": None,
+            "clearance_level": 1,
+            "is_active": True,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+        }
+        db.insert("users", user_data)
+        user = user_data
+
+    # Issue JWT
+    access = create_access_token({"sub": user["id"], "role": user["role"]})
+    refresh = create_refresh_token({"sub": user["id"], "role": user["role"]})
+
+    from core.auth import audit_logger
+    audit_logger.log("auth.clerk_sync", user["id"], "auth", result="success", request=request)
+
+    return {
+        "access_token": access,
+        "refresh_token": refresh,
+        "token_type": "bearer",
+        "user": {k: v for k, v in user.items() if k not in ("password_hash",)},
+    }
+
+
 # ── WebSocket Endpoint ────────────────────────────────────────────
 
 @app.websocket("/ws/{module}")

@@ -33,7 +33,9 @@ coverage.xml
 # ── Virtual environments ─────────────────────────────────────────
 backend/venv/
 NEURO/backend/venv/
+backendvenv/
 stitch_neuro_ai_disease_predictorbackendvenv/
+*.venv/
 
 # ── IDE ───────────────────────────────────────────────────────────
 .idea/
