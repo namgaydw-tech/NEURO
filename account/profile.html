@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Profile — NEURO_PREDICT</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;700;800&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        "primary": "#ff2d78", "secondary": "#00ffcc", "tertiary": "#ffe04a",
+        "background": "#0a0a12", "surface": "#0f0f1a",
+        "surface-container": "#141422", "surface-container-high": "#1e1e30",
+        "surface-container-highest": "#28283e", "surface-container-low": "#111118",
+        "on-surface": "#e8e0f0", "on-surface-variant": "#a098b0",
+        "outline": "#5a5068", "outline-variant": "#302840",
+      },
+      fontFamily: { headline: ["Sora"], body: ["Inter"], label: ["Space Grotesk"] },
+    },
+  },
+}
+</script>
+<style>
+  .material-symbols-outlined { font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; }
+  .neon-glow-pink { text-shadow:0 0 8px rgba(255,45,120,0.8); }
+  input:focus, select:focus, textarea:focus { outline:none; }
+</style>
+</head>
+<body class="bg-background text-on-surface font-body min-h-screen">
+<!-- Header -->
+<header class="sticky top-0 z-50 flex items-center justify-between px-6 h-14 bg-background/80 backdrop-blur-md border-b border-primary/20">
+  <div class="flex items-center gap-3">
+    <a href="/" class="flex items-center gap-2 group">
+      <span class="material-symbols-outlined text-primary text-xl group-hover:scale-110 transition-transform">fingerprint</span>
+      <span class="font-headline font-bold text-primary text-sm">NEURO_PREDICT</span>
+    </a>
+    <span class="text-outline">/</span>
+    <span class="font-label text-xs uppercase tracking-widest text-on-surface-variant">Profile</span>
+  </div>
+  <a href="/global_neural_dashboard_v1/code.html" class="font-label text-xs uppercase tracking-widest text-on-surface-variant hover:text-secondary transition-colors">← Dashboard</a>
+</header>
+
+<main class="max-w-3xl mx-auto px-4 py-8">
+  <!-- Loading state -->
+  <div id="loadingState" class="text-center py-20">
+    <span class="material-symbols-outlined text-4xl text-secondary animate-spin">refresh</span>
+    <p class="font-label text-xs uppercase tracking-widest text-on-surface-variant mt-3">Loading profile...</p>
+  </div>
+
+  <!-- Profile content (hidden until loaded) -->
+  <div id="profileContent" class="hidden space-y-6">
+    <!-- Avatar + Name Card -->
+    <div class="bg-surface-container/60 backdrop-blur-xl border border-outline-variant/50 rounded-lg p-6 flex items-center gap-5">
+      <div id="avatarCircle" class="w-20 h-20 rounded-full bg-primary/10 border-2 border-primary/30 flex items-center justify-center text-primary font-headline font-bold text-2xl flex-shrink-0"></div>
+      <div class="flex-1 min-w-0">
+        <h1 id="userName" class="font-headline text-2xl font-extrabold text-on-surface tracking-tight truncate"></h1>
+        <p id="userEmail" class="font-label text-sm text-on-surface-variant truncate"></p>
+        <div class="flex items-center gap-2 mt-2">
+          <span id="roleBadge" class="px-2 py-0.5 rounded text-[10px] font-label uppercase tracking-wider"></span>
+          <span id="deptBadge" class="px-2 py-0.5 rounded text-[10px] font-label uppercase tracking-wider bg-surface-container-high text-on-surface-variant border border-outline-variant/50"></span>
+        </div>
+      </div>
+      <a href="security.html" class="flex items-center gap-1.5 px-3 py-2 bg-surface-container-high border border-outline-variant/50 rounded text-on-surface-variant hover:text-secondary hover:border-secondary/30 transition-all font-label text-xs uppercase tracking-widest flex-shrink-0">
+        <span class="material-symbols-outlined text-sm">security</span>
+        Security
+      </a>
+    </div>
+
+    <!-- Edit Profile Form -->
+    <div class="bg-surface-container/60 backdrop-blur-xl border border-outline-variant/50 rounded-lg p-6">
+      <h2 class="font-headline text-lg font-bold text-on-surface mb-5 flex items-center gap-2">
+        <span class="material-symbols-outlined text-secondary">person</span>
+        Personal Information
+      </h2>
+
+      <form id="profileForm" class="space-y-4" onsubmit="return saveProfile(event)">
+        <div id="profileError" class="hidden bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-lg text-sm font-label"></div>
+        <div id="profileSuccess" class="hidden bg-green-500/10 border border-green-500/30 text-green-400 px-4 py-3 rounded-lg text-sm font-label"></div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="space-y-1">
+            <label class="font-label text-[10px] uppercase tracking-widest text-secondary">First Name</label>
+            <input id="firstName" type="text" class="w-full bg-surface-container-low border border-outline-variant focus:border-primary py-2.5 px-4 text-on-surface font-label text-sm rounded transition-all"/>
+          </div>
+          <div class="space-y-1">
+            <label class="font-label text-[10px] uppercase tracking-widest text-secondary">Last Name</label>
+            <input id="lastName" type="text" class="w-full bg-surface-container-low border border-outline-variant focus:border-primary py-2.5 px-4 text-on-surface font-label text-sm rounded transition-all"/>
+          </div>
+        </div>
+
+        <div class="space-y-1">
+          <label class="font-label text-[10px] uppercase tracking-widest text-secondary">Full Name</label>
+          <input id="fullName" type="text" class="w-full bg-surface-container-low border border-outline-variant focus:border-primary py-2.5 px-4 text-on-surface font-label text-sm rounded transition-all"/>
+        </div>
+
+        <div class="space-y-1">
+          <label class="font-label text-[10px] uppercase tracking-widest text-secondary">Email</label>
+          <input id="email" type="email" disabled class="w-full bg-surface-container-high/50 border border-outline-variant/30 py-2.5 px-4 text-on-surface-variant font-label text-sm rounded cursor-not-allowed"/>
+          <p class="font-label text-[9px] text-outline">Email cannot be changed here</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="space-y-1">
+            <label class="font-label text-[10px] uppercase tracking-widest text-secondary">Phone</label>
+            <input id="phone" type="tel" class="w-full bg-surface-container-low border border-outline-variant focus:border-primary py-2.5 px-4 text-on-surface font-label text-sm rounded transition-all" placeholder="+1 (555) 000-0000"/>
+          </div>
+          <div class="space-y-1">
+            <label class="font-label text-[10px] uppercase tracking-widest text-secondary">Employee ID</label>
+            <input id="employeeId" type="text" class="w-full bg-surface-container-low border border-outline-variant focus:border-primary py-2.5 px-4 text-on-surface font-label text-sm rounded transition-all" placeholder="EMP-001"/>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="space-y-1">
+            <label class="font-label text-[10px] uppercase tracking-widest text-secondary">Department</label>
+            <input id="department" type="text" class="w-full bg-surface-container-low border border-outline-variant focus:border-primary py-2.5 px-4 text-on-surface font-label text-sm rounded transition-all"/>
+          </div>
+          <div class="space-y-1">
+            <label class="font-label text-[10px] uppercase tracking-widest text-secondary">Specialty</label>
+            <input id="specialty" type="text" class="w-full bg-surface-container-low border border-outline-variant focus:border-primary py-2.5 px-4 text-on-surface font-label text-sm rounded transition-all" placeholder="e.g. Neurodegenerative Diseases"/>
+          </div>
+        </div>
+
+        <div class="space-y-1">
+          <label class="font-label text-[10px] uppercase tracking-widest text-secondary">Bio</label>
+          <textarea id="bio" rows="3" class="w-full bg-surface-container-low border border-outline-variant focus:border-primary py-2.5 px-4 text-on-surface font-label text-sm rounded transition-all resize-none" placeholder="A brief professional bio..."></textarea>
+        </div>
+
+        <button type="submit" id="saveBtn"
+          class="w-full py-3 bg-primary text-white font-headline font-bold uppercase tracking-widest text-sm hover:shadow-[0_0_16px_rgba(255,45,120,0.4)] transition-all rounded flex items-center justify-center gap-2">
+          <span class="material-symbols-outlined text-lg">save</span>
+          Save Changes
+        </button>
+      </form>
+    </div>
+
+    <!-- Account Info (read-only) -->
+    <div class="bg-surface-container/60 backdrop-blur-xl border border-outline-variant/50 rounded-lg p-6">
+      <h2 class="font-headline text-lg font-bold text-on-surface mb-5 flex items-center gap-2">
+        <span class="material-symbols-outlined text-tertiary">info</span>
+        Account Details
+      </h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <div>
+          <p class="font-label text-[9px] uppercase tracking-widest text-outline mb-1">Role</p>
+          <p id="detailRole" class="font-label text-sm text-on-surface"></p>
+        </div>
+        <div>
+          <p class="font-label text-[9px] uppercase tracking-widest text-outline mb-1">Clearance</p>
+          <p id="detailClearance" class="font-label text-sm text-on-surface"></p>
+        </div>
+        <div>
+          <p class="font-label text-[9px] uppercase tracking-widest text-outline mb-1">Role Status</p>
+          <p id="detailRoleStatus" class="font-label text-sm"></p>
+        </div>
+        <div>
+          <p class="font-label text-[9px] uppercase tracking-widest text-outline mb-1">Requested Role</p>
+          <p id="detailRequestedRole" class="font-label text-sm text-on-surface-variant"></p>
+        </div>
+        <div>
+          <p class="font-label text-[9px] uppercase tracking-widest text-outline mb-1">Created</p>
+          <p id="detailCreated" class="font-label text-sm text-on-surface-variant"></p>
+        </div>
+        <div>
+          <p class="font-label text-[9px] uppercase tracking-widest text-outline mb-1">Last Updated</p>
+          <p id="detailUpdated" class="font-label text-sm text-on-surface-variant"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="/config.js"></script>
+<script src="../shared/auth.js"></script>
+<script src="../shared/api.js"></script>
+<script>
+let _profileData = null;
+
+function initials(name) {
+  if (!name) return '?';
+  return name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+}
+
+function formatDate(iso) {
+  if (!iso) return 'N/A';
+  return new Date(iso).toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+}
+
+function roleColor(role) {
+  const colors = {
+    admin: 'bg-primary/15 text-primary border border-primary/30',
+    neurologist: 'bg-secondary/15 text-secondary border border-secondary/30',
+    neurosurgeon: 'bg-tertiary/15 text-tertiary border border-tertiary/30',
+    radiologist: 'bg-tertiary/15 text-tertiary border border-tertiary/30',
+    pharmacist: 'bg-secondary/15 text-secondary border border-secondary/30',
+    ot_coordinator: 'bg-secondary/15 text-secondary border border-secondary/30',
+    researcher: 'bg-primary/15 text-primary border border-primary/30',
+  };
+  return colors[role] || 'bg-surface-container-high text-on-surface-variant border border-outline-variant/50';
+}
+
+function statusColor(status) {
+  if (status === 'verified' || status === 'approved') return 'text-green-400';
+  if (status === 'pending') return 'text-tertiary';
+  if (status === 'rejected') return 'text-red-400';
+  return 'text-on-surface-variant';
+}
+
+function populateForm(profile) {
+  document.getElementById('firstName').value = profile.first_name || '';
+  document.getElementById('lastName').value = profile.last_name || '';
+  document.getElementById('fullName').value = profile.full_name || '';
+  document.getElementById('email').value = profile.email || '';
+  document.getElementById('phone').value = profile.phone || '';
+  document.getElementById('employeeId').value = profile.employee_id || '';
+  document.getElementById('department').value = profile.department || '';
+  document.getElementById('specialty').value = profile.specialty || '';
+  document.getElementById('bio').value = profile.bio || '';
+}
+
+function populateHeader(profile) {
+  document.getElementById('avatarCircle').textContent = initials(profile.full_name);
+  document.getElementById('userName').textContent = profile.full_name || 'User';
+  document.getElementById('userEmail').textContent = profile.email || '';
+  const roleBadge = document.getElementById('roleBadge');
+  roleBadge.textContent = (profile.role || 'user').replace('_', ' ');
+  roleBadge.className = `px-2 py-0.5 rounded text-[10px] font-label uppercase tracking-wider ${roleColor(profile.role)}`;
+  document.getElementById('deptBadge').textContent = profile.department || 'No department';
+}
+
+function populateDetails(profile) {
+  document.getElementById('detailRole').textContent = (profile.role || 'user').replace('_', ' ');
+  document.getElementById('detailClearance').textContent = `Level ${profile.clearance_level || 1}`;
+  const statusEl = document.getElementById('detailRoleStatus');
+  statusEl.textContent = profile.role_status || (profile.role === 'admin' ? 'verified' : 'pending');
+  statusEl.className = `font-label text-sm ${statusColor(profile.role_status)}`;
+  document.getElementById('detailRequestedRole').textContent = profile.requested_role || '—';
+  document.getElementById('detailCreated').textContent = formatDate(profile.created_at);
+  document.getElementById('detailUpdated').textContent = formatDate(profile.updated_at);
+}
+
+async function saveProfile(e) {
+  e.preventDefault();
+  const errorEl = document.getElementById('profileError');
+  const successEl = document.getElementById('profileSuccess');
+  const btn = document.getElementById('saveBtn');
+
+  errorEl.classList.add('hidden');
+  successEl.classList.add('hidden');
+  btn.innerHTML = '<span class="material-symbols-outlined animate-spin text-lg">refresh</span> Saving...';
+  btn.disabled = true;
+
+  const data = {};
+  const fields = ['fullName', 'firstName', 'lastName', 'phone', 'employeeId', 'department', 'specialty', 'bio'];
+  const apiFields = ['full_name', 'first_name', 'last_name', 'phone', 'employee_id', 'department', 'specialty', 'bio'];
+
+  fields.forEach((f, i) => {
+    const val = document.getElementById(f).value.trim();
+    if (val !== (_profileData[apiFields[i]] || '')) {
+      data[apiFields[i]] = val;
+    }
+  });
+
+  if (Object.keys(data).length === 0) {
+    successEl.textContent = 'No changes to save.';
+    successEl.classList.remove('hidden');
+    btn.innerHTML = '<span class="material-symbols-outlined text-lg">save</span> Save Changes';
+    btn.disabled = false;
+    return false;
+  }
+
+  try {
+    const updated = await Api.user.updateProfile(data);
+    _profileData = { ..._profileData, ...updated };
+    populateHeader(_profileData);
+    populateDetails(_profileData);
+    // Update local storage
+    localStorage.setItem('neuro_user', JSON.stringify(_profileData));
+    successEl.textContent = 'Profile updated successfully.';
+    successEl.classList.remove('hidden');
+    setTimeout(() => successEl.classList.add('hidden'), 3000);
+  } catch (err) {
+    errorEl.textContent = err.message || 'Failed to update profile';
+    errorEl.classList.remove('hidden');
+  }
+
+  btn.innerHTML = '<span class="material-symbols-outlined text-lg">save</span> Save Changes';
+  btn.disabled = false;
+  return false;
+}
+
+// ── Init ───────────────────────────────────────────────────────
+(async () => {
+  await Auth.ready();
+  if (!Auth.requireAuth()) return;
+
+  try {
+    const profile = await Api.user.myProfile();
+    _profileData = profile;
+    populateHeader(profile);
+    populateForm(profile);
+    populateDetails(profile);
+    document.getElementById('loadingState').classList.add('hidden');
+    document.getElementById('profileContent').classList.remove('hidden');
+  } catch (err) {
+    console.error('[Profile] Failed to load:', err);
+    document.getElementById('loadingState').innerHTML = `
+      <span class="material-symbols-outlined text-4xl text-primary">error</span>
+      <p class="font-label text-sm text-primary mt-3">Failed to load profile</p>
+      <p class="font-label text-xs text-on-surface-variant mt-1">${err.message}</p>
+    `;
+  }
+})();
+</script>
+</body>
+</html>

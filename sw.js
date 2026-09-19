@@ -1,12 +1,11 @@
 // NEURO_PREDICT_SYS - Service Worker
 // Static assets ONLY — never cache API responses, auth tokens, or patient data.
 
-const CACHE_NAME = 'neuro-predict-v3';
+const CACHE_NAME = 'neuro-predict-v4';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
   '/manifest.json',
-  '/config.js',
   '/shared/auth.js',
   '/shared/api.js',
   '/shared/ui.js',
@@ -43,42 +42,28 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Fetch — network-first for everything, cache-only for known-safe static assets
+// Fetch — never cache: API calls, auth tokens, patient data, config.js
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // NEVER cache: API calls, auth, tokens, patient data, WebSocket
+  // Skip non-GET, API, auth, medical data, and config.js
   if (
     request.method !== 'GET' ||
+    url.pathname === '/config.js' ||
     url.pathname.startsWith('/api/') ||
-    url.pathname.startsWith('/ws/') ||
-    url.pathname.includes('/auth/') ||
-    url.pathname.includes('/patients') ||
-    url.pathname.includes('/diagnoses') ||
-    url.pathname.includes('/analysis') ||
-    url.pathname.includes('/eeg') ||
-    url.pathname.includes('/medications') ||
-    url.pathname.includes('/pharmacy') ||
-    url.pathname.includes('/ot/') ||
-    url.pathname.includes('/research') ||
-    url.pathname.includes('/dashboard/') ||
-    url.pathname.includes('/system/') ||
-    url.pathname.includes('/health') ||
-    url.pathname.includes('/users/')
+    url.pathname.startsWith('/ws/')
   ) {
     return; // Let browser handle normally — no caching
   }
 
-  // For external CDN resources (fonts, Tailwind, Clerk) — stale-while-revalidate
+  // External CDN: stale-while-revalidate
   if (url.origin !== self.location.origin) {
     event.respondWith(
       caches.open(CACHE_NAME).then(async (cache) => {
         try {
           const networkResponse = await fetch(request);
-          if (networkResponse.ok) {
-            cache.put(request, networkResponse.clone());
-          }
+          if (networkResponse.ok) cache.put(request, networkResponse.clone());
           return networkResponse;
         } catch {
           const cached = await cache.match(request);
@@ -89,21 +74,16 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // For local static assets — cache-first, then network
+  // Local static: network-first, cache fallback
   event.respondWith(
-    caches.match(request).then((cached) => {
-      if (cached) return cached;
-      return fetch(request).then((response) => {
-        if (response.ok) {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(request, clone);
-          });
-        }
-        return response;
-      }).catch(() => {
-        return new Response('Offline', { status: 503 });
-      });
+    fetch(request).then((response) => {
+      if (response.ok) {
+        const clone = response.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+      }
+      return response;
+    }).catch(() => {
+      return caches.match(request).then((cached) => cached || new Response('Offline', { status: 503 }));
     })
   );
 });

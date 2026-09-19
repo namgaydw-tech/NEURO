@@ -223,8 +223,8 @@ tailwind.config = {
 
 <!-- ═══════════════ SCRIPTS ═══════════════ -->
 <script src="/config.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"></script>
 <script src="../shared/auth.js"></script>
+<script src="../shared/api.js"></script>
 <script>
 const DEMO_ACCOUNTS = [
   { email: 'admin@neuropredict.sys', password: 'admin123', role: 'admin', name: 'Dr. Sarah Chen', dept: 'Neurology', icon: 'admin_panel_settings', color: '#ff2d78' },
@@ -288,7 +288,21 @@ async function handleSignin(e) {
   btn.disabled = true;
 
   try {
-    await Auth.login(email, password);
+    // Try standard login first
+    try {
+      await Auth.login(email, password);
+    } catch (loginErr) {
+      // If standard login fails, try demo-login for known demo emails
+      const demoEmails = DEMO_ACCOUNTS.map(a => a.email);
+      if (demoEmails.includes(email)) {
+        const data = await Api.auth.demoLogin(email);
+        localStorage.setItem('neuro_token', data.access_token);
+        localStorage.setItem('neuro_user', JSON.stringify(data.user));
+        Auth.refresh();
+      } else {
+        throw loginErr;
+      }
+    }
     Auth.redirectToIntended();
   } catch (err) {
     errorEl.textContent = err.message || 'Invalid credentials';
@@ -335,9 +349,12 @@ async function handleSignup(e) {
 }
 
 // ── Demo login ─────────────────────────────────────────────────
-async function demoLoginAs(email, password) {
+async function demoLoginAs(email) {
   try {
-    await Auth.login(email, password);
+    const data = await Api.auth.demoLogin(email);
+    localStorage.setItem('neuro_token', data.access_token);
+    localStorage.setItem('neuro_user', JSON.stringify(data.user));
+    Auth.refresh();
     Auth.redirectToIntended();
   } catch (err) {
     console.error('Demo login failed:', err);
@@ -363,7 +380,7 @@ async function demoLoginAs(email, password) {
   // Render demo accounts
   const container = document.getElementById('demoAccounts');
   container.innerHTML = DEMO_ACCOUNTS.map(a => `
-    <button type="button" onclick="demoLoginAs('${a.email}', '${a.password}')"
+    <button type="button" onclick="demoLoginAs('${a.email}')"
       class="text-left px-3 py-2.5 bg-surface-container-high/50 hover:bg-surface-container-high border border-outline-variant/30 hover:border-secondary/30 rounded transition-all group">
       <div class="flex items-center gap-2 mb-1">
         <span class="material-symbols-outlined text-sm" style="color:${a.color}">${a.icon}</span>

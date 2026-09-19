@@ -598,6 +598,84 @@ async def update_my_profile(
 
 
 # ══════════════════════════════════════════════════════════════════
+# ACCOUNT SECURITY ROUTES
+# ══════════════════════════════════════════════════════════════════
+
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str = Field(min_length=8)
+
+
+@router.post("/users/me/change-password")
+async def change_password(
+    body: ChangePasswordRequest,
+    user=Depends(get_current_user),
+    request: Request = None,
+):
+    """Change the current user's password."""
+    db = get_db()
+    user_id = user.get("id")
+    full_user = db.get("users", user_id)
+
+    if not full_user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # Verify current password
+    if not verify_password(body.current_password, full_user.get("password_hash", "")):
+        audit_logger.log("password.change.failed", user_id, "auth",
+                         result="invalid_current_password", request=request)
+        raise HTTPException(status_code=400, detail="Current password is incorrect")
+
+    # Hash and store new password
+    new_hash = hash_password(body.new_password)
+    db.update("users", user_id, {
+        "password_hash": new_hash,
+        "updated_at": datetime.utcnow().isoformat(),
+    })
+
+    audit_logger.log("password.changed", user_id, "auth", result="success", request=request)
+    return {"message": "Password changed successfully"}
+
+
+@router.get("/users/me/sessions")
+async def get_my_sessions(user=Depends(get_current_user)):
+    """List audit events (sessions) for the current user."""
+    events = audit_logger.get_events(limit=50, actor_id=user.get("id"))
+    # Filter to auth-related events
+    auth_events = [e for e in events if e.get("event_type").startswith(("login.", "auth.", "password."))]
+    return auth_events
+
+
+@router.get("/users/me/audit-log")
+async def get_my_audit_log(
+    limit: int = Query(50, ge=1, le=200),
+    user=Depends(get_current_user),
+):
+    """Get the current user's audit trail."""
+    events = audit_logger.get_events(limit=limit, actor_id=user.get("id"))
+    return events
+
+
+@router.get("/admin/audit-log")
+async def get_admin_audit_log(
+    limit: int = Query(100, ge=1, le=500),
+    event_type: Optional[str] = None,
+    user=Depends(require_admin),
+):
+    """Admin: view all audit events."""
+    events = audit_logger.get_events(limit=limit, event_type=event_type)
+    return events
+
+
+@router.get("/admin/users")
+async def list_users(user=Depends(require_admin)):
+    """Admin: list all users."""
+    db = get_db()
+    users = db.get_all("users")
+    return [{k: v for k, v in u.items() if k != "password_hash"} for u in users]
+
+
+# ══════════════════════════════════════════════════════════════════
 # OT SCHEDULING ROUTES
 # ══════════════════════════════════════════════════════════════════
 

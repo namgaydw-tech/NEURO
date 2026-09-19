@@ -129,6 +129,15 @@ const Api = (() => {
     me: () => request('/auth/me'),
     myProfile: () => request('/users/me/profile'),
     updateProfile: (data) => request('/users/me/profile', { method: 'PUT', body: JSON.stringify(data) }),
+    changePassword: (data) => request('/users/me/change-password', { method: 'POST', body: JSON.stringify(data) }),
+    sessions: () => request('/users/me/sessions'),
+    auditLog: (limit = 50) => request(`/users/me/audit-log?limit=${limit}`),
+  };
+
+  // ── Admin ────────────────────────────────────────────────────
+  const admin = {
+    users: () => request('/admin/users'),
+    auditLog: (limit = 100, eventType = '') => request(`/admin/audit-log?limit=${limit}${eventType ? '&event_type=' + eventType : ''}`),
   };
 
   // ── System ───────────────────────────────────────────────────
@@ -189,7 +198,7 @@ const Api = (() => {
   return {
     request,
     auth, patients, diagnoses, analysis, eeg, research,
-    medications, ot, dashboard, pharmacy, user, system,
+    medications, ot, dashboard, pharmacy, user, admin, system,
     showToast, formatDate, formatConfidence, getRiskColor,
   };
 })();

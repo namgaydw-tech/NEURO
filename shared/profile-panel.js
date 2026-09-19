@@ -70,11 +70,11 @@ const ProfilePanel = (() => {
     `;
 
     const accountLinks = user ? `
-      <a href="#" class="pp-portal-link" onclick="event.preventDefault();">
+      <a href="/account/profile.html" class="pp-portal-link">
         <span class="material-symbols-outlined pp-portal-icon" style="color:#a098b0">person</span>
         View Profile
       </a>
-      <a href="#" class="pp-portal-link" onclick="event.preventDefault();">
+      <a href="/account/security.html" class="pp-portal-link">
         <span class="material-symbols-outlined pp-portal-icon" style="color:#a098b0">security</span>
         Account & Security
       </a>

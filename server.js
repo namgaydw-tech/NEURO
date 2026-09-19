@@ -43,8 +43,12 @@ function serve(req, res) {
       const match = envContent.match(/^CLERK_PUBLISHABLE_KEY=(.*)$/m);
       if (match) publishableKey = match[1].trim();
     } catch(e) {}
+    // Generate config.js: Clerk key + dynamic loader (only load SDK when key exists)
+    const clerkLoader = publishableKey ? (
+      `(function(){var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js';s.async=true;s.onerror=function(){console.warn('[Config] Failed to load Clerk SDK')};document.head.appendChild(s)})()`
+    ) : (`console.info('[Config] No Clerk publishable key - using legacy JWT auth')`);
     res.writeHead(200, { 'Content-Type': 'application/javascript; charset=utf-8' });
-    res.end(`window.__CLERK_PUBLISHABLE_KEY = ${JSON.stringify(publishableKey)};\n`);
+    res.end(`window.__CLERK_PUBLISHABLE_KEY = ${JSON.stringify(publishableKey)};\n${clerkLoader}\n`);
     return;
   }
 
