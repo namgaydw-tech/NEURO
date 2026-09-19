@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Neurosurgery — NEURO_PREDICT</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;700;800&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        "primary": "#ff2d78", "secondary": "#00ffcc", "tertiary": "#ffe04a",
+        "background": "#0a0a12", "surface": "#0f0f1a",
+        "surface-container": "#141422", "surface-container-high": "#1e1e30",
+        "surface-container-highest": "#28283e", "surface-container-low": "#111118",
+        "on-surface": "#e8e0f0", "on-surface-variant": "#a098b0",
+        "outline": "#5a5068", "outline-variant": "#302840",
+      },
+      fontFamily: { headline: ["Sora"], body: ["Inter"], label: ["Space Grotesk"] },
+    },
+  },
+}
+</script>
+<style>
+  .material-symbols-outlined { font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; }
+</style>
+</head>
+<body class="bg-background text-on-surface font-body min-h-screen">
+
+<!-- Header -->
+<header class="sticky top-0 z-50 flex items-center justify-between px-6 h-14 bg-background/80 backdrop-blur-md border-b border-primary/20">
+  <div class="flex items-center gap-3">
+    <a href="/global_neural_dashboard_v1/code.html" class="flex items-center gap-2 group">
+      <span class="material-symbols-outlined text-primary text-xl group-hover:scale-110 transition-transform">fingerprint</span>
+      <span class="font-headline font-bold text-primary text-sm">NEURO_PREDICT</span>
+    </a>
+    <span class="text-outline">/</span>
+    <span class="font-label text-xs uppercase tracking-widest text-on-surface-variant">Neurosurgery</span>
+  </div>
+  <div id="userBadge" class="flex items-center gap-2"></div>
+</header>
+
+<main class="max-w-7xl mx-auto px-4 py-6 space-y-6">
+  <!-- Header -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="font-headline text-xl font-bold text-on-surface flex items-center gap-2">
+        <span class="material-symbols-outlined text-primary">neurology</span>
+        Neurosurgery Workspace
+      </h1>
+      <p class="font-label text-xs text-on-surface-variant mt-1">Patient surgical planning, analysis review, and procedure tracking</p>
+    </div>
+    <a href="/ot_scheduling/index.html" class="px-3 py-2 bg-secondary/20 text-secondary font-label text-xs uppercase tracking-widest rounded hover:bg-secondary/30 transition-all flex items-center gap-1.5">
+      <span class="material-symbols-outlined text-sm">event_available</span>
+      OT Scheduling
+    </a>
+  </div>
+
+  <!-- Patient List -->
+  <div class="bg-surface-container/60 border border-outline-variant/50 rounded-lg p-5">
+    <h2 class="font-headline text-sm font-bold text-on-surface mb-4 flex items-center gap-2">
+      <span class="material-symbols-outlined text-secondary">people</span>
+      Patient Register
+    </h2>
+    <div id="patientList" class="space-y-2">
+      <div class="text-center py-6">
+        <span class="material-symbols-outlined text-2xl text-secondary animate-spin">refresh</span>
+        <p class="font-label text-xs text-on-surface-variant mt-2">Loading patients...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Selected Patient Detail -->
+  <div id="patientDetail" class="hidden space-y-4">
+    <div class="bg-surface-container/60 border border-outline-variant/50 rounded-lg p-5">
+      <div class="flex items-start justify-between mb-4">
+        <div>
+          <h2 id="detailName" class="font-headline text-lg font-bold text-on-surface"></h2>
+          <p id="detailMRN" class="font-label text-xs text-on-surface-variant"></p>
+        </div>
+        <button onclick="closeDetail()" class="text-on-surface-variant hover:text-primary transition-colors">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <!-- Patient Info Grid -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+        <div>
+          <p class="font-label text-[9px] uppercase tracking-widest text-outline mb-1">DOB</p>
+          <p id="detailDOB" class="font-label text-sm text-on-surface"></p>
+        </div>
+        <div>
+          <p class="font-label text-[9px] uppercase tracking-widest text-outline mb-1">Gender</p>
+          <p id="detailGender" class="font-label text-sm text-on-surface"></p>
+        </div>
+        <div>
+          <p class="font-label text-[9px] uppercase tracking-widest text-outline mb-1">Phone</p>
+          <p id="detailPhone" class="font-label text-sm text-on-surface"></p>
+        </div>
+        <div>
+          <p class="font-label text-[9px] uppercase tracking-widest text-outline mb-1">Insurance</p>
+          <p id="detailInsurance" class="font-label text-sm text-on-surface"></p>
+        </div>
+      </div>
+
+      <!-- Allergies & Medications -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div>
+          <p class="font-label text-[9px] uppercase tracking-widest text-outline mb-1">Allergies</p>
+          <div id="detailAllergies" class="flex flex-wrap gap-1"></div>
+        </div>
+        <div>
+          <p class="font-label text-[9px] uppercase tracking-widest text-outline mb-1">Current Medications</p>
+          <div id="detailMeds" class="flex flex-wrap gap-1"></div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex gap-2 pt-3 border-t border-outline-variant/30">
+        <a id="linkAnalysis" href="#" class="px-3 py-2 bg-primary/20 text-primary font-label text-xs uppercase tracking-widest rounded hover:bg-primary/30 transition-all flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-sm">analytics</span>
+          Run AI Analysis
+        </a>
+        <a id="linkDiagnosis" href="#" class="px-3 py-2 bg-secondary/20 text-secondary font-label text-xs uppercase tracking-widest rounded hover:bg-secondary/30 transition-all flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-sm">description</span>
+          View Diagnoses
+        </a>
+        <a href="/ot_scheduling/index.html" class="px-3 py-2 bg-tertiary/20 text-tertiary font-label text-xs uppercase tracking-widest rounded hover:bg-tertiary/30 transition-all flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-sm">event_available</span>
+          Schedule Surgery
+        </a>
+      </div>
+    </div>
+
+    <!-- Diagnoses for this patient -->
+    <div class="bg-surface-container/60 border border-outline-variant/50 rounded-lg p-5">
+      <h3 class="font-headline text-sm font-bold text-on-surface mb-3 flex items-center gap-2">
+        <span class="material-symbols-outlined text-tertiary">medical_services</span>
+        Diagnosis History
+      </h3>
+      <div id="diagnosisList" class="space-y-2">
+        <p class="font-label text-xs text-on-surface-variant">Loading diagnoses...</p>
+      </div>
+    </div>
+
+    <!-- AI Analyses for this patient -->
+    <div class="bg-surface-container/60 border border-outline-variant/50 rounded-lg p-5">
+      <h3 class="font-headline text-sm font-bold text-on-surface mb-3 flex items-center gap-2">
+        <span class="material-symbols-outlined text-primary">psychology</span>
+        AI Analysis History
+      </h3>
+      <div id="analysisList" class="space-y-2">
+        <p class="font-label text-xs text-on-surface-variant">Loading analyses...</p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="/config.js"></script>
+<script src="../shared/auth.js"></script>
+<script src="../shared/api.js"></script>
+<script>
+// ── Load patients ────────────────────────────────────────────────
+async function loadPatients() {
+  try {
+    const result = await Api.patients.list();
+    // Handle both array and paginated { patients: [...] } responses
+    const patients = Array.isArray(result) ? result : (result.patients || []);
+    const container = document.getElementById('patientList');
+    if (patients.length === 0) {
+      container.innerHTML = `<div class="text-center py-8 text-on-surface-variant font-label text-sm">No patients found</div>`;
+      return;
+    }
+    container.innerHTML = patients.map(p => `
+      <button onclick="selectPatient('${p.id}')" class="w-full text-left p-3 bg-surface-container-low hover:bg-surface-container-high border border-outline-variant/30 hover:border-primary/30 rounded transition-all flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center text-primary font-headline font-bold text-xs">${(p.first_name||'?')[0]}${(p.last_name||'?')[0]}</div>
+          <div>
+            <p class="font-label text-sm text-on-surface font-bold">${p.first_name} ${p.last_name}</p>
+            <p class="font-label text-[10px] text-on-surface-variant">${p.medical_record_number || 'No MRN'} · ${p.gender || 'Unknown'} · DOB: ${p.date_of_birth || 'Unknown'}</p>
+          </div>
+        </div>
+        <span class="material-symbols-outlined text-on-surface-variant text-lg">chevron_right</span>
+      </button>
+    `).join('');
+  } catch (err) {
+    document.getElementById('patientList').innerHTML = `<div class="text-center py-8 text-red-400 font-label text-sm">Failed to load patients: ${err.message}</div>`;
+  }
+}
+
+// ── Select patient ───────────────────────────────────────────────
+async function selectPatient(id) {
+  try {
+    const patient = await Api.patients.get(id);
+    document.getElementById('patientDetail').classList.remove('hidden');
+    document.getElementById('detailName').textContent = `${patient.first_name} ${patient.last_name}`;
+    document.getElementById('detailMRN').textContent = `MRN: ${patient.medical_record_number || 'N/A'}`;
+    document.getElementById('detailDOB').textContent = patient.date_of_birth || 'N/A';
+    document.getElementById('detailGender').textContent = patient.gender || 'N/A';
+    document.getElementById('detailPhone').textContent = patient.phone || 'N/A';
+    document.getElementById('detailInsurance').textContent = patient.insurance_id || 'N/A';
+
+    // Allergies
+    const allergies = patient.allergies || [];
+    document.getElementById('detailAllergies').innerHTML = allergies.length > 0
+      ? allergies.map(a => `<span class="px-2 py-0.5 bg-red-500/10 text-red-400 border border-red-500/30 rounded text-[10px] font-label">${a}</span>`).join('')
+      : '<span class="font-label text-xs text-on-surface-variant">None reported</span>';
+
+    // Medications
+    const meds = patient.current_medications || [];
+    document.getElementById('detailMeds').innerHTML = meds.length > 0
+      ? meds.map(m => `<span class="px-2 py-0.5 bg-secondary/10 text-secondary border border-secondary/30 rounded text-[10px] font-label">${m}</span>`).join('')
+      : '<span class="font-label text-xs text-on-surface-variant">None</span>';
+
+    // Links
+    document.getElementById('linkAnalysis').href = `/ai_analysis/code.html?patient=${id}`;
+    document.getElementById('linkDiagnosis').href = `#diagnosis-section`;
+
+    // Load diagnoses and analyses
+    loadDiagnoses(id);
+    loadAnalyses(id);
+
+    // Scroll to detail
+    document.getElementById('patientDetail').scrollIntoView({ behavior: 'smooth' });
+  } catch (err) {
+    alert('Failed to load patient: ' + err.message);
+  }
+}
+
+function closeDetail() {
+  document.getElementById('patientDetail').classList.add('hidden');
+}
+
+// ── Load diagnoses ───────────────────────────────────────────────
+async function loadDiagnoses(patientId) {
+  const container = document.getElementById('diagnosisList');
+  try {
+    const diagnoses = await Api.diagnoses.list({ patient_id: patientId });
+    if (diagnoses.length === 0) {
+      container.innerHTML = `<p class="font-label text-xs text-on-surface-variant">No diagnoses recorded for this patient</p>`;
+      return;
+    }
+    container.innerHTML = diagnoses.map(d => {
+      const severityColor = d.severity === 'critical' ? 'text-red-400 bg-red-400/10 border-red-400/30'
+        : d.severity === 'high' ? 'text-primary bg-primary/10 border-primary/30'
+        : d.severity === 'medium' ? 'text-tertiary bg-tertiary/10 border-tertiary/30'
+        : 'text-green-400 bg-green-400/10 border-green-400/30';
+      const statusColor = d.status === 'completed' ? 'text-green-400' : d.status === 'reviewed' ? 'text-secondary' : 'text-tertiary';
+      return `<div class="p-3 bg-surface-container-low rounded border border-outline-variant/30">
+        <div class="flex items-start justify-between">
+          <div>
+            <p class="font-label text-sm text-on-surface font-bold">${d.disease_name}</p>
+            <p class="font-label text-[10px] text-on-surface-variant">${d.diagnosed_by || 'Unknown'} · ${d.created_at ? new Date(d.created_at).toLocaleDateString() : 'N/A'}</p>
+          </div>
+          <div class="flex gap-2">
+            <span class="px-2 py-0.5 rounded text-[10px] font-label uppercase border ${severityColor}">${d.severity}</span>
+            <span class="px-2 py-0.5 rounded text-[10px] font-label uppercase ${statusColor}">${d.status}</span>
+          </div>
+        </div>
+        <p class="font-label text-xs text-on-surface-variant mt-1">Confidence: ${(d.confidence_score * 100).toFixed(1)}%</p>
+        ${d.notes ? `<p class="font-label text-xs text-outline mt-1">${d.notes}</p>` : ''}
+      </div>`;
+    }).join('');
+  } catch (err) {
+    container.innerHTML = `<p class="font-label text-xs text-red-400">Failed to load diagnoses: ${err.message}</p>`;
+  }
+}
+
+// ── Load analyses ────────────────────────────────────────────────
+async function loadAnalyses(patientId) {
+  const container = document.getElementById('analysisList');
+  try {
+    const analyses = await Api.analysis.byPatient(patientId);
+    if (!analyses || analyses.length === 0) {
+      container.innerHTML = `<p class="font-label text-xs text-on-surface-variant">No AI analyses for this patient</p>`;
+      return;
+    }
+    container.innerHTML = analyses.map(a => {
+      const riskColor = a.overall_risk === 'critical' ? 'text-red-400' : a.overall_risk === 'high' ? 'text-primary' : a.overall_risk === 'moderate' ? 'text-tertiary' : 'text-green-400';
+      const preds = a.predictions || [];
+      return `<div class="p-3 bg-surface-container-low rounded border border-outline-variant/30">
+        <div class="flex items-start justify-between mb-2">
+          <div>
+            <p class="font-label text-sm text-on-surface font-bold">AI Analysis</p>
+            <p class="font-label text-[10px] text-on-surface-variant">${a.created_at ? new Date(a.created_at).toLocaleString() : 'N/A'} · Run by: ${a.run_by || 'System'}</p>
+          </div>
+          <div class="flex gap-2 items-center">
+            <span class="px-2 py-0.5 rounded text-[10px] font-label uppercase ${riskColor}">${a.overall_risk || 'low'} risk</span>
+            <span class="font-label text-xs text-on-surface-variant">${((a.ai_confidence || 0) * 100).toFixed(0)}% confidence</span>
+          </div>
+        </div>
+        ${preds.length > 0 ? `<div class="flex flex-wrap gap-1 mt-1">${preds.slice(0, 5).map(p =>
+          `<span class="px-2 py-0.5 bg-surface-container-high rounded text-[10px] font-label text-on-surface-variant">${p.disease || p.name || 'Unknown'} ${(p.confidence * 100).toFixed(0)}%</span>`
+        ).join('')}</div>` : ''}
+      </div>`;
+    }).join('');
+  } catch (err) {
+    container.innerHTML = `<p class="font-label text-xs text-red-400">Failed to load analyses: ${err.message}</p>`;
+  }
+}
+
+// ── Init ────────────────────────────────────────────────────────
+(async () => {
+  await Auth.ready();
+  if (!Auth.requireAuth()) return;
+
+  const user = Auth.getUser();
+  document.getElementById('userBadge').innerHTML = `
+    <span class="font-label text-xs text-on-surface-variant">${user?.full_name || 'User'}</span>
+    <button onclick="Auth.signOut()" class="text-on-surface-variant hover:text-primary transition-colors">
+      <span class="material-symbols-outlined text-lg">logout</span>
+    </button>`;
+
+  loadPatients();
+})();
+</script>
+</body>
+</html>

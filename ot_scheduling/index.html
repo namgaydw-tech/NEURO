@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>OT Scheduling — NEURO_PREDICT</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;700;800&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        "primary": "#ff2d78", "secondary": "#00ffcc", "tertiary": "#ffe04a",
+        "background": "#0a0a12", "surface": "#0f0f1a",
+        "surface-container": "#141422", "surface-container-high": "#1e1e30",
+        "surface-container-highest": "#28283e", "surface-container-low": "#111118",
+        "on-surface": "#e8e0f0", "on-surface-variant": "#a098b0",
+        "outline": "#5a5068", "outline-variant": "#302840",
+      },
+      fontFamily: { headline: ["Sora"], body: ["Inter"], label: ["Space Grotesk"] },
+    },
+  },
+}
+</script>
+<style>
+  .material-symbols-outlined { font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; }
+  input:focus, select:focus { outline:none; }
+</style>
+</head>
+<body class="bg-background text-on-surface font-body min-h-screen">
+
+<!-- Header -->
+<header class="sticky top-0 z-50 flex items-center justify-between px-6 h-14 bg-background/80 backdrop-blur-md border-b border-primary/20">
+  <div class="flex items-center gap-3">
+    <a href="/global_neural_dashboard_v1/code.html" class="flex items-center gap-2 group">
+      <span class="material-symbols-outlined text-primary text-xl group-hover:scale-110 transition-transform">fingerprint</span>
+      <span class="font-headline font-bold text-primary text-sm">NEURO_PREDICT</span>
+    </a>
+    <span class="text-outline">/</span>
+    <span class="font-label text-xs uppercase tracking-widest text-on-surface-variant">OT Scheduling</span>
+  </div>
+  <div id="userBadge" class="flex items-center gap-2"></div>
+</header>
+
+<main class="max-w-7xl mx-auto px-4 py-6 space-y-6">
+  <!-- Tabs -->
+  <div class="flex gap-1 bg-surface-container rounded-lg p-1 w-fit">
+    <button onclick="showTab('theaters')" id="tabTheaters" class="px-4 py-2 font-label text-xs uppercase tracking-widest rounded bg-primary/20 text-primary transition-all">Theaters</button>
+    <button onclick="showTab('schedule')" id="tabSchedule" class="px-4 py-2 font-label text-xs uppercase tracking-widest rounded text-on-surface-variant hover:text-on-surface transition-all">Daily Schedule</button>
+    <button onclick="showTab('bookings')" id="tabBookings" class="px-4 py-2 font-label text-xs uppercase tracking-widest rounded text-on-surface-variant hover:text-on-surface transition-all">Bookings</button>
+  </div>
+
+  <!-- ═══════════════ THEATERS TAB ═══════════════ -->
+  <div id="panelTheaters" class="space-y-4">
+    <div class="flex items-center justify-between">
+      <h2 class="font-headline text-lg font-bold text-on-surface flex items-center gap-2">
+        <span class="material-symbols-outlined text-secondary">meeting_room</span>
+        Operating Theaters
+      </h2>
+      <button onclick="showAddTheater()" class="px-3 py-2 bg-primary text-white font-label text-xs uppercase tracking-widest rounded hover:shadow-[0_0_12px_rgba(255,45,120,0.3)] transition-all flex items-center gap-1.5">
+        <span class="material-symbols-outlined text-sm">add</span>
+        New Theater
+      </button>
+    </div>
+
+    <!-- Add Theater Form (hidden by default) -->
+    <div id="addTheaterForm" class="hidden bg-surface-container/60 border border-outline-variant/50 rounded-lg p-5 space-y-3">
+      <h3 class="font-headline text-sm font-bold text-on-surface">Add Operating Theater</h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div class="space-y-1">
+          <label class="font-label text-[10px] uppercase tracking-widest text-secondary">Theater Name *</label>
+          <input id="theaterName" type="text" class="w-full bg-surface-container-low border border-outline-variant focus:border-primary py-2 px-3 text-on-surface font-label text-sm rounded" placeholder="OT-1"/>
+        </div>
+        <div class="space-y-1">
+          <label class="font-label text-[10px] uppercase tracking-widest text-secondary">Location *</label>
+          <input id="theaterLocation" type="text" class="w-full bg-surface-container-low border border-outline-variant focus:border-primary py-2 px-3 text-on-surface font-label text-sm rounded" placeholder="Building A, Floor 3"/>
+        </div>
+        <div class="space-y-1">
+          <label class="font-label text-[10px] uppercase tracking-widest text-secondary">Capacity *</label>
+          <input id="theaterCapacity" type="number" min="1" class="w-full bg-surface-container-low border border-outline-variant focus:border-primary py-2 px-3 text-on-surface font-label text-sm rounded" placeholder="10"/>
+        </div>
+      </div>
+      <div class="flex gap-2">
+        <button onclick="addTheater()" class="px-4 py-2 bg-primary text-white font-label text-xs uppercase tracking-widest rounded hover:shadow-[0_0_12px_rgba(255,45,120,0.3)] transition-all">Save Theater</button>
+        <button onclick="hideAddTheater()" class="px-4 py-2 bg-surface-container-high text-on-surface-variant font-label text-xs uppercase tracking-widest rounded hover:text-on-surface transition-all">Cancel</button>
+      </div>
+      <div id="theaterError" class="hidden text-red-400 font-label text-xs"></div>
+    </div>
+
+    <!-- Theater List -->
+    <div id="theaterList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div class="text-center py-8 text-on-surface-variant font-label text-sm">
+        <span class="material-symbols-outlined text-3xl animate-spin text-secondary">refresh</span>
+        <p class="mt-2">Loading theaters...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ DAILY SCHEDULE TAB ═══════════════ -->
+  <div id="panelSchedule" class="hidden space-y-4">
+    <div class="flex items-center justify-between">
+      <h2 class="font-headline text-lg font-bold text-on-surface flex items-center gap-2">
+        <span class="material-symbols-outlined text-tertiary">calendar_today</span>
+        Daily Schedule
+      </h2>
+      <div class="flex items-center gap-2">
+        <input id="scheduleDate" type="date" class="bg-surface-container-low border border-outline-variant focus:border-primary py-2 px-3 text-on-surface font-label text-sm rounded"/>
+        <button onclick="loadSchedule()" class="px-3 py-2 bg-secondary/20 text-secondary font-label text-xs uppercase tracking-widest rounded hover:bg-secondary/30 transition-all">Load</button>
+      </div>
+    </div>
+
+    <!-- Add Slot Form -->
+    <div id="addSlotForm" class="hidden bg-surface-container/60 border border-outline-variant/50 rounded-lg p-5 space-y-3">
+      <h3 class="font-headline text-sm font-bold text-on-surface">Add Time Slot</h3>
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+        <div class="space-y-1">
+          <label class="font-label text-[10px] uppercase tracking-widest text-secondary">Theater *</label>
+          <select id="slotTheater" class="w-full bg-surface-container-low border border-outline-variant focus:border-primary py-2 px-3 text-on-surface font-label text-sm rounded"></select>
+        </div>
+        <div class="space-y-1">
+          <label class="font-label text-[10px] uppercase tracking-widest text-secondary">Start Time *</label>
+          <input id="slotStart" type="time" class="w-full bg-surface-container-low border border-outline-variant focus:border-primary py-2 px-3 text-on-surface font-label text-sm rounded"/>
+        </div>
+        <div class="space-y-1">
+          <label class="font-label text-[10px] uppercase tracking-widest text-secondary">End Time *</label>
+          <input id="slotEnd" type="time" class="w-full bg-surface-container-low border border-outline-variant focus:border-primary py-2 px-3 text-on-surface font-label text-sm rounded"/>
+        </div>
+        <div class="space-y-1">
+          <label class="font-label text-[10px] uppercase tracking-widest text-secondary">Type</label>
+          <select id="slotType" class="w-full bg-surface-container-low border border-outline-variant focus:border-primary py-2 px-3 text-on-surface font-label text-sm rounded">
+            <option value="available">Available</option>
+            <option value="blocked">Blocked</option>
+          </select>
+        </div>
+      </div>
+      <div class="flex gap-2">
+        <button onclick="addSlot()" class="px-4 py-2 bg-primary text-white font-label text-xs uppercase tracking-widest rounded hover:shadow-[0_0_12px_rgba(255,45,120,0.3)] transition-all">Save Slot</button>
+        <button onclick="hideAddSlot()" class="px-4 py-2 bg-surface-container-high text-on-surface-variant font-label text-xs uppercase tracking-widest rounded hover:text-on-surface transition-all">Cancel</button>
+      </div>
+      <div id="slotError" class="hidden text-red-400 font-label text-xs"></div>
+    </div>
+
+    <button onclick="showAddSlot()" class="px-3 py-2 bg-primary text-white font-label text-xs uppercase tracking-widest rounded hover:shadow-[0_0_12px_rgba(255,45,120,0.3)] transition-all flex items-center gap-1.5 w-fit">
+      <span class="material-symbols-outlined text-sm">add</span>
+      Add Time Slot
+    </button>
+
+    <div id="scheduleGrid" class="space-y-3">
+      <div class="text-center py-8 text-on-surface-variant font-label text-sm">Select a date and click Load</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ BOOKINGS TAB ═══════════════ -->
+  <div id="panelBookings" class="hidden space-y-4">
+    <div class="flex items-center justify-between">
+      <h2 class="font-headline text-lg font-bold text-on-surface flex items-center gap-2">
+        <span class="material-symbols-outlined text-primary">event_available</span>
+        Bookings
+      </h2>
+      <button onclick="showAddBooking()" class="px-3 py-2 bg-primary text-white font-label text-xs uppercase tracking-widest rounded hover:shadow-[0_0_12px_rgba(255,45,120,0.3)] transition-all flex items-center gap-1.5">
+        <span class="material-symbols-outlined text-sm">add</span>
+        New Booking
+      </button>
+    </div>
+
+    <!-- Add Booking Form -->
+    <div id="addBookingForm" class="hidden bg-surface-container/60 border border-outline-variant/50 rounded-lg p-5 space-y-3">
+      <h3 class="font-headline text-sm font-bold text-on-surface">Book OT Slot</h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div class="space-y-1">
+          <label class="font-label text-[10px] uppercase tracking-widest text-secondary">Slot *</label>
+          <select id="bookingSlot" class="w-full bg-surface-container-low border border-outline-variant focus:border-primary py-2 px-3 text-on-surface font-label text-sm rounded"></select>
+        </div>
+        <div class="space-y-1">
+          <label class="font-label text-[10px] uppercase tracking-widest text-secondary">Patient Name *</label>
+          <input id="bookingPatient" type="text" class="w-full bg-surface-container-low border border-outline-variant focus:border-primary py-2 px-3 text-on-surface font-label text-sm rounded" placeholder="Patient name"/>
+        </div>
+        <div class="space-y-1">
+          <label class="font-label text-[10px] uppercase tracking-widest text-secondary">Surgeon *</label>
+          <input id="bookingSurgeon" type="text" class="w-full bg-surface-container-low border border-outline-variant focus:border-primary py-2 px-3 text-on-surface font-label text-sm rounded" placeholder="Surgeon name"/>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div class="space-y-1">
+          <label class="font-label text-[10px] uppercase tracking-widest text-secondary">Procedure *</label>
+          <input id="bookingProcedure" type="text" class="w-full bg-surface-container-low border border-outline-variant focus:border-primary py-2 px-3 text-on-surface font-label text-sm rounded" placeholder="e.g. Craniotomy"/>
+        </div>
+        <div class="space-y-1">
+          <label class="font-label text-[10px] uppercase tracking-widest text-secondary">Priority</label>
+          <select id="bookingPriority" class="w-full bg-surface-container-low border border-outline-variant focus:border-primary py-2 px-3 text-on-surface font-label text-sm rounded">
+            <option value="normal">Normal</option>
+            <option value="urgent">Urgent</option>
+            <option value="emergency">Emergency</option>
+          </select>
+        </div>
+        <div class="space-y-1">
+          <label class="font-label text-[10px] uppercase tracking-widest text-secondary">Anesthesia</label>
+          <select id="bookingAnesthesia" class="w-full bg-surface-container-low border border-outline-variant focus:border-primary py-2 px-3 text-on-surface font-label text-sm rounded">
+            <option value="general">General</option>
+            <option value="local">Local</option>
+            <option value="regional">Regional</option>
+            <option value="sedation">Sedation</option>
+          </select>
+        </div>
+      </div>
+      <div class="flex gap-2">
+        <button onclick="addBooking()" class="px-4 py-2 bg-primary text-white font-label text-xs uppercase tracking-widest rounded hover:shadow-[0_0_12px_rgba(255,45,120,0.3)] transition-all">Confirm Booking</button>
+        <button onclick="hideAddBooking()" class="px-4 py-2 bg-surface-container-high text-on-surface-variant font-label text-xs uppercase tracking-widest rounded hover:text-on-surface transition-all">Cancel</button>
+      </div>
+      <div id="bookingError" class="hidden text-red-400 font-label text-xs"></div>
+    </div>
+
+    <div id="bookingList" class="space-y-3">
+      <div class="text-center py-8 text-on-surface-variant font-label text-sm">
+        <span class="material-symbols-outlined text-3xl animate-spin text-secondary">refresh</span>
+        <p class="mt-2">Loading bookings...</p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="/config.js"></script>
+<script src="../shared/auth.js"></script>
+<script src="../shared/api.js"></script>
+<script>
+// ── State ────────────────────────────────────────────────────────
+let theaters = [];
+let availableSlots = [];
+
+// ── Tab switching ────────────────────────────────────────────────
+function showTab(tab) {
+  ['theaters','schedule','bookings'].forEach(t => {
+    document.getElementById('panel' + t.charAt(0).toUpperCase() + t.slice(1)).classList.toggle('hidden', t !== tab);
+    document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1)).className = t === tab
+      ? 'px-4 py-2 font-label text-xs uppercase tracking-widest rounded bg-primary/20 text-primary transition-all'
+      : 'px-4 py-2 font-label text-xs uppercase tracking-widest rounded text-on-surface-variant hover:text-on-surface transition-all';
+  });
+  if (tab === 'schedule') { setDefaultDate(); loadSchedule(); }
+  if (tab === 'bookings') loadBookings();
+}
+
+// ── Theaters ─────────────────────────────────────────────────────
+async function loadTheaters() {
+  try {
+    theaters = await Api.ot.theaters();
+    renderTheaters();
+  } catch (err) {
+    document.getElementById('theaterList').innerHTML = `<div class="text-center py-8 text-red-400 font-label text-sm">Failed to load theaters: ${err.message}</div>`;
+  }
+}
+
+function renderTheaters() {
+  const container = document.getElementById('theaterList');
+  if (theaters.length === 0) {
+    container.innerHTML = `<div class="col-span-full text-center py-12 bg-surface-container/40 rounded-lg border border-outline-variant/30">
+      <span class="material-symbols-outlined text-4xl text-outline">meeting_room</span>
+      <p class="font-label text-sm text-on-surface-variant mt-2">No theaters configured</p>
+      <p class="font-label text-xs text-outline mt-1">Click "New Theater" to add your first operating theater</p>
+    </div>`;
+    return;
+  }
+  container.innerHTML = theaters.map(t => {
+    const statusColor = t.status === 'available' ? 'text-green-400 bg-green-400/10 border-green-400/30'
+      : t.status === 'maintenance' ? 'text-tertiary bg-tertiary/10 border-tertiary/30'
+      : 'text-red-400 bg-red-400/10 border-red-400/30';
+    return `<div class="bg-surface-container/60 border border-outline-variant/50 rounded-lg p-4 hover:border-primary/30 transition-all">
+      <div class="flex items-start justify-between mb-3">
+        <div>
+          <h3 class="font-headline text-sm font-bold text-on-surface">${t.name}</h3>
+          <p class="font-label text-xs text-on-surface-variant mt-0.5">${t.location}</p>
+        </div>
+        <span class="px-2 py-0.5 rounded text-[10px] font-label uppercase tracking-wider border ${statusColor}">${t.status}</span>
+      </div>
+      <div class="flex items-center gap-4 text-xs font-label text-on-surface-variant">
+        <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">people</span> Capacity: ${t.capacity}</span>
+        <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">build</span> ${(t.equipment || []).length} equipment</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function showAddTheater() { document.getElementById('addTheaterForm').classList.remove('hidden'); }
+function hideAddTheater() { document.getElementById('addTheaterForm').classList.add('hidden'); document.getElementById('theaterError').classList.add('hidden'); }
+
+async function addTheater() {
+  const name = document.getElementById('theaterName').value.trim();
+  const location = document.getElementById('theaterLocation').value.trim();
+  const capacity = parseInt(document.getElementById('theaterCapacity').value);
+  const errEl = document.getElementById('theaterError');
+
+  if (!name || !location || !capacity) {
+    errEl.textContent = 'All fields are required'; errEl.classList.remove('hidden'); return;
+  }
+  try {
+    await Api.ot.createTheater({ name, location, capacity, equipment: [] });
+    hideAddTheater();
+    document.getElementById('theaterName').value = '';
+    document.getElementById('theaterLocation').value = '';
+    document.getElementById('theaterCapacity').value = '';
+    loadTheaters();
+  } catch (err) {
+    errEl.textContent = err.message; errEl.classList.remove('hidden');
+  }
+}
+
+// ── Schedule ─────────────────────────────────────────────────────
+function setDefaultDate() {
+  const input = document.getElementById('scheduleDate');
+  if (!input.value) input.value = new Date().toISOString().split('T')[0];
+}
+
+async function loadSchedule() {
+  const date = document.getElementById('scheduleDate').value;
+  const grid = document.getElementById('scheduleGrid');
+  if (!date) { grid.innerHTML = '<p class="text-on-surface-variant font-label text-sm">Select a date</p>'; return; }
+
+  grid.innerHTML = '<div class="text-center py-4"><span class="material-symbols-outlined text-2xl text-secondary animate-spin">refresh</span></div>';
+
+  try {
+    const schedule = await Api.ot.dailySchedule(date);
+    // Also load all slots for this date
+    const allSlots = await Api.ot.slots({ date });
+
+    if (allSlots.length === 0) {
+      grid.innerHTML = `<div class="text-center py-12 bg-surface-container/40 rounded-lg border border-outline-variant/30">
+        <span class="material-symbols-outlined text-4xl text-outline">event_busy</span>
+        <p class="font-label text-sm text-on-surface-variant mt-2">No slots for ${date}</p>
+        <p class="font-label text-xs text-outline mt-1">Click "Add Time Slot" to create available slots</p>
+      </div>`;
+      return;
+    }
+
+    // Group by theater
+    const byTheater = {};
+    allSlots.forEach(s => {
+      const key = s.theater_id || 'unknown';
+      if (!byTheater[key]) byTheater[key] = [];
+      byTheater[key].push(s);
+    });
+
+    grid.innerHTML = Object.entries(byTheater).map(([tid, slots]) => {
+      const theater = theaters.find(t => t.id === tid);
+      const theaterName = theater ? theater.name : tid;
+      return `<div class="bg-surface-container/60 border border-outline-variant/50 rounded-lg p-4">
+        <h3 class="font-headline text-sm font-bold text-on-surface mb-3 flex items-center gap-2">
+          <span class="material-symbols-outlined text-secondary text-lg">meeting_room</span>
+          ${theaterName}
+        </h3>
+        <div class="space-y-2">${slots.map(s => {
+          const statusColor = s.status === 'available' ? 'border-green-400/30 bg-green-400/5'
+            : s.status === 'booked' ? 'border-primary/30 bg-primary/5'
+            : s.status === 'completed' ? 'border-outline/30 bg-surface-container-high/30'
+            : 'border-tertiary/30 bg-tertiary/5';
+          const statusBadge = s.status === 'available' ? '<span class="text-green-400">Available</span>'
+            : s.status === 'booked' ? '<span class="text-primary">Booked</span>'
+            : s.status === 'completed' ? '<span class="text-on-surface-variant">Completed</span>'
+            : '<span class="text-tertiary">Blocked</span>';
+          return `<div class="flex items-center justify-between p-3 border rounded ${statusColor}">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-on-surface-variant">schedule</span>
+              <div>
+                <p class="font-label text-sm text-on-surface">${s.start_time} — ${s.end_time}</p>
+                ${s.patient_name ? `<p class="font-label text-xs text-on-surface-variant">${s.patient_name} · ${s.procedure || ''}</p>` : ''}
+                ${s.surgeon_name ? `<p class="font-label text-xs text-outline">${s.surgeon_name}</p>` : ''}
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              ${statusBadge}
+              ${s.status === 'available' ? `<button onclick="quickBookSlot('${s.id}')" class="px-2 py-1 bg-primary/20 text-primary font-label text-[10px] uppercase rounded hover:bg-primary/30 transition-all">Book</button>` : ''}
+            </div>
+          </div>`;
+        }).join('')}</div>
+      </div>`;
+    }).join('');
+  } catch (err) {
+    grid.innerHTML = `<div class="text-center py-8 text-red-400 font-label text-sm">Failed to load schedule: ${err.message}</div>`;
+  }
+}
+
+function showAddSlot() { document.getElementById('addSlotForm').classList.remove('hidden'); populateSlotTheaters(); }
+function hideAddSlot() { document.getElementById('addSlotForm').classList.add('hidden'); document.getElementById('slotError').classList.add('hidden'); }
+
+function populateSlotTheaters() {
+  const sel = document.getElementById('slotTheater');
+  sel.innerHTML = theaters.map(t => `<option value="${t.id}">${t.name} — ${t.location}</option>`).join('');
+}
+
+async function addSlot() {
+  const theaterId = document.getElementById('slotTheater').value;
+  const startTime = document.getElementById('slotStart').value;
+  const endTime = document.getElementById('slotEnd').value;
+  const slotType = document.getElementById('slotType').value;
+  const date = document.getElementById('scheduleDate').value;
+  const errEl = document.getElementById('slotError');
+
+  if (!theaterId || !startTime || !endTime || !date) {
+    errEl.textContent = 'All fields are required'; errEl.classList.remove('hidden'); return;
+  }
+  try {
+    await Api.ot.createSlot({ theater_id: theaterId, date, start_time: startTime, end_time: endTime, slot_type: slotType });
+    hideAddSlot();
+    loadSchedule();
+  } catch (err) {
+    errEl.textContent = err.message; errEl.classList.remove('hidden');
+  }
+}
+
+async function quickBookSlot(slotId) {
+  const patientName = prompt('Patient name:');
+  if (!patientName) return;
+  const surgeonName = prompt('Surgeon name:');
+  if (!surgeonName) return;
+  const procedure = prompt('Procedure:');
+  if (!procedure) return;
+  try {
+    await Api.ot.createBooking({ slot_id: slotId, patient_name: patientName, surgeon_name: surgeonName, procedure });
+    loadSchedule();
+  } catch (err) {
+    alert('Booking failed: ' + err.message);
+  }
+}
+
+// ── Bookings ─────────────────────────────────────────────────────
+async function loadBookings() {
+  const container = document.getElementById('bookingList');
+  try {
+    const bookings = await Api.ot.bookings();
+    if (bookings.length === 0) {
+      container.innerHTML = `<div class="text-center py-12 bg-surface-container/40 rounded-lg border border-outline-variant/30">
+        <span class="material-symbols-outlined text-4xl text-outline">event_busy</span>
+        <p class="font-label text-sm text-on-surface-variant mt-2">No bookings yet</p>
+      </div>`;
+      return;
+    }
+    container.innerHTML = bookings.map(b => {
+      const priorityColor = b.priority === 'emergency' ? 'text-red-400 bg-red-400/10 border-red-400/30'
+        : b.priority === 'urgent' ? 'text-tertiary bg-tertiary/10 border-tertiary/30'
+        : 'text-on-surface-variant bg-surface-container-high border-outline-variant/30';
+      const statusColor = b.status === 'confirmed' ? 'text-green-400' : b.status === 'in_progress' ? 'text-secondary' : b.status === 'completed' ? 'text-on-surface-variant' : 'text-red-400';
+      return `<div class="bg-surface-container/60 border border-outline-variant/50 rounded-lg p-4">
+        <div class="flex items-start justify-between mb-2">
+          <div>
+            <h3 class="font-headline text-sm font-bold text-on-surface">${b.patient_name}</h3>
+            <p class="font-label text-xs text-on-surface-variant">${b.procedure}</p>
+          </div>
+          <div class="flex gap-2">
+            <span class="px-2 py-0.5 rounded text-[10px] font-label uppercase border ${priorityColor}">${b.priority}</span>
+            <span class="px-2 py-0.5 rounded text-[10px] font-label uppercase ${statusColor}">${b.status}</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-4 text-xs font-label text-on-surface-variant">
+          <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">person</span> ${b.surgeon_name}</span>
+          <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">local_hospital</span> ${b.anesthesia_type}</span>
+        </div>
+      </div>`;
+    }).join('');
+  } catch (err) {
+    container.innerHTML = `<div class="text-center py-8 text-red-400 font-label text-sm">Failed to load bookings: ${err.message}</div>`;
+  }
+}
+
+function showAddBooking() { document.getElementById('addBookingForm').classList.remove('hidden'); loadAvailableSlots(); }
+function hideAddBooking() { document.getElementById('addBookingForm').classList.add('hidden'); document.getElementById('bookingError').classList.add('hidden'); }
+
+async function loadAvailableSlots() {
+  try {
+    const slots = await Api.ot.slots({ status: 'available' });
+    const sel = document.getElementById('bookingSlot');
+    sel.innerHTML = slots.length === 0
+      ? '<option value="">No available slots</option>'
+      : slots.map(s => {
+          const theater = theaters.find(t => t.id === s.theater_id);
+          return `<option value="${s.id}">${theater ? theater.name : 'Unknown'} · ${s.date} ${s.start_time}–${s.end_time}</option>`;
+        }).join('');
+  } catch (err) {
+    document.getElementById('bookingError').textContent = 'Failed to load slots: ' + err.message;
+    document.getElementById('bookingError').classList.remove('hidden');
+  }
+}
+
+async function addBooking() {
+  const slotId = document.getElementById('bookingSlot').value;
+  const patientName = document.getElementById('bookingPatient').value.trim();
+  const surgeonName = document.getElementById('bookingSurgeon').value.trim();
+  const procedure = document.getElementById('bookingProcedure').value.trim();
+  const priority = document.getElementById('bookingPriority').value;
+  const anesthesia = document.getElementById('bookingAnesthesia').value;
+  const errEl = document.getElementById('bookingError');
+
+  if (!slotId || !patientName || !surgeonName || !procedure) {
+    errEl.textContent = 'Slot, patient, surgeon, and procedure are required'; errEl.classList.remove('hidden'); return;
+  }
+  try {
+    await Api.ot.createBooking({
+      slot_id: slotId, patient_name: patientName, surgeon_name: surgeonName,
+      procedure, priority, anesthesia_type: anesthesia
+    });
+    hideAddBooking();
+    loadBookings();
+  } catch (err) {
+    errEl.textContent = err.message; errEl.classList.remove('hidden');
+  }
+}
+
+// ── Init ────────────────────────────────────────────────────────
+(async () => {
+  await Auth.ready();
+  if (!Auth.requireAuth()) return;
+
+  const user = Auth.getUser();
+  document.getElementById('userBadge').innerHTML = `
+    <span class="font-label text-xs text-on-surface-variant">${user?.full_name || 'User'}</span>
+    <button onclick="Auth.signOut()" class="text-on-surface-variant hover:text-primary transition-colors">
+      <span class="material-symbols-outlined text-lg">logout</span>
+    </button>`;
+
+  loadTheaters();
+})();
+</script>
+</body>
+</html>
