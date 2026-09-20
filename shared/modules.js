@@ -169,11 +169,24 @@ const Modules = (() => {
   }
 
   // ── Mount profile panel if available ────────────────────────
+  // NOTE: ProfilePanel.mountInto moves the same DOM element, so calling
+  // it twice would steal the panel from the first container. We mount
+  // into whichever container exists, preferring the desktop one.
   function _mountProfile() {
     try {
       if (typeof ProfilePanel !== 'undefined' && ProfilePanel.mountInto) {
-        ProfilePanel.mountInto('profile-panel-trigger');
-        ProfilePanel.mountInto('profile-panel-trigger-mobile');
+        const desktop = document.getElementById('profile-panel-trigger');
+        const mobile = document.getElementById('profile-panel-trigger-mobile');
+        // Mount into desktop first (primary), then copy a clone for mobile
+        if (desktop) {
+          ProfilePanel.mountInto('profile-panel-trigger');
+          // Clone the trigger element into the mobile container
+          if (mobile && !mobile.hasChildNodes()) {
+            mobile.appendChild(desktop.firstElementChild?.cloneNode(true));
+          }
+        } else if (mobile) {
+          ProfilePanel.mountInto('profile-panel-trigger-mobile');
+        }
       }
     } catch (_) {
       // Profile panel is optional — don't break the page if it fails
