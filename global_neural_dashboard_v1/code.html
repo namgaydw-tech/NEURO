@@ -234,13 +234,8 @@
   await Auth.ready();
   if (!Auth.requireAuth()) return;
 
-  // Role-based navigation — rendered from the Modules map
-  Modules.renderDesktopNav(document.getElementById('desktop-nav'), 'dashboard');
-  Modules.renderMobileNav(document.getElementById('mobile-nav'), 'dashboard');
-
-  // Mount Profile Panel
-  ProfilePanel.mountInto('profile-panel-trigger');
-  ProfilePanel.mountInto('profile-panel-trigger-mobile');
+  // Init modules: nav, profile panel (guard not needed — dashboard is 'all' roles)
+  Modules.init('dashboard');
 
   // ── Load real dashboard data ─────────────────────────────────
   const user = Auth.getUser();

@@ -254,14 +254,7 @@
 (async () => {
   await Auth.ready();
   if (!Auth.requireAuth()) return;
-  if (!Modules.requireModule('eeg')) return;
-
-  // Role-based nav
-  const desktopNav = document.querySelector('nav .ml-auto .flex.items-center.gap-4')?.querySelector('nav') || document.querySelector('header .ml-auto nav');
-  if (desktopNav) Modules.renderDesktopNav(desktopNav, 'eeg');
-  Modules.renderMobileNav(document.getElementById('mobile-nav'), 'eeg');
-
-  ProfilePanel.mountInto('profile-panel-trigger');
+  Modules.init('eeg');
 })();
 </script>
 </body></html>

@@ -280,14 +280,7 @@ let selectedPatientId = null;
 (async () => {
   await Auth.ready();
   if (!Auth.requireAuth()) return;
-  if (!Modules.requireModule('analysis')) return;
-
-  // Role-based nav
-  const desktopNav = document.querySelector('.ml-auto.flex.items-center.gap-4 > nav, .ml-auto.flex.items-center.gap-4 > a:first-child')?.parentElement;
-  Modules.renderDesktopNav(desktopNav, 'analysis');
-  Modules.renderMobileNav(document.getElementById('mobile-nav'), 'analysis');
-
-  ProfilePanel.mountInto('profile-panel-trigger');
+  Modules.init('analysis');
 })();
 
 function addLog(msg, type = 'primary') {

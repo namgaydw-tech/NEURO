@@ -256,14 +256,7 @@
 (async () => {
   await Auth.ready();
   if (!Auth.requireAuth()) return;
-  if (!Modules.requireModule('research')) return;
-
-  // Role-based nav
-  const desktopNav = document.querySelector('header .ml-auto nav');
-  if (desktopNav) Modules.renderDesktopNav(desktopNav, 'research');
-  Modules.renderMobileNav(document.getElementById('mobile-nav'), 'research');
-
-  ProfilePanel.mountInto('profile-panel-trigger');
+  Modules.init('research');
 })();
 
 // Search functionality

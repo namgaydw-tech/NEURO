@@ -513,10 +513,9 @@ async function addBooking() {
 (async () => {
   await Auth.ready();
   if (!Auth.requireAuth()) return;
-  if (!Modules.requireModule('ot')) return;
-
-  // Mount profile panel
-  ProfilePanel.mountInto('userBadge');
+  Modules.init('ot');
+  // OT uses custom userBadge container for profile
+  try { ProfilePanel.mountInto('userBadge'); } catch (_) {}
 
   loadTheaters();
 })();

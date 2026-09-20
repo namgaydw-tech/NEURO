@@ -311,10 +311,9 @@ async function loadAnalyses(patientId) {
 (async () => {
   await Auth.ready();
   if (!Auth.requireAuth()) return;
-  if (!Modules.requireModule('neurosurgery')) return;
-
-  // Mount profile panel
-  ProfilePanel.mountInto('userBadge');
+  Modules.init('neurosurgery');
+  // Neurosurgery uses custom userBadge container for profile
+  try { ProfilePanel.mountInto('userBadge'); } catch (_) {}
 
   loadPatients();
 })();
