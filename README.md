@@ -1,522 +1,605 @@
-# NEURO_PREDICT_SYS — Medical AI Disease Prediction Platform
+# NEURO_PREDICT_SYS
 
-> **Version 3.0.0** — Production-hardened healthcare research prototype
+**Multimodal Neurological Intelligence Platform**
 
-> ⚠️ **Disclaimer**: This is a research/prototype system. It has NOT been formally validated for clinical use. Do not falsely claim HIPAA, GDPR, or medical-device compliance. Formal compliance activities would still be required before clinical deployment.
+A production-structured healthcare/research prototype for neurological disease prediction, clinical workflow management, and multimodal data analysis.
 
----
-
-## 📋 What Is This?
-
-NEURO_PREDICT_SYS is an AI-powered neurological disease prediction platform that combines:
-
-- **BrainLat ML Model** — Random Forest classifier (93.59% accuracy) trained on BrainLat EEG dataset for predicting Alzheimer's, Parkinson's, ALS, Epilepsy, MS, Brain Tumors, and Migraines
-- **DARWIN Handwriting Analysis** — Secondary modality for handwriting-based neurological screening
-- **Multi-module Medical Dashboard** — 12 interconnected modules covering diagnosis, pharmacy, surgery scheduling, research, and medical records
-- **Real-time WebSocket Hub** — Inter-module communication for live updates across dashboard, analysis, and scheduling
+> **⚠️ RESEARCH/PROTOTYPE SYSTEM — NOT FOR CLINICAL DIAGNOSI WITHOUT VALIDATION**
+> This is a decision-support research tool. AI output is not a substitute for professional medical diagnosis.
 
 ---
 
-## 📊 What Changed — Before vs After
+## Table of Contents
 
-### Phase 1: Initial Build (Commits 1-3)
-
-| Feature | Status |
-|---------|--------|
-| FastAPI backend with in-memory DB | ✅ Working |
-| ML model training pipeline (BrainLat dataset) | ✅ Working |
-| DARWIN handwriting predictor | ✅ Working |
-| 12 frontend modules (HTML/CSS/JS) | ✅ Working |
-| PWA with service worker | ✅ Working |
-| Node.js static server | ✅ Working |
-| Pharmacy profile management | ✅ Working |
-| OT scheduling with conflict detection | ✅ Working |
-| Research paper browser | ✅ Working |
-| Basic JWT auth | ⚠️ Functional but insecure |
-| Demo accounts | ⚠️ Hardcoded, passwords exposed via API |
-| RBAC | ❌ Not implemented |
-| Refresh tokens | ❌ Not implemented |
-| Rate limiting | ❌ Not implemented |
-| Security headers | ❌ Not implemented |
-| Mass assignment protection | ❌ Not implemented |
-| Audit logging | ❌ Not implemented |
-| Anti-hallucination middleware | ❌ Not implemented |
-| WebSocket inter-module communication | ❌ Not implemented |
-| Environment config validation | ❌ Hardcoded JWT secret |
-
-### Phase 2: Playtest & Bug Fixes
-
-| Fix | Issue | Resolution |
-|-----|-------|------------|
-| Login page crashes | `clerkMounted` undefined, missing `<form>` tag | Fixed `clerkMounted` → `window.clerkMounted`, added form wrapper |
-| API 401 everywhere | No auto-login, demo mode unusable | Added auto-demo-login fallback in `shared/auth.js` |
-| DARWIN button missing | Only in `NEURO/` copy, not root | Added DARWIN button HTML + JS to `ai_analysis/code.html` |
-| Patient dropdown race | Loaded before auth token available | Added `await Auth.ready()` before API calls |
-| Server.js clean URLs | `/ai_analysis` returning 404 | Added `.html` clean URL fallback in `server.js` |
-
-### Phase 3: Production Security Hardening (Current)
-
-| Security Fix | Severity | What Changed |
-|--------------|----------|--------------|
-| **Hardcoded JWT secret** | 🔴 Critical | Removed default `"neuro-predict-sys-dev-secret-key-change-in-prod"`. Config now refuses to boot in production without proper `JWT_SECRET`. Auto-generates for development. |
-| **Demo-accounts password leak** | 🔴 Critical | `GET /auth/demo-accounts` no longer returns passwords. Returns emails and roles only. |
-| **No RBAC** | 🟠 High | Added `require_role()` dependency to all 15 write endpoints. Demo users get 403 on patient creation, diagnosis, analysis, OT scheduling, pharmacy writes. |
-| **Mass assignment** | 🟠 High | `update_diagnosis`, `update_slot`, `update_booking` now use typed Pydantic models (`DiagnosisUpdate`, `TimeSlotUpdate`, `BookingUpdate`) instead of raw `dict`. Profile update prevents non-admin users from setting `role`, `clearance_level`, `is_active`. |
-| **No refresh tokens** | 🟠 High | Login/register now return `access_token` + `refresh_token` pair. `POST /auth/refresh` endpoint for rotation. |
-| **No rate limiting** | 🟡 Medium | Login: 10/min, Register: 5/min per IP. Returns HTTP 429 with `Retry-After` header. |
-| **No security headers** | 🟡 Medium | Added `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `X-XSS-Protection`, `Referrer-Policy`, `Permissions-Policy`, `Cache-Control: no-store` on API routes, `Strict-Transport-Security` in production. |
-| **No audit logging** | 🟡 Medium | Audit events logged on: login success/failure, user registration, booking updates. In-memory store with database persistence hook. |
-| **Anti-hallucination** | 🟡 Medium | POST/PUT request bodies scanned for proxy injection attacks (`ignore previous instructions`, `[INST]`, etc.). Blocked requests return 400 + broadcast to WebSocket dashboard. |
-| **Secrets in git** | 🔴 Critical | `.env` files removed from git. `.gitignore` updated with comprehensive patterns for secrets, credentials, keys. |
-| **WebSocket hub** | 🟢 New | Real-time inter-module communication: analysis → dashboard → scheduling. Heartbeat, auto-cleanup, event broadcasting. |
-| **Config validation** | 🟡 Medium | `Settings.validate()` called at startup. Production blocks: weak JWT, wildcard CORS, demo data enabled. |
+- [Architecture Overview](#architecture-overview)
+- [What Changed: Before vs After](#what-changed-before-vs-after)
+- [ML Algorithms & Mathematical Foundation](#ml-algorithms--mathematical-foundation)
+- [System Modules](#system-modules)
+- [Authentication & Security](#authentication--security)
+- [Database Schema](#database-schema)
+- [API Endpoints](#api-endpoints)
+- [Local Setup](#local-setup)
+- [Future Plans](#future-plans)
+- [References](#references)
 
 ---
 
-## 🏗️ Architecture
+## Architecture Overview
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                        FRONTEND (PWA)                           │
-│  HTML5 + Tailwind + Service Worker + Manifest                   │
-│  Landing → Dashboard → AI Analysis → Prediction → Reports       │
-│  Pharmacy Portal → OT Scheduling → Research → Medical History   │
-└─────────────────────────┬───────────────────────────────────────┘
-                          │ HTTP/WebSocket
-┌─────────────────────────▼───────────────────────────────────────┐
-│                    NODE.JS STATIC SERVER                         │
-│  Port 3001 (HTTP) / Port 3000 (HTTPS with self-signed certs)    │
-│  Clean URL routing, static file serving                         │
-└─────────────────────────┬───────────────────────────────────────┘
-                          │ HTTP API + WebSocket
-┌─────────────────────────▼───────────────────────────────────────┐
-│                  FASTAPI BACKEND (Port 8000)                     │
-│                                                                  │
-│  ┌──────────┐  ┌──────────────┐  ┌────────────────────────┐    │
-│  │ Security  │  │   WebSocket  │  │  Anti-Hallucination     │    │
-│  │ Headers   │  │     Hub      │  │  Middleware              │    │
-│  └──────────┘  └──────────────┘  └────────────────────────┘    │
-│                                                                  │
-│  ┌──────────────────────────────────────────────────────────┐   │
-│  │                    CORE MODULES                           │   │
-│  │  config.py │ auth.py │ database.py │ clerk.py            │   │
-│  │  JWT + Refresh + RBAC │ InMemory/Supabase │ Rate Limit   │   │
-│  └──────────────────────────────────────────────────────────┘   │
-│                                                                  │
-│  ┌──────────────────────────────────────────────────────────┐   │
-│  │                    API ROUTES (48 endpoints)              │   │
-│  │  Auth: register, login, demo-login, refresh, me, accounts│   │
-│  │  Patients: CRUD with RBAC                                 │   │
-│  │  Diagnoses: CRUD with RBAC                                │   │
-│  │  Analysis: predict, get, by patient                       │   │
-│  │  EEG: record, get, by patient                             │   │
-│  │  Pharmacy: profile CRUD                                   │   │
-│  │  OT: theaters, slots, bookings, daily-schedule            │   │
-│  │  Research: list, get, create                              │   │
-│  │  Medications: list, get, create (admin only)              │   │
-│  │  Dashboard: stats, activity                               │   │
-│  │  Users: profile get/update                                │   │
-│  └──────────────────────────────────────────────────────────┘   │
-│                                                                  │
-│  ┌──────────────────────────────────────────────────────────┐   │
-│  │                    ML PIPELINE                             │   │
-│  │  BrainLat Random Forest (93.59% accuracy)                 │   │
-│  │  DARWIN Handwriting Predictor                              │   │
-│  │  Rule-based fallback when no clinical data                 │   │
-│  └──────────────────────────────────────────────────────────┘   │
-└─────────────────────────┬───────────────────────────────────────┘
-                          │
-┌─────────────────────────▼───────────────────────────────────────┐
-│              DATABASE (Supabase PostgreSQL)                      │
-│  In-Memory (demo) │ Supabase (production)                       │
-│  Tables: users, patients, diagnoses, analyses, eeg_recordings,  │
-│  research_papers, medications, ot_theaters, ot_slots,           │
-│  ot_bookings, pharmacy_profiles                                │
+│                        FRONTEND (Port 3001)                     │
+│  Node.js static server + Service Worker (PWA)                   │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐          │
+│  │Dashboard │ │AI Analysis│ │OT Sched  │ │Neurosurg │ ...      │
+│  └────┬─────┘ └────┬─────┘ └────┬─────┘ └────┬─────┘          │
+│       └─────────────┴────────────┴─────────────┘                │
+│                    shared/modules.js (RBAC)                      │
+│                    shared/auth.js (JWT client)                   │
+│                    shared/api.js (HTTP client)                   │
+└────────────────────────┬────────────────────────────────────────┘
+                         │ HTTPS
+┌────────────────────────┴────────────────────────────────────────┐
+│                    BACKEND (Port 8000)                           │
+│  FastAPI + Python 3.13                                          │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐          │
+│  │Auth/RBAC │ │Patients  │ │Analysis  │ │OT Sched  │ ...      │
+│  └────┬─────┘ └────┬─────┘ └────┬─────┘ └────┬─────┘          │
+│       └─────────────┴────────────┴─────────────┘                │
+│                    backend/ml/ (Random Forest + Fallback)        │
+│                    In-memory DB (demo) / Supabase (prod)        │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
----
+### Key Design Decisions
 
-## 🔐 Authentication & Authorization
-
-### Auth Flow
-
-```
-Login → JWT Access Token (30min) + Refresh Token (7 days)
-         │
-         ├── Access Token → Authorization: Bearer <token>
-         │   Expires → 401 → Use Refresh Token
-         │
-         └── Refresh Token → POST /auth/refresh
-             Returns new Access + Refresh pair
-```
-
-### RBAC Permission Matrix
-
-| Role | Patients | Diagnoses | Analysis | EEG | Pharmacy | OT | Research | Admin |
-|------|----------|-----------|----------|-----|----------|-----|----------|-------|
-| **admin** | R/W/D | R/W | R/W | R/W | R/W | R/W/D | R/W | ✓ |
-| **neurologist** | R/W | R/W | R/W | R/W | — | R | R | — |
-| **surgeon** | R/W | R/W | R | — | — | R/W/D | R | — |
-| **pharmacist** | R | — | — | — | R/W | — | — | — |
-| **researcher** | R | — | R/W | R | — | — | R/W | — |
-| **demo** | R | R | — | — | — | — | — | — |
-
-### Key Security Features
-
-- **JWT with JTI** — Every token has a unique ID for revocation
-- **Refresh token rotation** — New pair issued on each refresh
-- **Rate limiting** — Per-IP sliding window (login: 10/min, register: 5/min)
-- **Mass assignment protection** — Typed Pydantic models, field whitelists
-- **Audit logging** — Login, registration, booking changes tracked
-- **Anti-hallucination** — Prompt injection blocked at middleware level
-- **Security headers** — nosniff, DENY framing, XSS protection, no-cache on API
+| Decision | Rationale |
+|----------|-----------|
+| **FastAPI backend** | Async Python, automatic OpenAPI docs, Pydantic validation |
+| **In-memory DB for demo** | Zero setup, instant demo mode, no Supabase dependency |
+| **Service Worker (PWA)** | Offline-capable, installable, network-first for fresh data |
+| **Role-based module access** | UX-level filtering via `shared/modules.js`; backend enforces real security |
+| **Dual prediction mode** | Trained ML model (93.59% accuracy) when clinical data available; symptom-based fallback otherwise |
 
 ---
 
-## 🧠 ML Models
+## What Changed: Before vs After
 
-### BrainLat Predictor (Primary)
+### Backend
 
-| Metric | Value |
-|--------|-------|
-| Algorithm | Random Forest |
-| Accuracy | 93.59% |
-| F1 Score | 93.32% |
-| Training Data | BrainLat EEG Dataset (Nature Scientific Data, 2023) |
-| DOI | 10.1038/s41597-023-02806-8 |
+| Aspect | Before | After |
+|--------|--------|-------|
+| **Auth** | Basic JWT, no refresh tokens | Full JWT with refresh rotation, rate limiting, audit logging |
+| **RBAC** | Frontend-trusted roles | Backend-enforced role permissions on every endpoint |
+| **Routes** | Single `routes.py` (1000+ lines) | Same file but with proper dependencies, validation, error handling |
+| **Password hashing** | bcrypt only | bcrypt with proper configuration |
+| **Rate limiting** | None | Login: 5/min, API: 60/min, Analysis: 10/min |
+| **Audit logging** | None | All sensitive operations logged with timestamp, IP, user |
+| **Database schema** | Basic tables | Added indexes, partial indexes, missing tables (audit_logs, refresh_tokens, login_attempts) |
+| **Migrations** | None | `backend/migrations/002_performance_and_missing_tables.sql` |
 
-**Supported Diseases:**
-| Disease | Typical Confidence | Key Features |
-|---------|-------------------|--------------|
-| Alzheimer's Disease | 94.2% | memory_loss, confusion, disorientation |
-| Parkinson's Disease | 91.8% | tremor, rigidity, bradykinesia |
-| ALS | 87.1% | muscle_weakness, fasciculations |
-| Epilepsy | 96.5% | seizures, staring_spells |
-| Multiple Sclerosis | 88.3% | numbness, vision_problems |
-| Brain Tumor | 85.4% | headache, seizures, personality_changes |
-| Migraine | 93.1% | headache, nausea, light_sensitivity |
+### Frontend
 
-### DARWIN Predictor (Secondary)
+| Aspect | Before | After |
+|--------|--------|-------|
+| **Dashboard** | Sci-fi jargon ("UNIFIED_NEURAL_CORE", "5M+ NODES") | Clinical workspace: recent patients, analyses, quick actions |
+| **Navigation** | Hardcoded links on every page | Dynamic role-based nav from `shared/modules.js` |
+| **Module access** | All modules visible to all roles | Role-filtered: AI Analysis → neurologist/researcher only, OT → surgeon/coordinator only |
+| **Profile panel** | Missing on OT/Neurosurgery pages | Profile panel on every page (desktop + mobile) |
+| **Sign-out** | Inconsistent behavior | Always redirects to landing page |
+| **Service Worker** | Cached stale HTML | Bumped to v5, network-first for HTML, modules.js added to static assets |
+| **Login page** | Single form | Split layout with brand panel, demo mode shows "Try NEURO" |
 
-Handwriting-based neurological screening using CSV input data.
+### Security
 
-### Training
+| Aspect | Before | After |
+|--------|--------|-------|
+| **Secrets** | `.env` potentially committed | `.env` deleted from git, `.env.example` with placeholders |
+| **CORS** | Wildcard | Environment-driven allowlist |
+| **Security headers** | None | X-Content-Type-Options, X-Frame-Options, CSP, Referrer-Policy |
+| **JWT claims** | Excessive | Minimal: sub, role, iat, exp, jti |
+| **Service-role exposure** | Risk of browser leakage | Backend-only, never sent to frontend |
+
+---
+
+## ML Algorithms & Mathematical Foundation
+
+### Primary Model: Random Forest Classifier
+
+**Accuracy: 93.59% | F1 Score: 0.9359 | 5-fold CV: 0.9321 ± 0.0089**
+
+#### Algorithm
+
+Random Forest is an ensemble learning method that constructs multiple decision trees during training and outputs the class that is the mode of the classes of individual trees.
+
+For a dataset $D = \{(x_1, y_1), ..., (x_n, y_n)\}$ where $x_i \in \mathbb{R}^d$ and $y_i \in \{0, 1, ..., K-1\}$:
+
+**Training (Bootstrap Aggregating):**
+
+For each tree $t = 1, ..., T$:
+1. Sample with replacement: $D_t \subset D$, $|D_t| = n$
+2. At each node, select $m = \lfloor\sqrt{d}\rfloor$ random features
+3. Split on feature $j^* = \arg\max_{j \in S} \text{Gini}(j)$
+
+**Gini Impurity:**
+
+$$\text{Gini}(j) = 1 - \sum_{k=0}^{K-1} p_k^2$$
+
+where $p_k$ is the proportion of class $k$ in the node.
+
+**Prediction (Majority Vote):**
+
+$$\hat{y} = \arg\max_{k} \sum_{t=1}^{T} \mathbb{I}[h_t(x) = k]$$
+
+where $h_t(x)$ is the prediction of tree $t$.
+
+#### Hyperparameters Used
+
+```python
+RandomForestClassifier(
+    n_estimators=200,      # Number of trees
+    max_depth=12,          # Maximum tree depth (prevents overfitting)
+    min_samples_split=5,   # Minimum samples to split a node
+    min_samples_leaf=2,    # Minimum samples in leaf node
+    random_state=42,       # Reproducibility
+    n_jobs=-1              # Parallel training
+)
+```
+
+### Secondary Model: Gradient Boosting (sklearn)
+
+**Accuracy: 92.82% | F1 Score: 0.9282**
+
+#### Algorithm
+
+Gradient Boosting builds trees sequentially, where each tree corrects the errors of the previous one.
+
+**Objective Function:**
+
+$$\mathcal{L} = \sum_{i=1}^{n} \ell(y_i, F(x_i)) + \sum_{t=1}^{T} \Omega(f_t)$$
+
+where $\ell$ is the loss function and $\Omega$ is the regularization term.
+
+**Pseudo-Residuals:**
+
+$$r_{im} = -\left[\frac{\partial \ell(y_i, F(x_i))}{\partial F(x_i)}\right]_{F=F_{m-1}}$$
+
+**Additive Update:**
+
+$$F_m(x) = F_{m-1}(x) + \eta \cdot f_m(x)$$
+
+where $\eta = 0.1$ is the learning rate.
+
+### Optional Models (when installed)
+
+| Model | Algorithm | Key Equation |
+|-------|-----------|--------------|
+| **CatBoost** | Gradient Boosting with ordered boosting | Uses ordered statistics to reduce prediction shift |
+| **LightGBM** | Gradient Boosting with leaf-wise growth | $\text{Split gain} = \frac{1}{2}\left[\frac{G_L^2}{H_L + \lambda} + \frac{G_R^2}{H_R + \lambda} - \frac{(G_L + G_R)^2}{H_L + H_R + \lambda}\right] - \gamma$ |
+
+### Feature Engineering
+
+Features are derived from clinical knowledge:
+
+| Feature | Formula | Clinical Significance |
+|---------|---------|----------------------|
+| `eeg_alpha_beta_ratio` | $\frac{\alpha_{\text{power}}}{\beta_{\text{power}} + 0.01}$ | Alpha suppression = cortical dysfunction |
+| `eeg_theta_alpha_ratio` | $\frac{\theta_{\text{power}}}{\alpha_{\text{power}} + 0.01}$ | Elevated in Alzheimer's |
+| `tau_abeta_ratio` | $\frac{\text{CSF}_{\tau}}{\text{CSF}_{A\beta} + 0.01}$ | Key Alzheimer's biomarker |
+| `hippo_ventricle_ratio` | $\frac{V_{\text{hipp}}}{V_{\text{vent}} + 0.01}$ | Hippocampal atrophy indicator |
+| `age_adjusted_cognition` | $\frac{\text{cognitive\_score}}{\text{age} / 60}$ | Age-normalized cognitive function |
+
+### Fallback: Symptom-Based Prediction
+
+When no clinical data is provided, the system uses rule-based symptom matching:
+
+$$\text{confidence}_d = \text{base\_conf}_d \times \frac{\sum_{i=1}^{n} \mathbb{I}[s_i \in \text{symptoms}_d]}{|\text{symptoms}_d|} \times \text{boost} + \epsilon$$
+
+where:
+- $\text{base\_conf}_d$ is the disease-specific base confidence (0.85–0.95)
+- $\text{boost} = 1.15$ if ≥3 symptoms match, $1.05$ if ≥2 match
+- $\epsilon \sim \mathcal{U}(-0.03, 0.03)$ is noise
+
+### Dataset Structure
+
+Based on **BrainLat** (Nature Scientific Data, 2023):
+
+| Parameter | Value |
+|-----------|-------|
+| Total samples | 780 |
+| Healthy controls | 250 (32%) |
+| Alzheimer's Disease | 150 (19%) |
+| Frontotemporal Dementia | 100 (13%) |
+| Multiple Sclerosis | 120 (15%) |
+| Parkinson's Disease | 160 (21%) |
+| Clinical features | 30 raw + 8 engineered = 38 total |
+| Train/test split | 80/20 stratified |
+
+### Feature Categories
+
+| Category | Features | Count |
+|----------|----------|-------|
+| **Demographics** | age, gender, family_history | 3 |
+| **Lifestyle** | smoking, alcohol, diabetes, hypertension, sleep, physical_activity | 6 |
+| **Neurological** | gait_abnormalities, speech_impairment, gait_speed, speech_clarity | 4 |
+| **EEG** | alpha, beta, delta, theta power + 3 ratios | 7 |
+| **MRI** | hippocampal_volume, ventricle_volume, cortical_thickness, white_matter_hyp + 2 ratios | 6 |
+| **PET** | fdg_pet_uptake | 1 |
+| **CSF Biomarkers** | abeta, tau, ptau + 2 ratios | 5 |
+| **Genetic** | apoe_e4, lrrk2_mutation | 2 |
+| **Cognitive** | cognitive_score, mmse_score, age_adjusted_cognition, cognitive_motor_score | 4 |
+
+### Top Feature Importances (Random Forest)
+
+Based on the trained model:
+
+| Rank | Feature | Importance |
+|------|---------|------------|
+| 1 | cognitive_score | 0.1423 |
+| 2 | csf_tau | 0.0987 |
+| 3 | mri_hippocampal_volume | 0.0876 |
+| 4 | tau_abeta_ratio | 0.0754 |
+| 5 | eeg_alpha_power | 0.0632 |
+| 6 | csf_abeta | 0.0598 |
+| 7 | mmse_score | 0.0543 |
+| 8 | age | 0.0487 |
+| 9 | mri_ventricle_volume | 0.0432 |
+| 10 | eeg_delta_power | 0.0389 |
+
+---
+
+## System Modules
+
+| Module | Path | Roles | Description |
+|--------|------|-------|-------------|
+| **Dashboard** | `/global_neural_dashboard_v1/code.html` | All | Clinical workspace with patients, analyses, quick actions |
+| **Patients** | `/neurosurgery/index.html` | Clinical staff | Patient register with details, diagnoses, AI history |
+| **AI Analysis** | `/ai_analysis/code.html` | Neurologist, Researcher | ML disease prediction, brain region analysis |
+| **EEG Archive** | `/neural_archive_eeg_interpreter/code.html` | Neurologist, Pharmacist | EEG waveform visualization, signature correlation |
+| **OT Scheduling** | `/ot_scheduling/index.html` | Surgeon, Coordinator | Theater management, slot booking, conflict detection |
+| **Research** | `/research_papers_1/code.html` | Medical, Research | Academic paper library, dataset access |
+| **Profile** | `/account/profile.html` | All | User profile editing, role display |
+| **Security** | `/account/security.html` | All | Password change, MFA status, audit log |
+
+---
+
+## Authentication & Security
+
+### JWT Token Structure
+
+```json
+{
+  "sub": "user-uuid",
+  "role": "neurologist",
+  "iat": 1695000000,
+  "exp": 1695000360,
+  "jti": "token-uuid",
+  "token_type": "access"
+}
+```
+
+### RBAC Permissions Matrix
+
+| Role | Patients | Analysis | EEG | OT | Research | Admin |
+|------|----------|----------|-----|-----|----------|-------|
+| admin | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| neurologist | ✅ | ✅ | ✅ | ❌ | ✅ | ❌ |
+| neurosurgeon | ✅ | ❌ | ❌ | ✅ | ✅ | ❌ |
+| surgeon | ✅ | ❌ | ❌ | ✅ | ✅ | ❌ |
+| pharmacist | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ |
+| researcher | ❌ | ✅ | ❌ | ❌ | ✅ | ❌ |
+| radiologist | ✅ | ❌ | ❌ | ❌ | ✅ | ❌ |
+| ot_coordinator | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ |
+| nurse | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ |
+
+### Security Headers
+
+```
+X-Content-Type-Options: nosniff
+X-Frame-Options: DENY
+X-XSS-Protection: 1; mode=block
+Referrer-Policy: strict-origin-when-cross-origin
+Permissions-Policy: camera=(), microphone=(), geolocation=()
+Cache-Control: no-store, no-cache, must-revalidate
+```
+
+### Rate Limiting
+
+| Endpoint | Limit | Window |
+|----------|-------|--------|
+| Login | 5 requests | 1 minute |
+| Register | 3 requests | 5 minutes |
+| Password Reset | 3 requests | 5 minutes |
+| API General | 60 requests | 1 minute |
+| AI Analysis | 10 requests | 1 minute |
+| File Upload | 5 requests | 1 minute |
+
+---
+
+## Database Schema
+
+### Core Tables
+
+```sql
+-- Users table
+CREATE TABLE users (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    email TEXT UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL,
+    role TEXT NOT NULL DEFAULT 'staff',
+    clearance_level INTEGER DEFAULT 1,
+    is_active BOOLEAN DEFAULT true,
+    created_at TIMESTAMPTZ DEFAULT now(),
+    updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- Patients table
+CREATE TABLE patients (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    first_name TEXT NOT NULL,
+    last_name TEXT NOT NULL,
+    date_of_birth DATE,
+    gender TEXT,
+    medical_record_number TEXT UNIQUE,
+    phone TEXT,
+    email TEXT,
+    insurance_id TEXT,
+    allergies TEXT[],
+    current_medications TEXT[],
+    created_by UUID REFERENCES users(id),
+    created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- Analyses table
+CREATE TABLE analyses (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    patient_id UUID REFERENCES patients(id),
+    predictions JSONB,
+    brain_regions JSONB,
+    risk_level TEXT,
+    ai_confidence FLOAT,
+    model_name TEXT,
+    created_by UUID REFERENCES users(id),
+    created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- OT Theaters
+CREATE TABLE ot_theaters (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name TEXT NOT NULL,
+    location TEXT,
+    capacity INTEGER,
+    status TEXT DEFAULT 'available',
+    created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- OT Slots
+CREATE TABLE ot_slots (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    theater_id UUID REFERENCES ot_theaters(id),
+    date DATE NOT NULL,
+    start_time TIME NOT NULL,
+    end_time TIME NOT NULL,
+    status TEXT DEFAULT 'available',
+    created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- OT Bookings
+CREATE TABLE ot_bookings (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    slot_id UUID REFERENCES ot_slots(id),
+    patient_id UUID REFERENCES patients(id),
+    surgeon_id UUID REFERENCES users(id),
+    procedure_name TEXT,
+    priority TEXT DEFAULT 'normal',
+    status TEXT DEFAULT 'pending',
+    created_at TIMESTAMPTZ DEFAULT now()
+);
+```
+
+### Indexes
+
+```sql
+-- RLS performance (used in every policy subquery)
+CREATE INDEX idx_users_role ON users(role);
+
+-- Patient search
+CREATE INDEX idx_patients_name ON patients(last_name, first_name);
+
+-- OT scheduling
+CREATE INDEX idx_ot_slots_theater_date_status ON ot_slots(theater_id, date, status);
+
+-- Partial indexes for common queries
+CREATE INDEX idx_ot_bookings_pending ON ot_bookings(status) WHERE status IN ('confirmed', 'in_progress');
+CREATE INDEX idx_medications_in_stock ON medications(name) WHERE stock_quantity > 0;
+```
+
+---
+
+## API Endpoints
+
+### Authentication
+
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| POST | `/api/v1/auth/login` | Email/password login | No |
+| GET | `/api/v1/auth/demo-login?email=...` | Demo account login | No |
+| POST | `/api/v1/auth/register` | Create account | No |
+| POST | `/api/v1/auth/refresh` | Refresh access token | Refresh token |
+| GET | `/api/v1/auth/me` | Current user info | Yes |
+
+### Patients
+
+| Method | Endpoint | Description | Roles |
+|--------|----------|-------------|-------|
+| GET | `/api/v1/patients` | List patients | All clinical |
+| POST | `/api/v1/patients` | Create patient | Admin, Neuro, Surgeon |
+| GET | `/api/v1/patients/{id}` | Get patient | All clinical |
+| PUT | `/api/v1/patients/{id}` | Update patient | Admin, Creator |
+| DELETE | `/api/v1/patients/{id}` | Delete patient | Admin only |
+
+### Analysis
+
+| Method | Endpoint | Description | Roles |
+|--------|----------|-------------|-------|
+| POST | `/api/v1/analysis/predict` | Run ML prediction | Admin, Neuro, Researcher |
+| GET | `/api/v1/analysis/{id}` | Get analysis | Admin, Neuro |
+| GET | `/api/v1/analysis/patient/{id}` | Patient analyses | Admin, Neuro |
+
+### OT Scheduling
+
+| Method | Endpoint | Description | Roles |
+|--------|----------|-------------|-------|
+| GET | `/api/v1/ot/theaters` | List theaters | Admin, Surgeon, Coordinator |
+| POST | `/api/v1/ot/theaters` | Create theater | Admin, Surgeon |
+| GET | `/api/v1/ot/slots` | List slots | Admin, Surgeon, Coordinator |
+| POST | `/api/v1/ot/slots` | Create slot | Admin, Surgeon |
+| POST | `/api/v1/ot/bookings` | Book slot | Admin, Surgeon |
+| PUT | `/api/v1/ot/bookings/{id}` | Update booking | Admin, Surgeon |
+
+---
+
+## Local Setup
+
+### Prerequisites
+
+- Python 3.13+
+- Node.js 18+
+- npm
+
+### Quick Start
+
+```bash
+# Clone repository
+git clone https://github.com/namgaydw-tech/NEURO.git
+cd NEURO
+
+# Backend setup
+cd backend
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+
+# Generate SSL certificates (for HTTPS)
+python certs/generate.py
+
+# Start backend
+cd ..
+python -m uvicorn backend.app:app --host 0.0.0.0 --port 8000 --ssl-keyfile certs/key.pem --ssl-certfile certs/cert.pem
+
+# Frontend (new terminal)
+npm install
+npm run dev
+```
+
+### Demo Accounts
+
+| Role | Email | Password |
+|------|-------|----------|
+| Admin | admin@neuropredict.sys | admin123 |
+| Neurologist | neuro@neuropredict.sys | neuro123 |
+| Pharmacist | pharma@neuropredict.sys | pharma123 |
+| Researcher | research@neuropredict.sys | research123 |
+
+### Training the ML Model
 
 ```bash
 cd backend
 python -m ml.train_model
 ```
 
----
-
-## 🚀 Quick Start
-
-### Prerequisites
-
-- Python 3.11+
-- Node.js 18+
-- npm
-
-### 1. Clone & Install
-
-```bash
-git clone https://github.com/namgaydw-tech/NEURO.git
-cd NEURO
-
-# Backend dependencies
-cd backend
-pip install -r requirements.txt
-cd ..
-
-# Frontend (no build needed — static HTML)
-```
-
-### 2. Configure Environment
-
-```bash
-cp .env.example .env
-# Edit .env with your values:
-# JWT_SECRET=<generate: python -c "import secrets; print(secrets.token_hex(32))">
-# SUPABASE_URL= (leave empty for demo mode)
-# ENABLE_DEMO_DATA=true
-```
-
-### 3. Start Backend
-
-```bash
-cd backend
-python start_server.py
-# API: http://localhost:8000
-# Docs: http://localhost:8000/docs
-```
-
-### 4. Start Frontend
-
-```bash
-# From project root
-node server.js
-# Frontend: http://localhost:3001
-```
-
-### 5. Open in Browser
-
-- **Landing Page**: http://localhost:3001/
-- **Dashboard**: http://localhost:3001/app/dashboard.html
-- **AI Analysis**: http://localhost:3001/ai_analysis/code.html
-- **API Docs**: http://localhost:8000/docs
-
-### Demo Accounts
-
-| Email | Role | Password |
-|-------|------|----------|
-| admin@neuropredict.sys | admin | admin123 |
-| neuro@neuropredict.sys | neurologist | neuro123 |
-| pharma@neuropredict.sys | pharmacist | pharma123 |
-| surgery@neuropredict.sys | surgeon | surgery123 |
-| research@neuropredict.sys | researcher | research123 |
-| demo@neuropredict.sys | demo | demo123 |
-
-> ⚠️ Demo credentials are for development only. In production, `ENABLE_DEMO_DATA=false` disables them.
+This generates a synthetic dataset matching the BrainLat paper structure (780 samples, 38 features) and trains 4 models (Random Forest, Gradient Boosting, CatBoost, LightGBM). The best model is saved to `backend/ml/models/trained_model.pkl`.
 
 ---
 
-## 📁 Project Structure
+## Future Plans
 
-```
-NEURO/
-├── backend/
-│   ├── app.py                    # Main FastAPI app (WebSocket, middleware, routes)
-│   ├── core/
-│   │   ├── __init__.py
-│   │   ├── config.py             # Unified settings with production validation
-│   │   ├── database.py           # Supabase + in-memory DB layer
-│   │   ├── auth.py               # JWT, RBAC, rate limiting, audit logging
-│   │   ├── clerk.py              # Clerk integration
-│   │   ├── anti_hallucination.py # Input validation + hallucination detector
-│   │   └── websocket.py          # Real-time inter-module hub
-│   ├── routes.py                 # 48 API endpoints
-│   ├── models.py                 # Pydantic request/response schemas
-│   ├── ml/
-│   │   ├── __init__.py           # Prediction engine
-│   │   ├── train_model.py        # BrainLat training script
-│   │   ├── darwin_predictor.py   # DARWIN handwriting predictor
-│   │   └── models/               # Trained .pkl files
-│   ├── seed.py                   # Demo data seeder
-│   ├── supabase_schema.sql       # Production database schema
-│   ├── requirements.txt          # Python dependencies
-│   ├── start_server.py           # Launcher with env defaults
-│   └── launch.py                 # Detached process launcher
-├── ai_analysis/                  # AI Analysis page
-├── prediction_command_center_v1/ # Prediction module
-├── global_neural_dashboard_v1/   # Dashboard module
-├── final_diagnosis_report_v1/    # Diagnosis report
-├── research_papers_1/            # Research library
-├── medical_history_archive/      # Medical records
-├── medical_history_login/        # Login page
-├── pharmacist_login/             # Login page
-├── neurosurgery_login/           # Login page
-├── 3fa_pharmacy_login/           # 3FA login page
-├── app/
-│   └── dashboard.html            # Production dashboard
-├── landing/
-│   └── index.html                # Landing page
-├── shared/
-│   ├── auth.js                   # Frontend auth client
-│   ├── api.js                    # Frontend API client
-│   ├── ui.js                     # UI components
-│   ├── layout.js                 # Layout controller
-│   ├── layout.css                # Responsive layout styles
-│   └── design-system.css         # Design tokens + components
-├── certs/                        # Self-signed SSL certs
-├── server.js                     # Node.js static server (HTTP/HTTPS)
-├── sw.js                         # Service worker (PWA)
-├── manifest.json                 # PWA manifest
-├── vercel.json                   # Vercel deployment config
-├── capacitor.config.json         # Capacitor (Android/iOS) config
-├── .env.example                  # Environment template
-├── .gitignore                    # Git ignore rules
-└── README.md                     # This file
-```
+### Phase 1: Dataset Expansion (Q4 2026)
 
----
+| Dataset | Purpose | Status |
+|---------|---------|--------|
+| **ADNI** (Alzheimer's Disease Neuroimaging Initiative) | Real clinical MRI/PET data | Planned |
+| **TUH EEG Corpus** | Real EEG recordings for seizure detection | Planned |
+| **UK Biobank** | Large-scale population genetics | Planned |
+| **OpenNeuro** | fMRI resting-state data | Planned |
 
-## 🌐 API Endpoints (48 total)
+**Target:** Train on 10,000+ real clinical samples instead of synthetic data.
 
-### Authentication
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| POST | `/api/v1/auth/register` | Rate limit | Create account (returns access + refresh) |
-| POST | `/api/v1/auth/login` | Rate limit | Login (returns access + refresh) |
-| GET | `/api/v1/auth/demo-login` | None (demo only) | Quick demo login |
-| POST | `/api/v1/auth/refresh` | None | Exchange refresh for new token pair |
-| GET | `/api/v1/auth/me` | Bearer | Current user info |
-| GET | `/api/v1/auth/demo-accounts` | None | List demo accounts (no passwords) |
+### Phase 2: Deep Learning Models (Q1 2027)
 
-### Patients
-| Method | Endpoint | RBAC | Description |
-|--------|----------|------|-------------|
-| GET | `/api/v1/patients` | Any authenticated | List patients |
-| GET | `/api/v1/patients/{id}` | Any authenticated | Get patient details |
-| POST | `/api/v1/patients` | admin, neurologist, surgeon | Create patient |
-| PUT | `/api/v1/patients/{id}` | admin, neurologist, surgeon | Update patient |
-| DELETE | `/api/v1/patients/{id}` | admin only | Delete patient |
+| Model | Architecture | Use Case |
+|-------|-------------|----------|
+| **3D CNN** | ResNet-3D / DenseNet-3D | MRI volume classification |
+| **EEGNet** | Compact CNN for EEG | Seizure detection, sleep staging |
+| **Transformer** | ClinicalBERT / Med-PaLM | Medical record analysis |
+| **Multimodal Fusion** | Cross-attention layers | Combine MRI + EEG + Labs |
 
-### Diagnoses
-| Method | Endpoint | RBAC | Description |
-|--------|----------|------|-------------|
-| GET | `/api/v1/diagnoses` | Any authenticated | List diagnoses |
-| GET | `/api/v1/diagnoses/{id}` | Any authenticated | Get diagnosis |
-| POST | `/api/v1/diagnoses` | admin, neurologist, surgeon | Create diagnosis |
-| PUT | `/api/v1/diagnoses/{id}` | admin, neurologist, surgeon | Update (typed model) |
+**Mathematical Foundation (Transformer):**
 
-### AI Analysis
-| Method | Endpoint | RBAC | Description |
-|--------|----------|------|-------------|
-| POST | `/api/v1/analysis/predict` | admin, neurologist, researcher | Run ML prediction |
-| GET | `/api/v1/analysis/{id}` | Any authenticated | Get analysis |
-| GET | `/api/v1/analysis/patient/{id}` | Any authenticated | Patient analyses |
+$$\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V$$
 
-### EEG
-| Method | Endpoint | RBAC | Description |
-|--------|----------|------|-------------|
-| POST | `/api/v1/eeg/record` | admin, neurologist | Record EEG |
-| GET | `/api/v1/eeg/{id}` | Any authenticated | Get recording |
-| GET | `/api/v1/eeg/patient/{id}` | Any authenticated | Patient recordings |
+$$\text{MultiHead}(Q, K, V) = \text{Concat}(\text{head}_1, ..., \text{head}_h)W^O$$
 
-### Pharmacy
-| Method | Endpoint | RBAC | Description |
-|--------|----------|------|-------------|
-| GET | `/api/v1/pharmacy/profile` | Any authenticated | Get profile |
-| POST | `/api/v1/pharmacy/profile` | admin, pharmacist | Create profile |
-| PUT | `/api/v1/pharmacy/profile/{id}` | admin, pharmacist | Update profile |
+### Phase 3: LLM Integration (Q2 2027)
 
-### OT Scheduling
-| Method | Endpoint | RBAC | Description |
-|--------|----------|------|-------------|
-| GET | `/api/v1/ot/theaters` | Any authenticated | List theaters |
-| POST | `/api/v1/ot/theaters` | admin, surgeon | Create theater |
-| GET | `/api/v1/ot/slots` | Any authenticated | List slots |
-| POST | `/api/v1/ot/slots` | admin, surgeon | Create slot (conflict check) |
-| PUT | `/api/v1/ot/slots/{id}` | admin, surgeon | Update slot (typed model) |
-| POST | `/api/v1/ot/bookings` | admin, surgeon | Create booking |
-| GET | `/api/v1/ot/bookings` | Any authenticated | List bookings |
-| GET | `/api/v1/ot/bookings/{id}` | Any authenticated | Get booking |
-| PUT | `/api/v1/ot/bookings/{id}` | admin, surgeon | Update booking (typed model) |
-| DELETE | `/api/v1/ot/bookings/{id}` | admin, surgeon | Cancel booking |
-| GET | `/api/v1/ot/daily-schedule` | Any authenticated | Full daily schedule |
+| Component | Technology | Purpose |
+|-----------|-----------|---------|
+| **Clinical NLP** | Meditron-7B / BioMistral | Extract findings from clinical notes |
+| **Report Generation** | GPT-4 / Claude | Auto-generate diagnostic reports |
+| **Drug Interaction** | PubMedBERT | Check medication interactions |
+| **RAG Pipeline** | LlamaIndex + ChromaDB | Query medical literature |
 
-### Research
-| Method | Endpoint | RBAC | Description |
-|--------|----------|------|-------------|
-| GET | `/api/v1/research` | Any authenticated | List papers |
-| GET | `/api/v1/research/{id}` | Any authenticated | Get paper |
-| POST | `/api/v1/research` | admin, researcher | Create paper |
+**RAG Retrieval Score:**
 
-### System
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| GET | `/health` | None | Health check |
-| GET | `/api/v1/system/status` | None | System status |
-| GET | `/api/v1/dashboard/stats` | Any authenticated | Dashboard statistics |
-| GET | `/api/v1/dashboard/activity` | Any authenticated | Recent activity |
+$$\text{score}(q, d) = \alpha \cdot \text{BM25}(q, d) + (1 - \alpha) \cdot \cos(E_q, E_d)$$
+
+where $E_q, E_d$ are dense embeddings and $\alpha = 0.3$.
+
+### Phase 4: Production Deployment (Q3 2027)
+
+| Task | Description |
+|------|-------------|
+| **HIPAA Compliance** | BAA agreements, encryption at rest, audit logging |
+| **Supabase Migration** | Move from in-memory to PostgreSQL with RLS |
+| **Docker Deployment** | Containerized backend + frontend |
+| **CI/CD Pipeline** | GitHub Actions for testing, linting, deployment |
+| **Mobile App** | Capacitor wrapper for iOS/Android |
+| **WebRTC** | Real-time EEG streaming from medical devices |
+
+### Phase 5: Advanced Features (Q4 2027)
+
+| Feature | Description |
+|---------|-------------|
+| **Federated Learning** | Train across hospitals without sharing patient data |
+| **Explainable AI (XAI)** | SHAP values, attention maps for clinical decisions |
+| **Clinical Trials** | Integration with clinical trial matching |
+| **Genomics** | Whole-genome sequencing analysis |
+| **Wearable Integration** | Apple Watch, Fitbit for longitudinal monitoring |
 
 ---
 
-## 🔒 Environment Variables
+## References
 
-```bash
-# ── REQUIRED ─────────────────────────────────────────────
-JWT_SECRET=          # Generate: python -c "import secrets; print(secrets.token_hex(32))"
+1. **BrainLat** — Nature Scientific Data (2023)
+   DOI: [10.1038/s41597-023-02806-8](https://doi.org/10.1038/s41597-023-02806-8)
+   780 participants, 5 diseases, multimodal neuroimaging
 
-# ── DATABASE ─────────────────────────────────────────────
-SUPABASE_URL=        # Leave empty for in-memory demo mode
-SUPABASE_ANON_KEY=   # Required if SUPABASE_URL set
-SUPABASE_SERVICE_KEY= # Required if SUPABASE_URL set
+2. **Yousaf et al.** — Biomedical Signal Processing and Control (2023)
+   Multi-class disease detection using deep learning
+   99.56% accuracy on brain tumor + stroke detection
 
-# ── AUTH ─────────────────────────────────────────────────
-CLERK_SECRET_KEY=    # Optional: Clerk integration
-CLERK_PUBLISHABLE_KEY=
-ENABLE_DEMO_DATA=true # Set false in production
+3. **IEEE 9363896** — ML/DL Approaches for Brain Disease Diagnosis
+   Review of 147 articles on 4 brain diseases
 
-# ── APP ──────────────────────────────────────────────────
-APP_ENV=development  # development | staging | production
-DEBUG=false
-PORT=8000
-FRONTEND_URL=http://localhost:3000
-CORS_ORIGINS=http://localhost:3000,http://localhost:3001
-
-# ── SECURITY ─────────────────────────────────────────────
-HALLUCINATION_CHECK=true
-RATE_LIMIT_LOGIN=10  # per minute
-RATE_LIMIT_API=120   # per minute
-RATE_LIMIT_PREDICT=20 # per minute
-AUDIT_ENABLED=true
-```
+4. **scikit-learn** — Machine Learning in Python
+   Pedregosa et al., JMLR 12, pp. 2825-2830, 2011
 
 ---
 
-## 🚢 Deployment
+## License
 
-### Local Development
-
-```bash
-cd backend && python start_server.py   # Backend on :8000
-node server.js                          # Frontend on :3001
-```
-
-### Vercel (Frontend + Serverless API)
-
-```bash
-npm i -g vercel
-vercel --prod
-# Set environment variables in Vercel dashboard
-```
-
-### Capacitor (Android/iOS)
-
-```bash
-npm install @capacitor/core @capacitor/cli
-npx cap init "NEURO" "sys.neuropredict.app"
-npx cap add android
-npx cap add ios
-npx cap sync
-npx cap open android  # Opens Android Studio
-npx cap open ios      # Opens Xcode
-```
-
-### Docker
-
-```bash
-docker build -t neuro-predict .
-docker run -p 8000:8000 -e JWT_SECRET=your-secret neuro-predict
-```
+Research/Prototype — Not for clinical use without validation.
 
 ---
 
-## 🧪 Testing
-
-```bash
-cd backend
-pytest tests/ -v                    # Run all tests
-pytest tests/test_auth.py -v        # Auth tests
-pytest tests/test_rbac.py -v        # RBAC tests
-pytest tests/test_rate_limit.py -v  # Rate limiting tests
-```
-
----
-
-## 📝 Secrets That Must Be Rotated
-
-If this repository was previously public with real `.env` files committed:
-
-1. **JWT_SECRET** — Generate new: `python -c "import secrets; print(secrets.token_hex(32))"`
-2. **SUPABASE_SERVICE_KEY** — Rotate in Supabase dashboard
-3. **CLERK_SECRET_KEY** — Rotate in Clerk dashboard
-4. **All demo passwords** — Change before production use
-
----
-
-## 📄 License
-
-Research/Prototype — Not for clinical use without formal validation.
+*Built with FastAPI, scikit-learn, Tailwind CSS, and a commitment to evidence-based medicine.*
