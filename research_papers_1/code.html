@@ -9,6 +9,7 @@
 <script src="/config.js"></script>
 <script src="../shared/auth.js"></script>
 <script src="../shared/api.js"></script>
+<script src="../shared/modules.js"></script>
 <script src="../shared/ui.js"></script>
 <script src="../shared/profile-panel.js"></script>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -250,27 +251,20 @@
 </div>
 </main>
 <!-- BottomNavBar -->
-<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center h-20 pb-safe px-4 bg-[#0a0a12]/90 backdrop-blur-xl z-50 rounded-t-2xl border-t border-[#ff2d78]/30 shadow-[0_-4px_20px_rgba(255,45,120,0.15)]">
-<a href="../global_neural_dashboard_v1/code.html" class="flex flex-col items-center justify-center text-slate-500 hover:text-[#00ffcc] transition-all cursor-pointer active:scale-90">
-<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
-<span class="font-['Space_Grotesk'] text-[10px] uppercase tracking-widest mt-1">Dashboard</span>
-</a>
-<a href="../neural_archive_eeg_interpreter/code.html" class="flex flex-col items-center justify-center text-slate-500 hover:text-[#00ffcc] transition-all cursor-pointer active:scale-90">
-<span class="material-symbols-outlined" data-icon="database">database</span>
-<span class="font-['Space_Grotesk'] text-[10px] uppercase tracking-widest mt-1">Archive</span>
-</a>
-<a href="../ai_analysis/code.html" class="flex flex-col items-center justify-center text-slate-500 hover:text-[#00ffcc] transition-all cursor-pointer active:scale-90">
-<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
-<span class="font-['Space_Grotesk'] text-[10px] uppercase tracking-widest mt-1">Analysis</span>
-</a>
-<a href="../research_papers_1/code.html" class="flex flex-col items-center justify-center text-[#ff2d78] drop-shadow-[0_0_8px_rgba(255,45,120,0.6)] font-bold cursor-pointer active:scale-90">
-<span class="material-symbols-outlined" data-icon="menu_book" style="font-variation-settings: 'FILL' 1;">menu_book</span>
-<span class="font-['Space_Grotesk'] text-[10px] uppercase tracking-widest mt-1">Research</span>
-</a>
-</nav>
+<nav class="md:hidden fixed bottom-0 left-0 w-full flex justify-around items-center h-20 pb-safe px-4 bg-[#0a0a12]/90 backdrop-blur-xl z-50 rounded-t-2xl border-t border-[#ff2d78]/30 shadow-[0_-4px_20px_rgba(255,45,120,0.15)]" id="mobile-nav"></nav>
 <script>
-(async () => { await Auth.ready(); if (!Auth.isSignedIn() && !Auth.isSignedIn()) { window.location.href = '../login/index.html?redirect_url=' + encodeURIComponent(window.location.pathname); } else if (Auth.isSignedIn()) { try { await true; } catch(e) {} } })();
-    try { ProfilePanel.mountInto("profile-panel-trigger"); } catch(e) {}
+(async () => {
+  await Auth.ready();
+  if (!Auth.requireAuth()) return;
+  if (!Modules.requireModule('research')) return;
+
+  // Role-based nav
+  const desktopNav = document.querySelector('header .ml-auto nav');
+  if (desktopNav) Modules.renderDesktopNav(desktopNav, 'research');
+  Modules.renderMobileNav(document.getElementById('mobile-nav'), 'research');
+
+  ProfilePanel.mountInto('profile-panel-trigger');
+})();
 
 // Search functionality
 const searchInput = document.querySelector('input[type=text]');

@@ -8,6 +8,7 @@
 <script src="/config.js"></script>
 <script src="../shared/auth.js"></script>
 <script src="../shared/api.js"></script>
+<script src="../shared/modules.js"></script>
 <script src="../shared/ui.js"></script>
 <script src="../shared/profile-panel.js"></script>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -114,13 +115,7 @@
 <h1 class="text-xl font-black text-[#ff2d78] drop-shadow-[0_0_8px_rgba(255,45,120,0.8)] font-['Sora'] tracking-tighter">NEURO_PREDICT</h1>
 </div>
 <div class="hidden md:flex gap-8 items-center">
-<nav class="flex gap-6">
-<a class="font-label text-sm uppercase tracking-widest text-[#00ffcc] drop-shadow-[0_0_8px_rgba(0,255,204,0.8)] font-bold" href="../global_neural_dashboard_v1/code.html">Dashboard</a>
-<a class="font-label text-sm uppercase tracking-widest text-slate-400 hover:text-[#ff2d78] transition-all duration-300" href="../neural_archive_eeg_interpreter/code.html">Archive</a>
-<a class="font-label text-sm uppercase tracking-widest text-slate-400 hover:text-[#ff2d78] transition-all duration-300" href="../ai_analysis/code.html">Analysis</a>
-<a class="font-label text-sm uppercase tracking-widest text-slate-400 hover:text-[#ff2d78] transition-all duration-300" href="../ot_scheduling/index.html">OT Scheduling</a>
-<a class="font-label text-sm uppercase tracking-widest text-slate-400 hover:text-[#ff2d78] transition-all duration-300" href="../neurosurgery/index.html">Neurosurgery</a>
-<a class="font-label text-sm uppercase tracking-widest text-slate-400 hover:text-[#ff2d78] transition-all duration-300" href="../research_papers_1/code.html">Research</a>
+<nav class="flex gap-6" id="desktop-nav">
 </nav>
 <div id="profile-panel-trigger"></div>
 </div>
@@ -267,36 +262,16 @@
 </section>
 </main>
 <!-- BottomNavBar -->
-<nav class="md:hidden fixed bottom-0 w-full z-50 rounded-t-2xl bg-[#0a0a12]/90 backdrop-blur-md border-t border-[#00ffcc]/20 shadow-[0_-4px_20px_rgba(0,255,204,0.15)] flex justify-around items-center h-20 pb-safe w-full">
-<a class="flex flex-col items-center justify-center text-[#ff2d78] drop-shadow-[0_0_10px_rgba(255,45,120,0.6)] font-bold active:scale-90 duration-150" href="../global_neural_dashboard_v1/code.html">
-<span class="material-symbols-outlined" data-icon="grid_view">grid_view</span>
-<span class="font-['Space_Grotesk'] text-[10px] uppercase tracking-widest mt-1">Dashboard</span>
-</a>
-<a class="flex flex-col items-center justify-center text-slate-500 hover:bg-white/5 transition-colors active:scale-90 duration-150" href="../neural_archive_eeg_interpreter/code.html">
-<span class="material-symbols-outlined" data-icon="database">database</span>
-<span class="font-['Space_Grotesk'] text-[10px] uppercase tracking-widest mt-1">Archive</span>
-</a>
-<a class="flex flex-col items-center justify-center text-slate-500 hover:bg-white/5 transition-colors active:scale-90 duration-150" href="../ai_analysis/code.html">
-<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
-<span class="font-['Space_Grotesk'] text-[10px] uppercase tracking-widest mt-1">Analysis</span>
-</a>
-<a class="flex flex-col items-center justify-center text-slate-500 hover:bg-white/5 transition-colors active:scale-90 duration-150" href="../ot_scheduling/index.html">
-<span class="material-symbols-outlined" data-icon="event_available">event_available</span>
-<span class="font-['Space_Grotesk'] text-[10px] uppercase tracking-widest mt-1">OT</span>
-</a>
-<a class="flex flex-col items-center justify-center text-slate-500 hover:bg-white/5 transition-colors active:scale-90 duration-150" href="../neurosurgery/index.html">
-<span class="material-symbols-outlined" data-icon="neurology">neurology</span>
-<span class="font-['Space_Grotesk'] text-[10px] uppercase tracking-widest mt-1">Neuro</span>
-</a>
-<a class="flex flex-col items-center justify-center text-slate-500 hover:bg-white/5 transition-colors active:scale-90 duration-150" href="../research_papers_1/code.html">
-<span class="material-symbols-outlined" data-icon="science">science</span>
-<span class="font-['Space_Grotesk'] text-[10px] uppercase tracking-widest mt-1">Research</span>
-</a>
+<nav class="md:hidden fixed bottom-0 w-full z-50 rounded-t-2xl bg-[#0a0a12]/90 backdrop-blur-md border-t border-[#00ffcc]/20 shadow-[0_-4px_20px_rgba(0,255,204,0.15)] flex justify-around items-center h-20 pb-safe w-full" id="mobile-nav">
 </nav>
 <script>
 (async () => {
   await Auth.ready();
   if (!Auth.requireAuth()) return;
+
+  // Role-based navigation — rendered from the Modules map
+  Modules.renderDesktopNav(document.getElementById('desktop-nav'), 'dashboard');
+  Modules.renderMobileNav(document.getElementById('mobile-nav'), 'dashboard');
 
   // Mount Profile Panel
   ProfilePanel.mountInto('profile-panel-trigger');

@@ -9,6 +9,7 @@
 <script src="/config.js"></script>
 <script src="../shared/auth.js"></script>
 <script src="../shared/api.js"></script>
+<script src="../shared/modules.js"></script>
 <script src="../shared/ui.js"></script>
 <script src="../shared/profile-panel.js"></script>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -248,26 +249,19 @@
 </section>
 </main>
 <!-- BottomNavBar -->
-<nav class="fixed bottom-0 left-0 w-full h-20 bg-[#0a0a12]/90 backdrop-blur-xl z-50 border-t border-[#00ffcc]/30 rounded-t-2xl shadow-[0_-4px_20px_rgba(0,255,204,0.1)] flex justify-around items-center px-4 pb-4">
-<a href="../global_neural_dashboard_v1/code.html" class="flex flex-col items-center justify-center text-slate-400 opacity-60 hover:opacity-100 hover:text-[#00ffcc] transition-all active:scale-90 duration-150">
-<span class="material-symbols-outlined text-2xl">grid_view</span>
-<span class="font-label text-[10px] tracking-widest uppercase mt-1">Dashboard</span>
-</a>
-<a href="../neural_archive_eeg_interpreter/code.html" class="flex flex-col items-center justify-center text-[#ff2d78] drop-shadow-[0_0_8px_#ff2d78] scale-110">
-<span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">history_edu</span>
-<span class="font-label text-[10px] tracking-widest uppercase mt-1">Archive</span>
-</a>
-<a href="../ai_analysis/code.html" class="flex flex-col items-center justify-center text-slate-400 opacity-60 hover:opacity-100 hover:text-[#00ffcc] transition-all active:scale-90 duration-150">
-<span class="material-symbols-outlined text-2xl">analytics</span>
-<span class="font-label text-[10px] tracking-widest uppercase mt-1">Analysis</span>
-</a>
-<a href="../research_papers_1/code.html" class="flex flex-col items-center justify-center text-slate-400 opacity-60 hover:opacity-100 hover:text-[#00ffcc] transition-all active:scale-90 duration-150">
-<span class="material-symbols-outlined text-2xl">science</span>
-<span class="font-label text-[10px] tracking-widest uppercase mt-1">Research</span>
-</a>
-</nav>
+<nav class="md:hidden fixed bottom-0 left-0 w-full h-20 bg-[#0a0a12]/90 backdrop-blur-xl z-50 border-t border-[#00ffcc]/30 rounded-t-2xl shadow-[0_-4px_20px_rgba(0,255,204,0.1)] flex justify-around items-center px-4 pb-4" id="mobile-nav"></nav>
 <script>
-(async () => { await Auth.ready(); if (!Auth.isSignedIn() && !Auth.isSignedIn()) { window.location.href = '../login/index.html?redirect_url=' + encodeURIComponent(window.location.pathname); } else if (Auth.isSignedIn()) { try { await true; } catch(e) {} } })();
-    try { ProfilePanel.mountInto("profile-panel-trigger"); } catch(e) {}
+(async () => {
+  await Auth.ready();
+  if (!Auth.requireAuth()) return;
+  if (!Modules.requireModule('eeg')) return;
+
+  // Role-based nav
+  const desktopNav = document.querySelector('nav .ml-auto .flex.items-center.gap-4')?.querySelector('nav') || document.querySelector('header .ml-auto nav');
+  if (desktopNav) Modules.renderDesktopNav(desktopNav, 'eeg');
+  Modules.renderMobileNav(document.getElementById('mobile-nav'), 'eeg');
+
+  ProfilePanel.mountInto('profile-panel-trigger');
+})();
 </script>
 </body></html>

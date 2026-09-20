@@ -226,6 +226,7 @@ tailwind.config = {
 <script src="/config.js"></script>
 <script src="../shared/auth.js"></script>
 <script src="../shared/api.js"></script>
+<script src="../shared/modules.js"></script>
 <script>
 // ── State ────────────────────────────────────────────────────────
 let theaters = [];
@@ -510,6 +511,20 @@ async function addBooking() {
 (async () => {
   await Auth.ready();
   if (!Auth.requireAuth()) return;
+  if (!Modules.requireModule('ot')) return;
+
+  // Role-based nav
+  const desktopNav = document.querySelector('header .flex.items-center.gap-3');
+  if (desktopNav) {
+    const navLinks = Modules.forRole().map(m => {
+      const active = m.key === 'ot';
+      return `<a class="font-label text-[10px] uppercase tracking-widest ${active ? 'text-[#00ffcc] font-bold' : 'text-slate-400 hover:text-[#ff2d78]'} transition-all" href="${m.path}">${m.label}</a>`;
+    }).join('');
+    const nav = document.createElement('nav');
+    nav.className = 'hidden md:flex gap-6 items-center';
+    nav.innerHTML = navLinks;
+    desktopNav.parentElement.insertBefore(nav, desktopNav.parentElement.querySelector('#userBadge').parentElement);
+  }
 
   const user = Auth.getUser();
   document.getElementById('userBadge').innerHTML = `
