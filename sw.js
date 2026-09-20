@@ -1,7 +1,7 @@
 // NEURO_PREDICT_SYS - Service Worker
 // Static assets ONLY — never cache API responses, auth tokens, or patient data.
 
-const CACHE_NAME = 'neuro-predict-v4';
+const CACHE_NAME = 'neuro-predict-v5';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -9,6 +9,7 @@ const STATIC_ASSETS = [
   '/shared/auth.js',
   '/shared/api.js',
   '/shared/ui.js',
+  '/shared/modules.js',
   '/shared/profile-panel.js',
   '/shared/styles.css',
 ];

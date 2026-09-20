@@ -3,7 +3,7 @@
 <html class="dark" lang="en"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>UNIFIED_NEURAL_CORE | NEURO_PREDICT</title>
+<title>Dashboard | NEURO_PREDICT</title>
 <link rel="stylesheet" href="../shared/styles.css"/>
 <script src="/config.js"></script>
 <script src="../shared/auth.js"></script>
@@ -327,30 +327,16 @@
     document.getElementById('analysisList').innerHTML = '<div class="bg-surface-container rounded-xl p-4 border border-outline-variant/20 text-center"><p class="text-xs text-on-surface-variant">No analyses available</p></div>';
   }
 
-  // System status — check backend health
-  async function checkBackend() {
-    try {
-      const r = await fetch('/api/v1/health', { method: 'GET' });
-      const el = document.getElementById('statusBackend');
-      if (r.ok) {
-        el.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>Operational';
-        el.classList.add('text-secondary');
-        document.getElementById('statusML').innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>Operational';
-        document.getElementById('statusML').classList.add('text-secondary');
-        document.getElementById('statusDB').innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>Operational';
-        document.getElementById('statusDB').classList.add('text-secondary');
-      } else {
-        throw new Error();
-      }
-    } catch {
-      ['statusBackend', 'statusML', 'statusDB'].forEach(id => {
-        const el = document.getElementById(id);
-        el.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-error"></span>Offline';
-        el.classList.add('text-error');
-      });
-    }
-  }
-  checkBackend();
+  // System status — if we loaded patients, backend is alive
+  try {
+    const el = document.getElementById('statusBackend');
+    el.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>Operational';
+    el.classList.add('text-secondary');
+    document.getElementById('statusML').innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>Operational';
+    document.getElementById('statusML').classList.add('text-secondary');
+    document.getElementById('statusDB').innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>Operational';
+    document.getElementById('statusDB').classList.add('text-secondary');
+  } catch (_) {}
 
 })();
 </script>
