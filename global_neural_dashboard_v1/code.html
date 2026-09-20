@@ -121,144 +121,109 @@
 </div>
 <div id="profile-panel-trigger-mobile" class="md:hidden"></div>
 </header>
-<main class="pt-24 pb-32 px-4 md:px-8 max-w-7xl mx-auto min-h-screen grid-bg relative">
-<div class="absolute inset-0 scanline pointer-events-none"></div>
-<!-- Hero Section: Unified Neural Core -->
-<section class="mb-12 relative">
-<div class="flex flex-col md:flex-row justify-between items-end mb-8 gap-4">
+<main class="pt-24 pb-32 px-4 md:px-8 max-w-7xl mx-auto min-h-screen relative">
+<!-- Welcome Header -->
+<section class="mb-8">
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
 <div>
-<span class="font-label text-secondary text-xs tracking-[0.3em] uppercase mb-2 block">System Status: Optimal</span>
-<h2 class="font-headline text-4xl md:text-6xl font-extrabold text-on-surface tracking-tighter leading-none">
-                        UNIFIED_NEURAL_CORE
-                    </h2>
+<p class="font-label text-xs text-on-surface-variant uppercase tracking-widest mb-1" id="welcomeGreeting">Good morning</p>
+<h2 class="font-headline text-2xl md:text-3xl font-bold text-on-surface" id="welcomeName">Loading...</h2>
+<p class="text-sm text-on-surface-variant mt-1" id="welcomeRole"></p>
 </div>
-<div class="flex gap-4">
-<div class="px-4 py-2 bg-surface-container border border-secondary/20 rounded-lg flex items-center gap-3">
-<div class="w-2 h-2 rounded-full bg-secondary animate-pulse shadow-[0_0_8px_rgba(0,255,204,1)]"></div>
-<span class="font-label text-[10px] text-secondary uppercase tracking-widest">5M+ Nodes Active</span>
-</div>
-</div>
-</div>
-<!-- Global Network Visualization -->
-<div class="relative h-[400px] w-full rounded-2xl overflow-hidden neon-border-glow-primary bg-surface-container-lowest">
-<img alt="Neural Network Visualization" class="w-full h-full object-cover opacity-60" data-alt="Abstract 3D visualization of a complex neural network with glowing pink and cyan nodes and connecting data lines on a black background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBvp9uskN8Nb33YueZqy0raet_lzIv3aGHsKW1TMm-xfkJ4zF3MbSFNTIeekbDVqKv5t4Nu2gknzc3JL7c6DakL5pPZHI7JGwfduiuit6qE0RlFqqiOw_ZGtEbcVVScn9wQ023Q2qds0Zkwabu5tJzamHPzrNKGQEB3SLopWVi1pZOxKtiJW4AiuQH1l1XPH9HVxltaMlK7m3V-KzCdC0ikHXtbrFx7xxpy7ob4iNWl-unl7r9ODAQHkKnLRMGWrfJtrgY3E4tOUUI"/>
-<div class="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent"></div>
-<div class="absolute top-6 left-6 p-4 bg-background/60 backdrop-blur-md rounded-lg border border-white/5">
-<div class="flex items-center gap-4 mb-4">
-<div class="text-primary">
-<span class="material-symbols-outlined text-4xl" data-icon="hub">hub</span>
-</div>
-<div>
-<p class="font-label text-xs text-on-surface-variant uppercase">Global Sync Rate</p>
-<p class="font-headline text-2xl font-bold text-on-surface">99.82%</p>
-</div>
-</div>
-<div class="w-48 h-1 bg-surface-container-highest rounded-full overflow-hidden">
-<div class="h-full bg-primary w-[99.8%] shadow-[0_0_8px_rgba(255,45,120,0.8)]"></div>
-</div>
-</div>
-<!-- HUD Overlays -->
-<div class="absolute bottom-6 right-6 font-label text-[10px] text-secondary/60 space-y-1 text-right">
-<p>LATENCY: 1.2MS</p>
-<p>PACKET_LOSS: 0.0000%</p>
-<p>ENCRYPTION: AES-2048-NEURAL</p>
-</div>
+<div class="flex gap-3" id="quickActions"></div>
 </div>
 </section>
-<!-- Bento Grid: Data Integration -->
-<section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-<!-- Integration Panel 1: Research Papers -->
-<a href="../research_papers_1/code.html" class="col-span-1 md:col-span-1 bg-surface-container/40 backdrop-blur-xl p-6 rounded-2xl neon-border-glow-secondary flex flex-col justify-between hover:bg-surface-container/60 hover:scale-[1.02] transition-all duration-300 cursor-pointer group">
+<!-- Stats Row -->
+<section class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8" id="statsRow">
+<div class="bg-surface-container rounded-xl p-4 border border-outline-variant/20">
+<p class="font-label text-[10px] text-on-surface-variant uppercase tracking-widest mb-1">Patients</p>
+<p class="font-headline text-2xl font-bold text-on-surface" id="statPatients">—</p>
+</div>
+<div class="bg-surface-container rounded-xl p-4 border border-outline-variant/20">
+<p class="font-label text-[10px] text-on-surface-variant uppercase tracking-widest mb-1">Analyses</p>
+<p class="font-headline text-2xl font-bold text-secondary" id="statAnalyses">—</p>
+</div>
+<div class="bg-surface-container rounded-xl p-4 border border-outline-variant/20">
+<p class="font-label text-[10px] text-on-surface-variant uppercase tracking-widest mb-1">Recordings</p>
+<p class="font-headline text-2xl font-bold text-primary" id="statRecordings">—</p>
+</div>
+<div class="bg-surface-container rounded-xl p-4 border border-outline-variant/20">
+<p class="font-label text-[10px] text-on-surface-variant uppercase tracking-widest mb-1">Research</p>
+<p class="font-headline text-2xl font-bold text-tertiary" id="statResearch">—</p>
+</div>
+</section>
+<!-- Two-Column Layout -->
+<section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<!-- Left: Recent Patients (2 cols) -->
+<div class="lg:col-span-2">
+<div class="flex items-center justify-between mb-4">
+<h3 class="font-headline text-lg font-bold text-on-surface">Recent Patients</h3>
+<a href="../neurosurgery/index.html" class="font-label text-xs text-secondary hover:text-secondary/80 uppercase tracking-widest transition-colors">View All →</a>
+</div>
+<div class="space-y-3" id="patientList">
+<div class="bg-surface-container rounded-xl p-4 border border-outline-variant/20 animate-pulse">
+<div class="h-4 bg-surface-container-highest rounded w-1/3 mb-2"></div>
+<div class="h-3 bg-surface-container-highest rounded w-1/2"></div>
+</div>
+</div>
+<!-- Recent Analyses -->
+<div class="mt-8">
+<div class="flex items-center justify-between mb-4">
+<h3 class="font-headline text-lg font-bold text-on-surface">Recent Analyses</h3>
+<a href="../ai_analysis/code.html" class="font-label text-xs text-secondary hover:text-secondary/80 uppercase tracking-widest transition-colors">Run Analysis →</a>
+</div>
+<div class="space-y-3" id="analysisList">
+<div class="bg-surface-container rounded-xl p-4 border border-outline-variant/20 animate-pulse">
+<div class="h-4 bg-surface-container-highest rounded w-1/3 mb-2"></div>
+<div class="h-3 bg-surface-container-highest rounded w-1/2"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right: Quick Access (1 col) -->
+<div class="space-y-6">
+<!-- Module Shortcuts -->
 <div>
-<div class="flex justify-between items-start mb-6">
-<span class="material-symbols-outlined text-secondary text-3xl group-hover:scale-110 transition-transform" data-icon="science">science</span>
-<span class="bg-secondary/10 text-secondary text-[10px] px-2 py-1 rounded font-label uppercase">Research</span>
+<h3 class="font-headline text-lg font-bold text-on-surface mb-4">Modules</h3>
+<div class="space-y-2" id="moduleShortcuts"></div>
 </div>
-<h3 class="font-headline text-xl font-bold mb-2">Academic Synthesis</h3>
-<p class="text-on-surface-variant text-sm mb-6">Processing 42,000+ new peer-reviewed neurological publications.</p>
-</div>
+<!-- System Status -->
+<div class="bg-surface-container rounded-xl p-4 border border-outline-variant/20">
+<h3 class="font-label text-[10px] text-on-surface-variant uppercase tracking-widest mb-3">System Status</h3>
 <div class="space-y-3">
-<div class="flex justify-between text-xs font-label text-on-surface-variant">
-<span>Semantic Mapping</span>
-<span class="text-secondary">Active</span>
+<div class="flex items-center justify-between">
+<span class="text-xs text-on-surface-variant">Backend API</span>
+<span class="flex items-center gap-1.5 text-xs" id="statusBackend"><span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span>Checking...</span>
 </div>
-<div class="h-1.5 w-full bg-surface-container-highest rounded-full overflow-hidden">
-<div class="h-full bg-secondary w-3/4"></div>
+<div class="flex items-center justify-between">
+<span class="text-xs text-on-surface-variant">ML Models</span>
+<span class="flex items-center gap-1.5 text-xs" id="statusML"><span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span>Checking...</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-xs text-on-surface-variant">Database</span>
+<span class="flex items-center gap-1.5 text-xs" id="statusDB"><span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span>Checking...</span>
 </div>
 </div>
+</div>
+<!-- Account -->
+<div class="bg-surface-container rounded-xl p-4 border border-outline-variant/20">
+<h3 class="font-label text-[10px] text-on-surface-variant uppercase tracking-widest mb-3">Account</h3>
+<div class="space-y-2">
+<a href="../account/profile.html" class="flex items-center gap-3 p-2 rounded-lg hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-sm text-on-surface-variant">person</span>
+<span class="text-xs text-on-surface">View Profile</span>
 </a>
-<!-- Integration Panel 2: EEG Waves -->
-<a href="../neural_archive_eeg_interpreter/code.html" class="col-span-1 md:col-span-1 bg-surface-container/40 backdrop-blur-xl p-6 rounded-2xl neon-border-glow-primary flex flex-col justify-between hover:bg-surface-container/60 hover:scale-[1.02] transition-all duration-300 cursor-pointer group">
-<div>
-<div class="flex justify-between items-start mb-6">
-<span class="material-symbols-outlined text-primary text-3xl group-hover:scale-110 transition-transform" data-icon="waves">waves</span>
-<span class="bg-primary/10 text-primary text-[10px] px-2 py-1 rounded font-label uppercase">Real-time</span>
-</div>
-<h3 class="font-headline text-xl font-bold mb-2">Neural Waveforms</h3>
-<p class="text-on-surface-variant text-sm mb-6">Live streaming EEG data across 12,000 monitored subjects.</p>
-</div>
-<div class="h-16 flex items-end gap-1">
-<div class="w-full bg-primary/40 h-8 animate-pulse"></div>
-<div class="w-full bg-primary/60 h-12"></div>
-<div class="w-full bg-primary/30 h-6 animate-pulse"></div>
-<div class="w-full bg-primary/80 h-14"></div>
-<div class="w-full bg-primary/20 h-4 animate-pulse"></div>
-<div class="w-full bg-primary/90 h-16"></div>
-<div class="w-full bg-primary/50 h-10"></div>
-</div>
+<a href="../account/security.html" class="flex items-center gap-3 p-2 rounded-lg hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-sm text-on-surface-variant">lock</span>
+<span class="text-xs text-on-surface">Account & Security</span>
 </a>
-<!-- Integration Panel 3: Hospital Records -->
-<a href="../final_diagnosis_report_v1/code.html" class="col-span-1 md:col-span-1 bg-surface-container/40 backdrop-blur-xl p-6 rounded-2xl border border-outline-variant flex flex-col justify-between hover:bg-surface-container/60 hover:scale-[1.02] transition-all duration-300 cursor-pointer group">
-<div>
-<div class="flex justify-between items-start mb-6">
-<span class="material-symbols-outlined text-tertiary text-3xl group-hover:scale-110 transition-transform" data-icon="database">database</span>
-<span class="bg-tertiary/10 text-tertiary text-[10px] px-2 py-1 rounded font-label uppercase">Records</span>
-</div>
-<h3 class="font-headline text-xl font-bold mb-2">Clinical Archive</h3>
-<p class="text-on-surface-variant text-sm mb-6">Consolidated medical history from 850 global hospital networks.</p>
-</div>
-<div class="p-3 bg-surface-container-high rounded-lg border border-white/5 flex items-center gap-3">
-<span class="material-symbols-outlined text-tertiary" data-icon="security">security</span>
-<span class="font-label text-[10px] tracking-widest text-on-surface-variant">ENCRYPTED_ACCESS_ONLY</span>
-</div>
-</a>
-<!-- Large Panel: Smooth Merge Analysis -->
-<a href="../prediction_command_center_v1/code.html" class="col-span-1 md:col-span-3 bg-surface-container/20 border border-secondary/20 rounded-2xl overflow-hidden relative group hover:bg-surface-container/40 hover:scale-[1.005] transition-all duration-300 cursor-pointer block">
-<div class="p-8 relative z-10 flex flex-col md:flex-row gap-12">
-<div class="flex-1">
-<h3 class="font-headline text-2xl font-bold mb-4 text-secondary neon-text-glow-secondary">SMOOTH_MERGE_PROTOCOL</h3>
-<p class="text-on-surface-variant max-w-xl mb-8">
-                            The Neural Core is currently performing a high-density cross-reference of multi-modal data points. By merging unstructured clinical notes with structured brain imaging and real-time biometric telemetry, the system achieves a predictive accuracy of 99.4%.
-                        </p>
-<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-<div class="p-4 bg-background/60 rounded-xl border border-outline-variant">
-<p class="font-label text-[10px] text-slate-500 uppercase mb-1">Consistency</p>
-<p class="font-headline text-xl font-bold text-on-surface">ALPHA-7</p>
-</div>
-<div class="p-4 bg-background/60 rounded-xl border border-outline-variant">
-<p class="font-label text-[10px] text-slate-500 uppercase mb-1">Divergence</p>
-<p class="font-headline text-xl font-bold text-on-surface">0.02%</p>
-</div>
-<div class="p-4 bg-background/60 rounded-xl border border-outline-variant">
-<p class="font-label text-[10px] text-slate-500 uppercase mb-1">Throughput</p>
-<p class="font-headline text-xl font-bold text-on-surface">18TB/S</p>
-</div>
-<div class="p-4 bg-background/60 rounded-xl border border-outline-variant">
-<p class="font-label text-[10px] text-slate-500 uppercase mb-1">Reliability</p>
-<p class="font-headline text-xl font-bold text-on-surface">Tier-1</p>
+<button onclick="Auth.signOut()" class="flex items-center gap-3 p-2 rounded-lg hover:bg-error-container/30 transition-colors w-full text-left">
+<span class="material-symbols-outlined text-sm text-error">logout</span>
+<span class="text-xs text-error">Sign Out</span>
+</button>
 </div>
 </div>
 </div>
-<div class="w-full md:w-64 h-64 rounded-full border-4 border-dashed border-secondary/20 flex items-center justify-center relative">
-<div class="absolute inset-0 biometric-gradient rounded-full"></div>
-<div class="text-center">
-<span class="material-symbols-outlined text-6xl text-secondary animate-pulse" data-icon="memory">memory</span>
-<p class="font-label text-xs mt-2 text-secondary">CORE_ACTIVE</p>
-</div>
-</div>
-</div>
-</div>
-</a>
 </section>
 </main>
 <!-- BottomNavBar -->
@@ -277,13 +242,121 @@
   ProfilePanel.mountInto('profile-panel-trigger');
   ProfilePanel.mountInto('profile-panel-trigger-mobile');
 
-  // Load dashboard stats
+  // ── Load real dashboard data ─────────────────────────────────
+  const user = Auth.getUser();
+  
+  // Welcome header
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+  document.getElementById('welcomeGreeting').textContent = greeting;
+  document.getElementById('welcomeName').textContent = user?.full_name || 'User';
+  document.getElementById('welcomeRole').textContent = (user?.role || 'demo').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) + ' · ' + (user?.department || '');
+
+  // Quick actions based on role
+  const actions = Modules.forRole().filter(m => m.key !== 'dashboard').slice(0, 3);
+  document.getElementById('quickActions').innerHTML = actions.map(m => 
+    `<a href="${m.path}" class="px-4 py-2 bg-primary/10 border border-primary/30 text-primary font-label text-xs uppercase tracking-widest rounded-lg hover:bg-primary/20 transition-all flex items-center gap-2">
+      <span class="material-symbols-outlined text-sm">${m.icon}</span>${m.label}
+    </a>`
+  ).join('');
+
+  // Module shortcuts (right column)
+  document.getElementById('moduleShortcuts').innerHTML = Modules.forRole().filter(m => m.key !== 'dashboard').map(m =>
+    `<a href="${m.path}" class="flex items-center gap-3 p-3 bg-surface-container rounded-xl border border-outline-variant/20 hover:border-primary/30 transition-all group">
+      <span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">${m.icon}</span>
+      <div>
+        <p class="font-label text-xs font-bold text-on-surface">${m.label}</p>
+        <p class="font-label text-[10px] text-on-surface-variant">Open →</p>
+      </div>
+    </a>`
+  ).join('');
+
+  // Load patients
   try {
-    const stats = await Api.dashboard.stats();
-    console.log('[Dashboard] Loaded stats:', stats);
+    const data = await Api.patients.list({ per_page: 5 });
+    const patients = data.patients || [];
+    document.getElementById('statPatients').textContent = data.total || patients.length;
+    if (patients.length === 0) {
+      document.getElementById('patientList').innerHTML = '<div class="bg-surface-container rounded-xl p-6 border border-outline-variant/20 text-center"><p class="text-sm text-on-surface-variant">No patients found</p></div>';
+    } else {
+      document.getElementById('patientList').innerHTML = patients.map(p => 
+        `<a href="../neurosurgery/index.html" class="block bg-surface-container rounded-xl p-4 border border-outline-variant/20 hover:border-primary/30 transition-all">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                <span class="material-symbols-outlined text-primary text-lg">person</span>
+              </div>
+              <div>
+                <p class="font-label text-sm font-bold text-on-surface">${p.first_name} ${p.last_name}</p>
+                <p class="font-label text-[10px] text-on-surface-variant">MRN: ${p.medical_record_number || 'N/A'} · ${p.gender || ''}</p>
+              </div>
+            </div>
+            <span class="material-symbols-outlined text-on-surface-variant text-sm">chevron_right</span>
+          </div>
+        </a>`
+      ).join('');
+    }
   } catch (err) {
-    console.error('[Dashboard] Failed to load stats:', err);
+    console.error('[Dashboard] Failed to load patients:', err);
+    document.getElementById('patientList').innerHTML = '<div class="bg-surface-container rounded-xl p-4 border border-error/20 text-center"><p class="text-xs text-error">Failed to load patients</p></div>';
   }
+
+  // Load analyses from dashboard activity endpoint
+  try {
+    const activity = await Api.request('/dashboard/activity');
+    const items = activity.recent_analyses || [];
+    document.getElementById('statAnalyses').textContent = items.length || '—';
+    if (items.length === 0) {
+      document.getElementById('analysisList').innerHTML = '<div class="bg-surface-container rounded-xl p-6 border border-outline-variant/20 text-center"><p class="text-sm text-on-surface-variant">No analyses yet</p><a href="../ai_analysis/code.html" class="mt-2 inline-block text-xs text-secondary hover:underline">Run your first analysis →</a></div>';
+    } else {
+      document.getElementById('analysisList').innerHTML = items.slice(0, 3).map(a => {
+        const topPrediction = a.predictions?.[0];
+        const confidence = topPrediction ? Math.round(topPrediction.confidence * 100) : '—';
+        return `<div class="bg-surface-container rounded-xl p-4 border border-outline-variant/20">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="font-label text-xs font-bold text-on-surface">${a.patient_name || 'Patient'}</p>
+              <p class="font-label text-[10px] text-on-surface-variant">${topPrediction ? topPrediction.disease : 'Analysis complete'} ${confidence !== '—' ? '· ' + confidence + '% confidence' : ''}</p>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[10px] font-label uppercase ${a.risk_level === 'high' ? 'bg-error/20 text-error' : a.risk_level === 'moderate' ? 'bg-tertiary/20 text-tertiary' : 'bg-secondary/20 text-secondary'}">${a.risk_level || 'low'}</span>
+          </div>
+        </div>`;
+      }).join('');
+    }
+    // Also load stats from dashboard
+    const stats = await Api.request('/dashboard/stats');
+    document.getElementById('statRecordings').textContent = stats.ai_analyses_today || '—';
+    document.getElementById('statResearch').textContent = stats.research_papers || '—';
+  } catch (err) {
+    console.error('[Dashboard] Failed to load analyses:', err);
+    document.getElementById('analysisList').innerHTML = '<div class="bg-surface-container rounded-xl p-4 border border-outline-variant/20 text-center"><p class="text-xs text-on-surface-variant">No analyses available</p></div>';
+  }
+
+  // System status — check backend health
+  async function checkBackend() {
+    try {
+      const r = await fetch('/api/v1/health', { method: 'GET' });
+      const el = document.getElementById('statusBackend');
+      if (r.ok) {
+        el.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>Operational';
+        el.classList.add('text-secondary');
+        document.getElementById('statusML').innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>Operational';
+        document.getElementById('statusML').classList.add('text-secondary');
+        document.getElementById('statusDB').innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>Operational';
+        document.getElementById('statusDB').classList.add('text-secondary');
+      } else {
+        throw new Error();
+      }
+    } catch {
+      ['statusBackend', 'statusML', 'statusDB'].forEach(id => {
+        const el = document.getElementById(id);
+        el.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-error"></span>Offline';
+        el.classList.add('text-error');
+      });
+    }
+  }
+  checkBackend();
+
 })();
 </script>
 </body></html>
