@@ -1,0 +1,283 @@
+{
+  "generated_at": "2026-09-20T08:47:01.052743+00:00",
+  "data_provenance": "100% real datasets from the UCI Machine Learning Repository",
+  "datasets": {
+    "beed_epilepsy": {
+      "meta": {
+        "uci_id": 1134,
+        "url": "https://archive.ics.uci.edu/dataset/1134",
+        "doi": "10.24432/C5K33B",
+        "license": "CC BY 4.0",
+        "n_rows": 8000,
+        "n_features": 16,
+        "classes": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "class_counts": {
+          "0": 2000,
+          "1": 2000,
+          "2": 2000,
+          "3": 2000
+        },
+        "class_names": {
+          "0": "healthy_control",
+          "1": "generalized_seizure",
+          "2": "focal_seizure",
+          "3": "seizure_event"
+        },
+        "description": "16-channel EEG (10-20 system, 256 Hz); 4-class epilepsy classification"
+      },
+      "models": {
+        "random_forest": {
+          "accuracy": 0.8469,
+          "f1_weighted": 0.8454,
+          "cv5_accuracy_mean": 0.8525,
+          "cv5_accuracy_std": 0.0073
+        },
+        "gradient_boosting": {
+          "accuracy": 0.9119,
+          "f1_weighted": 0.9123,
+          "cv5_accuracy_mean": 0.9137,
+          "cv5_accuracy_std": 0.009
+        },
+        "logistic_regression": {
+          "accuracy": 0.4544,
+          "f1_weighted": 0.4609,
+          "cv5_accuracy_mean": 0.4746,
+          "cv5_accuracy_std": 0.0074
+        }
+      },
+      "best_model": "gradient_boosting",
+      "test_report": {
+        "0": {
+          "precision": 1.0,
+          "recall": 0.99,
+          "f1-score": 0.9949748743718593,
+          "support": 400.0
+        },
+        "1": {
+          "precision": 0.952755905511811,
+          "recall": 0.9075,
+          "f1-score": 0.9295774647887324,
+          "support": 400.0
+        },
+        "2": {
+          "precision": 0.852112676056338,
+          "recall": 0.9075,
+          "f1-score": 0.8789346246973365,
+          "support": 400.0
+        },
+        "3": {
+          "precision": 0.8488664987405542,
+          "recall": 0.8425,
+          "f1-score": 0.8456712672521958,
+          "support": 400.0
+        },
+        "accuracy": 0.911875,
+        "macro avg": {
+          "precision": 0.9134337700771759,
+          "recall": 0.911875,
+          "f1-score": 0.912289557777531,
+          "support": 1600.0
+        },
+        "weighted avg": {
+          "precision": 0.9134337700771757,
+          "recall": 0.911875,
+          "f1-score": 0.912289557777531,
+          "support": 1600.0
+        }
+      },
+      "confusion_matrix": [
+        [
+          396,
+          4,
+          0,
+          0
+        ],
+        [
+          0,
+          363,
+          11,
+          26
+        ],
+        [
+          0,
+          3,
+          363,
+          34
+        ],
+        [
+          0,
+          11,
+          52,
+          337
+        ]
+      ],
+      "artifact": "uci_beed_epilepsy_model.pkl"
+    },
+    "eeg_eye_state": {
+      "meta": {
+        "uci_id": 264,
+        "url": "https://archive.ics.uci.edu/dataset/264",
+        "n_rows": 14980,
+        "n_features": 14,
+        "classes": [
+          0,
+          1
+        ],
+        "class_counts": {
+          "0": 8257,
+          "1": 6723
+        },
+        "description": "14-channel EEG; eye-open/closed state (used for EEG signal QA)",
+        "preprocessing": "values clipped to 0.1/99.9 percentile to remove sensor spikes"
+      },
+      "models": {
+        "random_forest": {
+          "accuracy": 0.8828,
+          "f1_weighted": 0.8825,
+          "roc_auc": 0.9572,
+          "cv5_accuracy_mean": 0.8881,
+          "cv5_accuracy_std": 0.0058
+        },
+        "gradient_boosting": {
+          "accuracy": 0.8364,
+          "f1_weighted": 0.8353,
+          "roc_auc": 0.9224,
+          "cv5_accuracy_mean": 0.8367,
+          "cv5_accuracy_std": 0.0121
+        },
+        "logistic_regression": {
+          "accuracy": 0.6262,
+          "f1_weighted": 0.6269,
+          "roc_auc": 0.6748,
+          "cv5_accuracy_mean": 0.6266,
+          "cv5_accuracy_std": 0.0066
+        }
+      },
+      "best_model": "random_forest",
+      "test_report": {
+        "0": {
+          "precision": 0.8792298716452742,
+          "recall": 0.9127801332525742,
+          "f1-score": 0.8956909361069837,
+          "support": 1651.0
+        },
+        "1": {
+          "precision": 0.8876755070202809,
+          "recall": 0.846096654275093,
+          "f1-score": 0.8663875142748382,
+          "support": 1345.0
+        },
+        "accuracy": 0.8828437917222964,
+        "macro avg": {
+          "precision": 0.8834526893327775,
+          "recall": 0.8794383937638336,
+          "f1-score": 0.8810392251909109,
+          "support": 2996.0
+        },
+        "weighted avg": {
+          "precision": 0.8830213868586868,
+          "recall": 0.8828437917222964,
+          "f1-score": 0.8825356949974258,
+          "support": 2996.0
+        }
+      },
+      "confusion_matrix": [
+        [
+          1507,
+          144
+        ],
+        [
+          207,
+          1138
+        ]
+      ],
+      "artifact": "uci_eeg_eye_state_model.pkl"
+    },
+    "parkinsons": {
+      "meta": {
+        "uci_id": 174,
+        "url": "https://archive.ics.uci.edu/dataset/174",
+        "n_rows": 195,
+        "n_features": 22,
+        "classes": [
+          0,
+          1
+        ],
+        "class_counts": {
+          "1": 147,
+          "0": 48
+        },
+        "description": "22 voice measurements from 31 people; binary Parkinson's detection",
+        "caution": "small cohort (197 rows, ~23 subjects) \u2014 scores are optimistic; treat as demo"
+      },
+      "models": {
+        "random_forest": {
+          "accuracy": 0.8205,
+          "f1_weighted": 0.8273,
+          "roc_auc": 0.9414,
+          "cv5_accuracy_mean": 0.8872,
+          "cv5_accuracy_std": 0.0447
+        },
+        "gradient_boosting": {
+          "accuracy": 0.9487,
+          "f1_weighted": 0.9487,
+          "roc_auc": 0.9793,
+          "cv5_accuracy_mean": 0.9231,
+          "cv5_accuracy_std": 0.0363
+        },
+        "logistic_regression": {
+          "accuracy": 0.7692,
+          "f1_weighted": 0.7833,
+          "roc_auc": 0.9276,
+          "cv5_accuracy_mean": 0.8051,
+          "cv5_accuracy_std": 0.0447
+        }
+      },
+      "best_model": "gradient_boosting",
+      "test_report": {
+        "0": {
+          "precision": 0.9,
+          "recall": 0.9,
+          "f1-score": 0.9,
+          "support": 10.0
+        },
+        "1": {
+          "precision": 0.9655172413793104,
+          "recall": 0.9655172413793104,
+          "f1-score": 0.9655172413793104,
+          "support": 29.0
+        },
+        "accuracy": 0.9487179487179487,
+        "macro avg": {
+          "precision": 0.9327586206896552,
+          "recall": 0.9327586206896552,
+          "f1-score": 0.9327586206896552,
+          "support": 39.0
+        },
+        "weighted avg": {
+          "precision": 0.9487179487179487,
+          "recall": 0.9487179487179487,
+          "f1-score": 0.9487179487179487,
+          "support": 39.0
+        }
+      },
+      "confusion_matrix": [
+        [
+          9,
+          1
+        ],
+        [
+          1,
+          28
+        ]
+      ],
+      "artifact": "uci_parkinsons_model.pkl"
+    }
+  },
+  "disclaimer": "Research/educational models trained on public non-clinical-use datasets. NOT clinically validated. NOT for medical decision-making."
+}

@@ -4,8 +4,9 @@
 
 A production-structured healthcare/research prototype for neurological disease prediction, clinical workflow management, and multimodal data analysis.
 
-> **⚠️ RESEARCH/PROTOTYPE SYSTEM — NOT FOR CLINICAL DIAGNOSI WITHOUT VALIDATION**
+> **⚠️ RESEARCH/PROTOTYPE SYSTEM — NOT FOR CLINICAL DIAGNOSIS WITHOUT VALIDATION**
 > This is a decision-support research tool. AI output is not a substitute for professional medical diagnosis.
+> The 5-class clinical model is trained on **synthetic** data; the models in `backend/ml/models/uci_*` are trained on **real** UCI data. Neither is clinically validated.
 
 ---
 
@@ -14,11 +15,13 @@ A production-structured healthcare/research prototype for neurological disease p
 - [Architecture Overview](#architecture-overview)
 - [What Changed: Before vs After](#what-changed-before-vs-after)
 - [ML Algorithms & Mathematical Foundation](#ml-algorithms--mathematical-foundation)
+- [Real-Data Training: UCI Machine Learning Repository](#real-data-training-uci-machine-learning-repository)
 - [System Modules](#system-modules)
 - [Authentication & Security](#authentication--security)
 - [Database Schema](#database-schema)
 - [API Endpoints](#api-endpoints)
 - [Local Setup](#local-setup)
+- [Known Security Findings](#known-security-findings-audit--fix-before-any-real-deployment)
 - [Future Plans](#future-plans)
 - [References](#references)
 
@@ -59,7 +62,7 @@ A production-structured healthcare/research prototype for neurological disease p
 | **In-memory DB for demo** | Zero setup, instant demo mode, no Supabase dependency |
 | **Service Worker (PWA)** | Offline-capable, installable, network-first for fresh data |
 | **Role-based module access** | UX-level filtering via `shared/modules.js`; backend enforces real security |
-| **Dual prediction mode** | Trained ML model (93.59% accuracy) when clinical data available; symptom-based fallback otherwise |
+| **Dual prediction mode** | Trained ML model (93.59% on SYNTHETIC clinical data) when clinical data available; symptom-based fallback otherwise. Real-data models trained on UCI datasets — see [Real-Data Training](#real-data-training-uci-machine-learning-repository) |
 
 ---
 
@@ -77,6 +80,7 @@ A production-structured healthcare/research prototype for neurological disease p
 | **Audit logging** | None | All sensitive operations logged with timestamp, IP, user |
 | **Database schema** | Basic tables | Added indexes, partial indexes, missing tables (audit_logs, refresh_tokens, login_attempts) |
 | **Migrations** | None | `backend/migrations/002_performance_and_missing_tables.sql` |
+| **Training data** | 100% synthetic (generated to mimic BrainLat structure) | Real UCI datasets added (`dataset/`): BEED epilepsy EEG, EEG Eye State, Parkinsons voice, Mice Protein — 3 of 4 trained end-to-end with honest metrics |
 
 ### Frontend
 
@@ -200,9 +204,15 @@ where:
 - $\text{boost} = 1.15$ if ≥3 symptoms match, $1.05$ if ≥2 match
 - $\epsilon \sim \mathcal{U}(-0.03, 0.03)$ is noise
 
-### Dataset Structure
+### Dataset Structure (SYNTHETIC — demo only)
 
-Based on **BrainLat** (Nature Scientific Data, 2023):
+> ⚠️ **Honesty note:** The 5-class clinical model below is trained on a
+> **synthetic** dataset generated to mimic the BrainLat paper structure. The
+> 93.59% accuracy is measured on that synthetic set and is NOT evidence of
+> real-world clinical performance. See the Real-Data Training section below for
+> models trained on genuine data.
+
+Based on **BrainLat** (Nature Scientific Data, 2023) — synthetic stand-in:
 
 | Parameter | Value |
 |-----------|-------|
@@ -245,6 +255,67 @@ Based on the trained model:
 | 8 | age | 0.0487 |
 | 9 | mri_ventricle_volume | 0.0432 |
 | 10 | eeg_delta_power | 0.0389 |
+
+---
+
+## Real-Data Training: UCI Machine Learning Repository
+
+The synthetic pipeline above is now complemented by models trained on **100% real,
+public datasets** downloaded verbatim from the UCI ML Repository
+(https://archive.ics.uci.edu) into `dataset/`.
+
+### Datasets (real, with provenance)
+
+| Dataset | UCI ID | Rows × Features | Task | License / DOI |
+|---------|--------|-----------------|------|----------------|
+| **BEED: Bangalore EEG Epilepsy Dataset** | [1134](https://archive.ics.uci.edu/dataset/1134) | 8,000 × 16 | 4-class epilepsy EEG classification: 0=Healthy, 1=Generalized seizure, 2=Focal seizure, 3=Seizure events | CC BY 4.0, DOI `10.24432/C5K33B` |
+| **EEG Eye State** | [264](https://archive.ics.uci.edu/dataset/264) | 14,980 × 14 | Eye open/closed from EEG (signal-quality QA task) | UCI (no explicit license; research use) |
+| **Parkinsons** | [174](https://archive.ics.uci.edu/dataset/174) | 197 × 22 | Parkinson's detection from voice measurements | UCI (no explicit license; research use) |
+| **Mice Protein Expression** | [342](https://archive.ics.uci.edu/dataset/342) | 1,080 × 77 | Trisomy/memory biomarker classification (8-class) | UCI (no explicit license; research use) |
+
+### Real results (trained via `backend/ml/train_uci.py`)
+
+| Dataset | Best model | Test accuracy | 5-fold CV accuracy | Notes |
+|---------|-----------|---------------|--------------------|-------|
+| BEED epilepsy | Gradient Boosting | 91.19% | **91.37% ± 0.9%** | 8,000 real EEG segments, 4 balanced classes |
+| EEG Eye State | Random Forest | 88.28% | **88.81% ± 0.6%** (ROC-AUC 0.957) | 14,980 rows, sensor spikes clipped to 0.1/99.9 pct |
+| Parkinsons | Gradient Boosting | 94.87% | **92.31% ± 3.6%** (ROC-AUC 0.979) | Only ~23 subjects — treat as demo, high overfit risk |
+| Mice Protein | — | — | — | Skipped: legacy `.xls` needs `pip install xlrd`; data is in `dataset/` for manual training |
+
+Tree depth/leaf limits are set deliberately so artifacts stay repo-sized
+(0.4–12 MB each); unbounded forests scored ~3–4 pts higher CV but produced
+40–70 MB pickles.
+
+Full per-model metrics (F1, ROC-AUC, confusion matrices) are written to
+`backend/ml/models/uci_model_metadata.json`; each best pipeline is persisted as
+`backend/ml/models/uci_<dataset>_model.pkl`.
+
+### Equations used by the real-data models
+
+**Random Forest — Gini impurity split criterion:**
+
+$$\text{Gini}(t) = 1 - \sum_{k=1}^{K} p_{k,t}^2, \qquad j^* = \arg\max_{j \in S} \Delta\text{Gini}(j, t)$$
+
+$$\Delta\text{Gini}(j,t) = \text{Gini}(t) - \frac{n_L}{n}\text{Gini}(t_L) - \frac{n_R}{n}\text{Gini}(t_R)$$
+
+**Gradient Boosting — additive stage-wise model:**
+
+$$F_m(x) = F_{m-1}(x) + \eta \cdot f_m(x), \qquad r_{im} = -\left[\frac{\partial \ell(y_i, F(x_i))}{\partial F(x_i)}\right]_{F=F_{m-1}}$$
+
+**Logistic Regression (baseline in the zoo) — sigmoid + log-loss:**
+
+$$\sigma(z) = \frac{1}{1 + e^{-z}}, \qquad \ell(y, \hat{y}) = -\big[y \log \hat{y} + (1-y)\log(1-\hat{y})\big]$$
+
+**5-fold stratified CV (generalisation estimate):**
+
+$$\text{CV}_{acc} = \frac{1}{5} \sum_{f=1}^{5} \text{acc}\big(M(D \setminus D_f),\ D_f\big)$$
+
+### Reproduce the real-data training
+
+```bash
+python backend/ml/train_uci.py          # trains on all datasets found in dataset/uciraw/
+pip install xlrd                        # optional: enables the Mice Protein .xls loader
+```
 
 ---
 
@@ -510,20 +581,33 @@ python -m ml.train_model
 
 This generates a synthetic dataset matching the BrainLat paper structure (780 samples, 38 features) and trains 4 models (Random Forest, Gradient Boosting, CatBoost, LightGBM). The best model is saved to `backend/ml/models/trained_model.pkl`.
 
+```bash
+python backend/ml/train_uci.py    # REAL data — trains on everything in dataset/uciraw/ (BEED, EEG Eye State, Parkinsons; Mice Protein needs `pip install xlrd`)
+```
+
 ---
 
 ## Future Plans
 
-### Phase 1: Dataset Expansion (Q4 2026)
+### Phase 1: Dataset Expansion — IN PROGRESS
 
 | Dataset | Purpose | Status |
 |---------|---------|--------|
-| **ADNI** (Alzheimer's Disease Neuroimaging Initiative) | Real clinical MRI/PET data | Planned |
-| **TUH EEG Corpus** | Real EEG recordings for seizure detection | Planned |
+| **UCI BEED epilepsy EEG** (id 1134) | Real 4-class epilepsy EEG | ✅ **DONE** — trained, GB CV 91.37% |
+| **UCI EEG Eye State** (id 264) | Real EEG signal QA | ✅ **DONE** — trained, RF CV 88.81% (AUC 0.957) |
+| **UCI Parkinsons voice** (id 174) | Real Parkinson's detection | ✅ **DONE** — trained, GB CV 92.31% |
+| **UCI Mice Protein** (id 342) | Real neuro-biomarkers | 📂 Data in `dataset/` — needs `pip install xlrd` to train |
+| **UCI Parkinsons Telemonitoring** (id 189) | 5,875 rows — fixes the tiny-197-cohort problem | Next |
+| **Epileptic Seizure Recognition** (Bonn/Andrzejak) | 11,500 × 178 EEG — removed from UCI catalog; get from Kaggle | Next |
+| **BrainLat (real cohort)** | Real EEG/MRI/cognitive multimodal | Access-required — replaces synthetic stand-in |
+| **ADNI** | Real clinical MRI/PET | Planned |
+| **TUH EEG Corpus** | Real EEG for seizure detection | Planned |
 | **UK Biobank** | Large-scale population genetics | Planned |
 | **OpenNeuro** | fMRI resting-state data | Planned |
 
-**Target:** Train on 10,000+ real clinical samples instead of synthetic data.
+**Rule going forward:** every new dataset goes into `dataset/` with provenance
+(source URL, license, DOI) in `dataset/README.md`, and gets a training entry in
+`backend/ml/train_uci.py` so metrics stay reproducible and honest.
 
 ### Phase 2: Deep Learning Models (Q1 2027)
 
@@ -578,6 +662,33 @@ where $E_q, E_d$ are dense embeddings and $\alpha = 0.3$.
 
 ---
 
+## Known Security Findings (audit — fix before any real deployment)
+
+An independent source-level audit identified the following. None are fixed yet;
+they are the P0 work package before this system touches real patient data.
+
+| ID | Severity | Finding |
+|----|----------|---------|
+| F1 | **Critical** | Public registration accepts a caller-chosen role (incl. `admin`) — must assign an unprivileged role server-side and require admin approval for escalation |
+| F2 | **Critical** | `POST /api/v1/auth/clerk-sync` issues tokens for a caller-supplied Clerk ID/email without verifying the Clerk session — must derive identity from verified claims |
+| F3 | **Critical** | Static servers mount the repo root — backend source/`.env` can be downloaded; serve a dedicated public directory instead |
+| F4 | High | Patient list/detail handlers check authentication only — no `patient.read` permission or record-level scope enforced |
+| F5 | High | `/ws/{module}` WebSocket accepts any caller with a self-claimed `user_id` — must authenticate before accept |
+| F6 | High | `clerk_sync()` new-user branch crashes (`datetime` not imported) |
+| F7 | High | Patient-creation endpoint accepts role `surgeon` but the canonical enum is `neurosurgeon` |
+| F8 | High | Frontend API clients hardcode `hostname:8000` — breaks HTTPS/Vercel deployment; use configurable API base |
+| F9 | High | Vercel routes reference missing directories/files |
+| F10 | High | Refresh tokens are not rotated/consumed server-side; browser flow cannot renew silently |
+
+Remaining P1/P2 items: durable audit log, shared rate-limit store, XSS-safe
+rendering, redirect validation, dependency locking, single supported entry point.
+ML transparency (synthetic vs real labeling) is now addressed in this README.
+
+**Until F1–F3 are fixed, treat every deployment as a public demo. Do not load
+real patient data.**
+
+---
+
 ## References
 
 1. **BrainLat** — Nature Scientific Data (2023)
@@ -593,6 +704,14 @@ where $E_q, E_d$ are dense embeddings and $\alpha = 0.3$.
 
 4. **scikit-learn** — Machine Learning in Python
    Pedregosa et al., JMLR 12, pp. 2825-2830, 2011
+
+5. **BEED: Bangalore EEG Epilepsy Dataset** — Najmusseher . & Nizar Banu P K (2024)
+   UCI ML Repository, DOI: [10.24432/C5K33B](https://doi.org/10.24432/C5K33B)
+   16,000 EEG segments, 80 subjects, CC BY 4.0
+
+6. **UCI Machine Learning Repository**
+   Kelly, M., Longjohn, R., Nottingham, K. — https://archive.ics.uci.edu
+   Source of the real training data in `dataset/`
 
 ---
 
