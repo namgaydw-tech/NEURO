@@ -68,6 +68,16 @@ A production-structured healthcare/research prototype for neurological disease p
 
 ## What Changed: Before vs After
 
+### This round: agents + expanded real-data training
+
+| Area | Before | After |
+|------|--------|-------|
+| Datasets trained | 3 real UCI datasets (BEED, EEG Eye, Parkinsons); Mice Protein skipped (no `xlrd`) | **6 real UCI datasets** — added Mice Protein, **Daphnet Freezing-of-Gait** (1.9M samples → 15k windows, UCI 245) and **Parkinson's Telemonitoring** (UCI 189) |
+| Split integrity | Row-level random splits (identity leakage: Mice Protein showed an inflated 99.4%) | **Group-aware splits** — by patient, subject, recording, and mouse; same subject can never appear on both sides |
+| Accuracy claims | No cross-checking of claimed confidence | **LangGraph workflow** validates any claimed confidence against real CV metrics and flags overconfidence |
+| LLM integration | None | **OpenAI Agent SDK** reasoning + **CrewAI** structuring with labelled no-key fallbacks |
+| Agent endpoint | — | `POST /api/v1/agents/pipeline` (role-gated, validated, audited) |
+
 ### Backend
 
 | Aspect | Before | After |
@@ -272,6 +282,8 @@ public datasets** downloaded verbatim from the UCI ML Repository
 | **EEG Eye State** | [264](https://archive.ics.uci.edu/dataset/264) | 14,980 × 14 | Eye open/closed from EEG (signal-quality QA task) | UCI (no explicit license; research use) |
 | **Parkinsons** | [174](https://archive.ics.uci.edu/dataset/174) | 197 × 22 | Parkinson's detection from voice measurements | UCI (no explicit license; research use) |
 | **Mice Protein Expression** | [342](https://archive.ics.uci.edu/dataset/342) | 1,080 × 77 | Trisomy/memory biomarker classification (8-class) | UCI (no explicit license; research use) |
+| **Parkinsons Telemonitoring** | [189](https://archive.ics.uci.edu/dataset/189) | 5,875 × 19 | Parkinson's severity bands from voice + UPDRS (42 patients; bands are a **derived** target) | UCI (no explicit license; research use) |
+| **Daphnet Freezing of Gait** | [245](https://archive.ics.uci.edu/dataset/245) | 1,917,887 raw → ~15k 1-s windows × 16 | Freezing-of-gait detection from wearable sensors (8 Parkinson's patients) | Research use (Baechlin et al. 2010) |
 
 ### Real results (trained via `backend/ml/train_uci.py`)
 
@@ -280,7 +292,14 @@ public datasets** downloaded verbatim from the UCI ML Repository
 | BEED epilepsy | Gradient Boosting | 91.19% | **91.37% ± 0.9%** | 8,000 real EEG segments, 4 balanced classes |
 | EEG Eye State | Random Forest | 88.28% | **88.81% ± 0.6%** (ROC-AUC 0.957) | 14,980 rows, sensor spikes clipped to 0.1/99.9 pct |
 | Parkinsons | Gradient Boosting | 94.87% | **92.31% ± 3.6%** (ROC-AUC 0.979) | Only ~23 subjects — treat as demo, high overfit risk |
-| Mice Protein | — | — | — | Skipped: legacy `.xls` needs `pip install xlrd`; data is in `dataset/` for manual training |
+| Mice Protein | Logistic Regression | 79.11% | **66.57%** (grouped by mouse) | Row-level splits leaked mouse identity and inflated this to 99.4%; grouped CV is the honest number |
+| Daphnet Freezing of Gait | Logistic Regression | 78.42% | **76.13%** (grouped by subject) | 1.9M raw samples windowed into 1-s epochs; 8 patients, held out by patient |
+| Parkinsons Telemonitoring | Gradient Boosting | 34.72% | **29.90%** (grouped by patient) | 4 severity bands, chance = 25% — severity from voice alone, held out by patient, is hard; reported honestly |
+
+**Split integrity:** group-aware splitting (`StratifiedGroupKFold`) is used
+wherever subjects repeat — by patient, subject, recording, or mouse — so the
+same subject can never appear on both train and test. Weak honest numbers are
+kept rather than replaced by inflated ones.
 
 Tree depth/leaf limits are set deliberately so artifacts stay repo-sized
 (0.4–12 MB each); unbounded forests scored ~3–4 pts higher CV but produced
@@ -314,8 +333,51 @@ $$\text{CV}_{acc} = \frac{1}{5} \sum_{f=1}^{5} \text{acc}\big(M(D \setminus D_f)
 
 ```bash
 python backend/ml/train_uci.py          # trains on all datasets found in dataset/uciraw/
-pip install xlrd                        # optional: enables the Mice Protein .xls loader
+pip install xlrd                        # required for the Mice Protein legacy .xls loader
 ```
+
+---
+
+## AI Agent Pipeline: LangGraph + OpenAI Agent SDK + CrewAI
+
+`POST /api/v1/agents/pipeline` runs three cooperating agents over a candidate
+prediction and returns one combined payload (roles: `admin`, `neurologist`,
+`researcher`; 401 without a token, 403 for other roles, 422 on invalid input):
+
+| Stage | Framework | What it does | Needs API key? |
+|-------|-----------|--------------|----------------|
+| **Accuracy cross-check** | **LangGraph** (deterministic state graph: `load_metrics → match_model → judge_confidence → compile_report`) | Maps the predicted disease to the closest real UCI model and compares the claimed confidence against its **actual 5-fold CV accuracy**. Flags `over_confident` / `consistent` / `no_real_model`. | No — works offline |
+| **Clinical reasoning** | **OpenAI Agent SDK** (`agents.Agent` + `Runner.run_sync`) | Produces a summary + numbered reasoning steps + what data would raise confidence. | Yes (`OPENAI_API_KEY`) |
+| **Report structuring** | **CrewAI** (analyst agent → editor agent, two-task crew) | Lays the output into a fixed six-section schema: `summary, inputs_reviewed, model_confidence, accuracy_reference, recommendations, limitations`. | Yes (`OPENAI_API_KEY`) |
+
+### Honest-mode guarantee
+
+Every stage returns an explicit `mode` field:
+
+- `"llm"` — real LLM output.
+- `"fallback_no_api_key"` — deterministic heuristic/template output, clearly
+  labelled. The fallbacks **never** claim to be model output; without a key the
+  pipeline still works and still cross-checks accuracy (the LangGraph stage is
+  key-free by design).
+
+The LangGraph stage reads `backend/ml/models/uci_model_metadata.json`, so its
+numbers are the *real* cross-validation results from the training run — not
+invented confidences. Conditions with no real-data model (e.g. Alzheimer's)
+return `no_real_model` instead of pretending otherwise.
+
+### Enable the LLM stages
+
+```bash
+pip install -r backend/requirements-agents.txt   # langgraph, openai-agents, crewai, xlrd, scipy
+export OPENAI_API_KEY=sk-...                     # never commit this
+curl -X POST http://127.0.0.1:8000/api/v1/agents/pipeline \
+  -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+  -d '{"disease":"epilepsy","confidence":0.89,"signals":["temporal_spike"]}'
+```
+
+All three pipeline runs are recorded in the audit log (`agents.pipeline.run`).
+The entire pipeline is decision-support/research only — **not a clinical
+diagnosis, not clinically validated**.
 
 ---
 

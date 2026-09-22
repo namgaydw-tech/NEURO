@@ -305,6 +305,69 @@ async def get_patient_analyses(patient_id: str, user=Depends(get_current_user)):
 
 
 # ══════════════════════════════════════════════════════════════════
+# AI AGENT PIPELINE — LangGraph accuracy + OpenAI Agent SDK reasoning
+# + CrewAI report structuring
+# ══════════════════════════════════════════════════════════════════
+
+class AgentPipelineRequest(BaseModel):
+    """Input to the three-agent decision-support pipeline."""
+    disease: str = Field(..., max_length=120, description="Candidate prediction label")
+    confidence: Optional[float] = Field(None, ge=0.0, le=1.0, description="Claimed model confidence 0..1")
+    signals: List[str] = Field(default_factory=list, max_length=50, description="EEG/clinical signals used")
+    medical_history: Optional[str] = Field(None, max_length=2000)
+    recommendations: Optional[List[str]] = Field(None, max_length=20)
+    summary: Optional[str] = Field(None, max_length=1000)
+
+
+@router.post("/agents/pipeline", tags=["agents"])
+async def run_agent_pipeline(
+    request: AgentPipelineRequest,
+    user=Depends(require_role("admin", "neurologist", "researcher")),
+):
+    """Run the 3-agent pipeline: LangGraph accuracy cross-check,
+    OpenAI Agent SDK clinical reasoning, CrewAI report structuring.
+
+    Every stage reports `mode` (`llm` or `fallback_no_api_key`) so
+    heuristic output is never mistaken for LLM output.
+    """
+    from ai_agents import accuracy_check, clinical_reasoning, structured_report
+
+    accuracy = accuracy_check(request.disease, request.confidence)
+    reasoning = clinical_reasoning(
+        request.disease,
+        request.confidence,
+        context={
+            "signals": request.signals,
+            "medical_history": request.medical_history,
+        },
+    )
+    report = structured_report({
+        "disease": request.disease,
+        "confidence": request.confidence,
+        "signals": request.signals,
+        "accuracy": accuracy,
+        "reasoning_steps": reasoning.get("reasoning_steps"),
+        "summary": request.summary,
+        "recommendations": request.recommendations,
+    })
+    audit_logger.log(
+        "agents.pipeline.run", user.get("id"),
+        resource_type="analysis", resource_id=request.disease[:120],
+        result="success",
+    )
+    return {
+        "accuracy": accuracy,
+        "reasoning": reasoning,
+        "report": report,
+        "run_by": user.get("full_name", "Unknown"),
+        "disclaimer": (
+            "Research/decision-support pipeline. NOT a clinical diagnosis. "
+            "Not clinically validated."
+        ),
+    }
+
+
+# ══════════════════════════════════════════════════════════════════
 # EEG ROUTES
 # ══════════════════════════════════════════════════════════════════
 

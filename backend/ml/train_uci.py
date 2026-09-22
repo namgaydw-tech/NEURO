@@ -38,6 +38,7 @@ import numpy as np
 import pandas as pd
 from scipy.io import arff
 
+from sklearn.impute import SimpleImputer
 from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import (
@@ -47,7 +48,12 @@ from sklearn.metrics import (
     f1_score,
     roc_auc_score,
 )
-from sklearn.model_selection import StratifiedKFold, cross_val_score, train_test_split
+from sklearn.model_selection import (
+    StratifiedGroupKFold,
+    StratifiedKFold,
+    cross_val_score,
+    train_test_split,
+)
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
@@ -153,7 +159,7 @@ def load_mice_protein():
     except Exception as exc:  # xlrd not installed -> skip gracefully
         print(f"[skip] mice_protein: cannot read legacy .xls ({exc})")
         return None
-    X = df.drop(columns=["MouseID"])
+    X = df.drop(columns=["MouseID", "class"]).apply(pd.to_numeric, errors="coerce")
     # 38 proteins have missing values in some mice; median-impute per class
     X = X.fillna(X.groupby(df["class"]).transform("median"))
     X = X.fillna(X.median())
@@ -166,8 +172,87 @@ def load_mice_protein():
         "classes": sorted(y.unique().tolist()),
         "class_counts": y.value_counts().to_dict(),
         "description": "77 protein expression levels; 8-class genotype/behavior groups",
-        "preprocessing": "missing protein levels median-imputed within class",
+        "preprocessing": "missing protein levels median-imputed within class; split by mouse (no mouse in both train and test)",
     }
+    # each mouse contributes several samples — group by mouse ID so the same
+    # animal can never appear on both sides of the split (row-level split
+    # would leak individual identity and inflate accuracy)
+    meta["groups"] = df["MouseID"].astype(str).str.split("_").str[0].tolist()
+    return X, y, meta
+
+
+def load_daphnet_gait():
+    """UCI 245 — Daphnet Freezing of Gait (windowed epochs).
+
+    Raw: 1.9M samples at 128 Hz from 17 recordings (8 subjects).
+    We aggregate non-overlapping 1-second windows (128 samples) into
+    mean/std features of the 8 sensor channels -> ~15k epochs.
+    Label = freezing annotation present anywhere in the window.
+    """
+    folder = RAW / "daphnet_gait" / "dataset_fog_release" / "dataset"
+    if not folder.exists():
+        return None
+    rows, labels, groups = [], [], []
+    win = 128  # 1 second at 128 Hz
+    for f in sorted(folder.glob("*.txt")):
+        arr = np.loadtxt(f)
+        if arr.ndim == 1:
+            arr = arr.reshape(1, -1)
+        sensors = arr[:, 1:9]   # angles + accelerations (drop record/time)
+        ann = arr[:, -1]
+        subject = f.stem[:3]    # S01..S08
+        for s in range(0, len(arr) - win + 1, win):
+            w = sensors[s:s + win]
+            rows.append(np.concatenate([w.mean(axis=0), w.std(axis=0)]))
+            labels.append(int(ann[s:s + win].max() > 0))
+            groups.append(subject)
+    X = pd.DataFrame(rows, columns=[
+        *[f"{c}_mean" for c in ["ang_x", "ang_y", "ang_z", "acc_f", "acc_v", "acc_l", "acc_r", "acc_h"]],
+        *[f"{c}_std" for c in ["ang_x", "ang_y", "ang_z", "acc_f", "acc_v", "acc_l", "acc_r", "acc_h"]],
+    ])
+    y = pd.Series(labels, name="freeze")
+    meta = {
+        "uci_id": 245,
+        "url": "https://archive.ics.uci.edu/dataset/245",
+        "n_rows": len(X),
+        "n_features": X.shape[1],
+        "classes": sorted(y.unique().tolist()),
+        "class_counts": y.value_counts().to_dict(),
+        "class_names": {"0": "no_freezing", "1": "freezing_of_gait"},
+        "description": "Ankle/wearable sensors, 8 Parkinson's patients; freezing-of-gait detection",
+        "preprocessing": "1.9M raw samples windowed into non-overlapping 1s epochs (mean/std features); split by subject",
+    }
+    meta["groups"] = groups
+    return X, y, meta
+
+
+def load_parkinsons_telemonitoring():
+    """UCI 189 — Parkinsons Telemonitoring (severity bands).
+
+    Target `total_UPDRS` is a regression score. For this classification
+    pipeline we bin it into quartile severity bands — a DERIVED target,
+    documented here so no one mistakes it for an original label.
+    Split by patient (subject#) to prevent leakage.
+    """
+    path = RAW / "parkinsons_telemonitoring" / "parkinsons_updrs.data"
+    if not path.exists():
+        return None
+    df = pd.read_csv(path)
+    groups = df["subject#"].tolist()
+    X = df.drop(columns=["subject#", "motor_UPDRS", "total_UPDRS"])
+    y = pd.qcut(df["total_UPDRS"], q=4, labels=[0, 1, 2, 3]).astype(int)
+    meta = {
+        "uci_id": 189,
+        "url": "https://archive.ics.uci.edu/dataset/189",
+        "n_rows": len(df),
+        "n_features": X.shape[1],
+        "classes": sorted(y.unique().tolist()),
+        "class_counts": y.value_counts().to_dict(),
+        "class_names": {"0": "severity_q1_mild", "1": "severity_q2", "2": "severity_q3", "3": "severity_q4_severe"},
+        "description": "Biomedical voice measurements + UPDRS from 42 Parkinson's patients (telemonitoring)",
+        "preprocessing": "total_UPDRS binned into quartile severity bands (DERIVED target, not an original label); split by patient",
+    }
+    meta["groups"] = groups
     return X, y, meta
 
 
@@ -176,6 +261,8 @@ LOADERS = {
     "eeg_eye_state": load_eeg_eye_state,
     "parkinsons": load_parkinsons,
     "mice_protein": load_mice_protein,
+    "daphnet_gait": load_daphnet_gait,
+    "parkinsons_telemonitoring": load_parkinsons_telemonitoring,
 }
 
 
@@ -213,15 +300,29 @@ def evaluate_dataset(name, X, y, meta):
     print(f"    classes: {meta['class_counts']}")
 
     strat = y if min(pd.Series(y).value_counts()) >= 4 else None
-    X_tr, X_te, y_tr, y_te = train_test_split(
-        X, y, test_size=0.2, random_state=RANDOM_STATE, stratify=strat
-    )
+    groups = meta.get("groups")
+    if groups is not None:
+        # Group-aware split: no subject/patient may appear in both sides.
+        gkf = StratifiedGroupKFold(n_splits=5, shuffle=True, random_state=RANDOM_STATE)
+        splits = list(gkf.split(X, y, groups))
+        hold_tr, hold_te = splits[0]
+        X_tr, X_te = X.iloc[hold_tr], X.iloc[hold_te]
+        y_tr, y_te = y.iloc[hold_tr], y.iloc[hold_te]
+    else:
+        X_tr, X_te, y_tr, y_te = train_test_split(
+            X, y, test_size=0.2, random_state=RANDOM_STATE, stratify=strat
+        )
 
-    results = {"meta": meta, "models": {}}
+    # strip the group-assignment list: it belongs to splitting, not metadata
+    results = {"meta": {k: v for k, v in meta.items() if k != "groups"}, "models": {}}
     best_name, best_score = None, -1.0
 
     for model_name, estimator in build_models().items():
-        pipe = Pipeline([("scaler", StandardScaler()), ("clf", estimator)])
+        pipe = Pipeline([
+            ("imputer", SimpleImputer(strategy="median")),
+            ("scaler", StandardScaler()),
+            ("clf", estimator),
+        ])
         pipe.fit(X_tr, y_tr)
         pred = pipe.predict(X_te)
         acc = accuracy_score(y_te, pred)
@@ -238,10 +339,19 @@ def evaluate_dataset(name, X, y, meta):
 
         # 5-fold CV accuracy (honest generalisation estimate)
         try:
-            cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=RANDOM_STATE)
+            if groups is not None:
+                cv = StratifiedGroupKFold(n_splits=5, shuffle=True, random_state=RANDOM_STATE)
+                cv_kwargs = {"groups": groups}
+            else:
+                cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=RANDOM_STATE)
+                cv_kwargs = {}
             cv_scores = cross_val_score(
-                Pipeline([("scaler", StandardScaler()), ("clf", estimator)]),
-                X, y, cv=cv, scoring="accuracy", n_jobs=-1,
+                Pipeline([
+                    ("imputer", SimpleImputer(strategy="median")),
+                    ("scaler", StandardScaler()),
+                    ("clf", estimator),
+                ]),
+                X, y, cv=cv, scoring="accuracy", n_jobs=-1, **cv_kwargs,
             )
             entry["cv5_accuracy_mean"] = round(float(cv_scores.mean()), 4)
             entry["cv5_accuracy_std"] = round(float(cv_scores.std()), 4)
@@ -249,8 +359,6 @@ def evaluate_dataset(name, X, y, meta):
             entry["cv5_accuracy_mean"] = None
 
         results["models"][model_name] = entry
-        if entry["cv5_accuracy_mean"] or 0 > best_score:
-            pass
         if (entry["cv5_accuracy_mean"] or 0) >= best_score:
             best_score = entry["cv5_accuracy_mean"] or 0
             best_name = model_name
@@ -260,7 +368,11 @@ def evaluate_dataset(name, X, y, meta):
 
     # persist the best model + full test report of it
     best_est = build_models()[best_name]
-    pipe = Pipeline([("scaler", StandardScaler()), ("clf", best_est)])
+    pipe = Pipeline([
+        ("imputer", SimpleImputer(strategy="median")),
+        ("scaler", StandardScaler()),
+        ("clf", best_est),
+    ])
     pipe.fit(X_tr, y_tr)
     pred = pipe.predict(X_te)
     report = classification_report(y_te, pred, output_dict=True, zero_division=0)

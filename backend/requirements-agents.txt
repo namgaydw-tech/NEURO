@@ -1,0 +1,16 @@
+# Optional agent-stack dependencies for the AI agent pipeline
+# (LangGraph accuracy workflow + OpenAI Agent SDK reasoning + CrewAI structuring).
+# The core backend runs without these; /api/v1/agents/pipeline imports them lazily.
+#
+#   pip install -r backend/requirements-agents.txt
+#
+# LLM-backed stages additionally require OPENAI_API_KEY in the environment.
+# Without it, both LLM stages return deterministic output labelled
+# mode="fallback_no_api_key" — they never impersonate model output.
+
+langgraph>=1.0
+openai>=1.60
+openai-agents>=0.20
+crewai>=0.100
+xlrd>=2.0          # Mice Protein (legacy .xls) loader
+scipy>=1.10        # EEG Eye State (.arff) loader

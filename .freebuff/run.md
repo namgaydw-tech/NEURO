@@ -1,69 +1,79 @@
-# NEURO_PREDICT_SYS — Run Documentation
+# NEURO_PREDICT_SYS — Run Doc
 
 ## Architecture
 
-- **Frontend**: Pure HTML + Tailwind CSS (CDN) — standalone `code.html` files per module
-- **Backend**: Python FastAPI with in-memory demo mode (or Supabase for production)
-- **ML Engine**: scikit-learn prediction engine (demo mode when no trained model)
+Two-tier architecture:
+
+1. **Frontend** — Static Node.js server (port 3001 for preview, port 3000 for HTTPS)
+2. **Backend** — FastAPI + uvicorn (port 8000) — optional, only needed for live ML predictions
+
+### Frontend Design System
+
+The new production UI lives in:
+- `shared/design-system.css` — Tokens, typography, spacing, components, dark/light themes
+- `shared/layout.css` — Adaptive shell: sidebar (desktop) → drawer + bottom nav (mobile)
+- `shared/layout.js` — Theme, drawer, offline banner, page detection
+- `shared/ui.js` — Toasts, escaping, safe DOM, formatting, dialogs
+- `shared/auth.js` — Auth state (Clerk + JWT + auto-demo-login)
+- `shared/api.js` — HTTP client with auth headers
+
+### Pages Using New Design System
+- `landing/index.html` — Public landing page (hero, features, how-it-works, CTA)
+- `app/dashboard.html` — Clinical dashboard (KPIs, patients, activity, theaters)
+
+### Pages Using Original Cyberpunk Style
+- `ai_analysis/code.html` — AI Analysis (BrainLat + DARWIN)
+- `prediction_command_center_v1/code.html` — Disease prediction vectors
+- `final_diagnosis_report_v1/code.html` — Diagnosis reports
+- `research_papers_1/code.html` — Research papers
+- All other module pages
+
+## How to Reproduce Artifacts
+
+1. Copy `.env` from main checkout if needed
+2. SSL certs: `certs/cert.pem` and `certs/key.pem` exist (self-signed, 365 days)
+3. No build step — static files served directly
 
 ## How to Run
 
-### Backend API Server (Port 8000)
-
+### HTTP (for preview)
 ```bash
-# From project root
+HTTPS=false PORT=3001 node server.js
+```
+
+### HTTPS (local dev with self-signed certs)
+```bash
+PORT=3000 node server.js
+# → https://127.0.0.1:3000/
+```
+
+### Backend (optional — for live ML predictions)
+```bash
 cd backend
-../backend/venv/Scripts/python.exe -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+set JWT_SECRET=your-secret
+python app.py
+# → http://127.0.0.1:8000
 ```
 
-### Frontend Static Server (Port 3001)
+## Available Pages
 
-```bash
-# From project root — uses npx serve
-npx serve -l 3001 -C .
-```
+| URL | Page | Design System |
+|-----|------|---------------|
+| `/` | Landing page | New (production) |
+| `/app/dashboard.html` | Clinical dashboard | New (production) |
+| `/ai_analysis/code.html` | AI Analysis | Original (cyberpunk) |
+| `/prediction_command_center_v1/code.html` | Prediction Center | Original |
+| `/final_diagnosis_report_v1/code.html` | Diagnosis Report | Original |
+| `/research_papers_1/code.html` | Research Papers | Original |
+| `/neural_archive_eeg_interpreter/code.html` | EEG Archive | Original |
+| `/ot_scheduling_login/code.html` | OT Scheduling | Original |
+| `/3fa_pharmacy_login/code.html` | Pharmacy | Original |
+| `/pharmacist_login/code.html` | Pharmacist Portal | Original |
+| `/neurosurgery_login/code.html` | Neurosurgery | Original |
+| `/medical_history_login/code.html` | Medical History | Original |
 
-### Access
+## Current Preview
 
-- **Frontend Hub**: http://127.0.0.1:3001/
-- **Backend API**: http://127.0.0.1:8000/api/v1
-- **API Docs (Swagger)**: http://127.0.0.1:8000/docs
-
-## Demo Accounts
-
-| Email | Password | Role |
-|-------|----------|------|
-| admin@neuropredict.sys | admin123 | Admin |
-| neuro@neuropredict.sys | neuro123 | Neurologist |
-| pharma@neuropredict.sys | pharma123 | Pharmacist |
-| surgery@neuropredict.sys | surgery123 | Surgeon |
-| research@neuropredict.sys | research123 | Researcher |
-| demo@neuropredict.sys | demo123 | Demo User |
-
-## Environment Setup
-
-### Reproduce Artifacts (Fresh Checkout)
-1. Create Python venv: `py.exe -m venv backend/venv`
-2. Install deps: `backend/venv/Scripts/pip.exe install -r backend/requirements.txt`
-3. Downgrade bcrypt: `backend/venv/Scripts/pip.exe install "bcrypt==4.0.1"`
-4. Copy `.env` from main checkout (or create from `.env.example`)
-
-### Production (Supabase)
-1. Create Supabase project at https://supabase.com
-2. Run `backend/supabase_schema.sql` in SQL Editor
-3. Set `SUPABASE_URL` and `SUPABASE_KEY` in `.env`
-
-## Backend API Endpoints
-
-- `POST /api/v1/auth/login` — Login with email/password
-- `POST /api/v1/auth/register` — Register new user
-- `GET /api/v1/auth/demo-accounts` — List demo accounts
-- `GET /api/v1/patients` — List patients (paginated)
-- `POST /api/v1/patients` — Create patient
-- `GET /api/v1/diagnoses` — List diagnoses
-- `POST /api/v1/diagnoses` — Create diagnosis
-- `POST /api/v1/analysis/predict` — Run AI disease prediction
-- `POST /api/v1/eeg/record` — Record & analyze EEG data
-- `GET /api/v1/research` — Search research papers
-- `GET /api/v1/medications` — List medications
-- `GET /api/v1/dashboard/stats` — Dashboard statistics
+- **Port**: 3001 (HTTP)
+- **Landing**: http://127.0.0.1:3001/
+- **Dashboard**: http://127.0.0.1:3001/app/dashboard.html

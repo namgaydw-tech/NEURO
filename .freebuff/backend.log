@@ -1,51 +1,42 @@
-[ML] No trained model found — using demo prediction engine
+[WARNING] Auto-generated JWT_SECRET for development. Set JWT_SECRET env var.
+[ML] Loaded trained model: Random Forest
+[ML] Accuracy: 0.9359, F1: 0.9332
 
 ============================================================
-  NEURO_PREDICT_SYS v1.0.0
+  NEURO_PREDICT_SYS v3.0.0
   Mode: DEMO (in-memory)
+  Clerk: DISABLED
+  Anti-Hallucination: ON
   API: http://localhost:8000/api/v1
+  WS:  ws://localhost:8000/ws/{module}
 ============================================================
 
+[DB] Using in-memory database (demo mode)
 [SEED] Inserted 10 demo patients
 [SEED] Inserted 10 demo diagnoses
 [SEED] Inserted 6 demo research papers
 [SEED] Inserted 10 demo medications
 [SEED] Inserted 4 demo EEG recordings
 [SEED] All demo data seeded successfully
-INFO:     127.0.0.1:56097 - "GET /docs HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56098 - "GET /api/v1/auth/demo-accounts HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56100 - "POST /api/v1/auth/login HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56101 - "GET /api/v1/patients HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56102 - "GET /api/v1/diagnoses HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56103 - "GET /api/v1/research HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56104 - "GET /api/v1/medications HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56105 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56106 - "POST /api/v1/analysis/predict HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55943 - "GET /api/v1/dashboard/stats HTTP/1.1" 401 Unauthorized
-INFO:     127.0.0.1:57145 - "GET /api/v1/auth/demo-accounts HTTP/1.1" 200 OK
-INFO:     127.0.0.1:50906 - "GET /api/v1/auth/demo-accounts HTTP/1.1" 200 OK
-INFO:     127.0.0.1:50907 - "GET /api/v1/auth/demo-accounts HTTP/1.1" 200 OK
-INFO:     127.0.0.1:50921 - "OPTIONS /api/v1/auth/login HTTP/1.1" 200 OK
-INFO:     127.0.0.1:50921 - "POST /api/v1/auth/login HTTP/1.1" 200 OK
-INFO:     127.0.0.1:50924 - "OPTIONS /api/v1/dashboard/stats HTTP/1.1" 200 OK
-INFO:     127.0.0.1:50924 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
-INFO:     127.0.0.1:50924 - "OPTIONS /api/v1/dashboard/activity HTTP/1.1" 200 OK
-INFO:     127.0.0.1:50924 - "GET /api/v1/dashboard/activity HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64479 - "OPTIONS /api/v1/dashboard/stats HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64479 - "GET /api/v1/dashboard/stats HTTP/1.1" 401 Unauthorized
-INFO:     127.0.0.1:64479 - "GET /api/v1/auth/demo-accounts HTTP/1.1" 200 OK
-INFO:     127.0.0.1:51599 - "OPTIONS /api/v1/auth/login HTTP/1.1" 200 OK
-INFO:     127.0.0.1:51599 - "POST /api/v1/auth/login HTTP/1.1" 200 OK
-INFO:     127.0.0.1:51599 - "OPTIONS /api/v1/dashboard/stats HTTP/1.1" 200 OK
-INFO:     127.0.0.1:51599 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
-INFO:     127.0.0.1:51599 - "OPTIONS /api/v1/dashboard/activity HTTP/1.1" 200 OK
-INFO:     127.0.0.1:51599 - "GET /api/v1/dashboard/activity HTTP/1.1" 200 OK
-INFO:     127.0.0.1:65043 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
-INFO:     127.0.0.1:65043 - "GET /api/v1/dashboard/activity HTTP/1.1" 200 OK
-INFO:     127.0.0.1:65043 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
-INFO:     127.0.0.1:65043 - "GET /api/v1/dashboard/activity HTTP/1.1" 200 OK
-INFO:     127.0.0.1:49674 - "GET /docs HTTP/1.1" 200 OK
-INFO:     127.0.0.1:49675 - "POST /api/v1/auth/login HTTP/1.1" 200 OK
-INFO:     127.0.0.1:49676 - "POST /api/v1/auth/login HTTP/1.1" 200 OK
-INFO:     127.0.0.1:49677 - "POST /api/v1/auth/login HTTP/1.1" 200 OK
-INFO:     127.0.0.1:49678 - "POST /api/v1/analysis/predict HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56917 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56930 - "GET /api/v1/auth/demo-login?email=admin@neuropredict.local HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:56931 - "GET /api/v1/auth/demo-login?email=admin@neuropredict.local HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:56943 - "GET /api/v1/auth/demo-login?email=admin@neuropredict.sys HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56944 - "POST /api/v1/agents/pipeline HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56946 - "POST /api/v1/agents/pipeline HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:56947 - "GET /api/v1/auth/demo-login?email=pharma@neuropredict.sys HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56948 - "POST /api/v1/agents/pipeline HTTP/1.1" 403 Forbidden
+INFO:     127.0.0.1:56949 - "POST /api/v1/agents/pipeline HTTP/1.1" 422 Unprocessable Content
+INFO:     127.0.0.1:56954 - "GET /api/v1/auth/demo-login?email=neuro@neuropredict.sys HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56955 - "POST /api/v1/agents/pipeline HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56956 - "POST /api/v1/agents/pipeline HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63626 - "OPTIONS /api/v1/auth/demo-login?email=admin%40neuropredict.sys HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63626 - "GET /api/v1/auth/demo-login?email=admin%40neuropredict.sys HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63626 - "OPTIONS /api/v1/patients?per_page=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63626 - "GET /api/v1/patients?per_page=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63626 - "OPTIONS /api/v1/dashboard/activity HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63626 - "GET /api/v1/dashboard/activity HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63626 - "OPTIONS /api/v1/dashboard/stats HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63626 - "GET /api/v1/dashboard/stats HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62684 - "OPTIONS /api/v1/patients?per_page=50 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62684 - "GET /api/v1/patients?per_page=50 HTTP/1.1" 200 OK

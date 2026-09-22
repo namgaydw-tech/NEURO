@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-20T08:47:01.052743+00:00",
+  "generated_at": "2026-09-22T11:08:08.018725+00:00",
   "data_provenance": "100% real datasets from the UCI Machine Learning Repository",
   "datasets": {
     "beed_epilepsy": {
@@ -277,6 +277,402 @@
         ]
       ],
       "artifact": "uci_parkinsons_model.pkl"
+    },
+    "mice_protein": {
+      "meta": {
+        "uci_id": 342,
+        "url": "https://archive.ics.uci.edu/dataset/342",
+        "n_rows": 1080,
+        "n_features": 80,
+        "classes": [
+          "c-CS-m",
+          "c-CS-s",
+          "c-SC-m",
+          "c-SC-s",
+          "t-CS-m",
+          "t-CS-s",
+          "t-SC-m",
+          "t-SC-s"
+        ],
+        "class_counts": {
+          "c-CS-m": 150,
+          "c-SC-m": 150,
+          "c-CS-s": 135,
+          "c-SC-s": 135,
+          "t-CS-m": 135,
+          "t-SC-m": 135,
+          "t-SC-s": 135,
+          "t-CS-s": 105
+        },
+        "description": "77 protein expression levels; 8-class genotype/behavior groups",
+        "preprocessing": "missing protein levels median-imputed within class; split by mouse (no mouse in both train and test)"
+      },
+      "models": {
+        "random_forest": {
+          "accuracy": 0.6178,
+          "f1_weighted": 0.6169,
+          "cv5_accuracy_mean": 0.5888,
+          "cv5_accuracy_std": 0.0693
+        },
+        "gradient_boosting": {
+          "accuracy": 0.6178,
+          "f1_weighted": 0.6061,
+          "cv5_accuracy_mean": 0.5678,
+          "cv5_accuracy_std": 0.0745
+        },
+        "logistic_regression": {
+          "accuracy": 0.7911,
+          "f1_weighted": 0.785,
+          "cv5_accuracy_mean": 0.6657,
+          "cv5_accuracy_std": 0.1007
+        }
+      },
+      "best_model": "logistic_regression",
+      "test_report": {
+        "c-CS-m": {
+          "precision": 1.0,
+          "recall": 0.4666666666666667,
+          "f1-score": 0.6363636363636364,
+          "support": 30.0
+        },
+        "c-CS-s": {
+          "precision": 0.5660377358490566,
+          "recall": 1.0,
+          "f1-score": 0.7228915662650602,
+          "support": 30.0
+        },
+        "c-SC-m": {
+          "precision": 0.9354838709677419,
+          "recall": 0.9666666666666667,
+          "f1-score": 0.9508196721311475,
+          "support": 30.0
+        },
+        "c-SC-s": {
+          "precision": 0.96,
+          "recall": 0.8,
+          "f1-score": 0.8727272727272727,
+          "support": 30.0
+        },
+        "t-CS-m": {
+          "precision": 0.6666666666666666,
+          "recall": 0.4666666666666667,
+          "f1-score": 0.5490196078431373,
+          "support": 30.0
+        },
+        "t-CS-s": {
+          "precision": 0.5294117647058824,
+          "recall": 0.6,
+          "f1-score": 0.5625,
+          "support": 15.0
+        },
+        "t-SC-m": {
+          "precision": 0.8333333333333334,
+          "recall": 1.0,
+          "f1-score": 0.9090909090909091,
+          "support": 30.0
+        },
+        "t-SC-s": {
+          "precision": 1.0,
+          "recall": 0.9333333333333333,
+          "f1-score": 0.9655172413793104,
+          "support": 30.0
+        },
+        "accuracy": 0.7911111111111111,
+        "macro avg": {
+          "precision": 0.8113666714403351,
+          "recall": 0.7791666666666667,
+          "f1-score": 0.7711162382250591,
+          "support": 225.0
+        },
+        "weighted avg": {
+          "precision": 0.830163665222632,
+          "recall": 0.7911111111111111,
+          "f1-score": 0.7850239874400632,
+          "support": 225.0
+        }
+      },
+      "confusion_matrix": [
+        [
+          14,
+          16,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          30,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          29,
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          24,
+          0,
+          0,
+          6,
+          0
+        ],
+        [
+          0,
+          7,
+          1,
+          0,
+          14,
+          8,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          6,
+          9,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          30,
+          0
+        ],
+        [
+          0,
+          0,
+          1,
+          0,
+          1,
+          0,
+          0,
+          28
+        ]
+      ],
+      "artifact": "uci_mice_protein_model.pkl"
+    },
+    "daphnet_gait": {
+      "meta": {
+        "uci_id": 245,
+        "url": "https://archive.ics.uci.edu/dataset/245",
+        "n_rows": 14975,
+        "n_features": 16,
+        "classes": [
+          0,
+          1
+        ],
+        "class_counts": {
+          "1": 8947,
+          "0": 6028
+        },
+        "class_names": {
+          "0": "no_freezing",
+          "1": "freezing_of_gait"
+        },
+        "description": "Ankle/wearable sensors, 8 Parkinson's patients; freezing-of-gait detection",
+        "preprocessing": "1.9M raw samples windowed into non-overlapping 1s epochs (mean/std features); split by subject"
+      },
+      "models": {
+        "random_forest": {
+          "accuracy": 0.7803,
+          "f1_weighted": 0.7823,
+          "roc_auc": 0.879,
+          "cv5_accuracy_mean": 0.7573,
+          "cv5_accuracy_std": 0.0486
+        },
+        "gradient_boosting": {
+          "accuracy": 0.7757,
+          "f1_weighted": 0.7771,
+          "roc_auc": 0.8616,
+          "cv5_accuracy_mean": 0.7548,
+          "cv5_accuracy_std": 0.0515
+        },
+        "logistic_regression": {
+          "accuracy": 0.7842,
+          "f1_weighted": 0.7865,
+          "roc_auc": 0.8586,
+          "cv5_accuracy_mean": 0.7613,
+          "cv5_accuracy_std": 0.0429
+        }
+      },
+      "best_model": "logistic_regression",
+      "test_report": {
+        "0": {
+          "precision": 0.6509054325955734,
+          "recall": 0.7094298245614035,
+          "f1-score": 0.6789087093389297,
+          "support": 912.0
+        },
+        "1": {
+          "precision": 0.8561346362649295,
+          "recall": 0.8196465696465697,
+          "f1-score": 0.8374933616569304,
+          "support": 1924.0
+        },
+        "accuracy": 0.7842031029619182,
+        "macro avg": {
+          "precision": 0.7535200344302515,
+          "recall": 0.7645381971039866,
+          "f1-score": 0.75820103549793,
+          "support": 2836.0
+        },
+        "weighted avg": {
+          "precision": 0.7901370926307782,
+          "recall": 0.7842031029619182,
+          "f1-score": 0.7864957583727213,
+          "support": 2836.0
+        }
+      },
+      "confusion_matrix": [
+        [
+          647,
+          265
+        ],
+        [
+          347,
+          1577
+        ]
+      ],
+      "artifact": "uci_daphnet_gait_model.pkl"
+    },
+    "parkinsons_telemonitoring": {
+      "meta": {
+        "uci_id": 189,
+        "url": "https://archive.ics.uci.edu/dataset/189",
+        "n_rows": 5875,
+        "n_features": 19,
+        "classes": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "class_counts": {
+          "0": 1474,
+          "2": 1468,
+          "1": 1467,
+          "3": 1466
+        },
+        "class_names": {
+          "0": "severity_q1_mild",
+          "1": "severity_q2",
+          "2": "severity_q3",
+          "3": "severity_q4_severe"
+        },
+        "description": "Biomedical voice measurements + UPDRS from 42 Parkinson's patients (telemonitoring)",
+        "preprocessing": "total_UPDRS binned into quartile severity bands (DERIVED target, not an original label); split by patient"
+      },
+      "models": {
+        "random_forest": {
+          "accuracy": 0.2675,
+          "f1_weighted": 0.2417,
+          "cv5_accuracy_mean": 0.2675,
+          "cv5_accuracy_std": 0.0178
+        },
+        "gradient_boosting": {
+          "accuracy": 0.3472,
+          "f1_weighted": 0.2887,
+          "cv5_accuracy_mean": 0.299,
+          "cv5_accuracy_std": 0.0819
+        },
+        "logistic_regression": {
+          "accuracy": 0.295,
+          "f1_weighted": 0.2801,
+          "cv5_accuracy_mean": 0.2347,
+          "cv5_accuracy_std": 0.0414
+        }
+      },
+      "best_model": "gradient_boosting",
+      "test_report": {
+        "0": {
+          "precision": 0.6033519553072626,
+          "recall": 0.9585798816568047,
+          "f1-score": 0.7405714285714285,
+          "support": 338.0
+        },
+        "1": {
+          "precision": 0.07462686567164178,
+          "recall": 0.05660377358490566,
+          "f1-score": 0.06437768240343347,
+          "support": 265.0
+        },
+        "2": {
+          "precision": 0.27040816326530615,
+          "recall": 0.2190082644628099,
+          "f1-score": 0.2420091324200913,
+          "support": 242.0
+        },
+        "3": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 284.0
+        },
+        "accuracy": 0.34720992028343667,
+        "macro avg": {
+          "precision": 0.23709674606105263,
+          "recall": 0.3085479799261301,
+          "f1-score": 0.26173956084873834,
+          "support": 1129.0
+        },
+        "weighted avg": {
+          "precision": 0.25610970399206723,
+          "recall": 0.34720992028343667,
+          "f1-score": 0.2886974656684808,
+          "support": 1129.0
+        }
+      },
+      "confusion_matrix": [
+        [
+          324,
+          2,
+          12,
+          0
+        ],
+        [
+          203,
+          15,
+          11,
+          36
+        ],
+        [
+          0,
+          30,
+          53,
+          159
+        ],
+        [
+          10,
+          154,
+          120,
+          0
+        ]
+      ],
+      "artifact": "uci_parkinsons_telemonitoring_model.pkl"
     }
   },
   "disclaimer": "Research/educational models trained on public non-clinical-use datasets. NOT clinically validated. NOT for medical decision-making."
